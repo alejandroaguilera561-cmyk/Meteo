@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Sistema Meteorológico</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="manifest" href="manifest.json">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+
+<style>
+body{
+ margin:0;
+ font-family:'Segoe UI';
+ background:url('https://images.unsplash.com/photo-1506744038136-46273834b3fb') no-repeat center/cover;
+}
+
+/* 🔥 CONTENEDOR PRINCIPAL (CLAVE) */
+.app{
+ background:rgba(0,0,0,0.55);
+ min-height:100vh;
+ padding:10px;
+ color:white;
+ overflow-y:auto;
+}
+
+/* tarjetas */
+.dashboard{
+ display:grid;
+ grid-template-columns:1fr 1fr;
+ gap:10px;
+}
+.card{
+ background:rgba(255,255,255,0.15);
+ padding:12px;
+ border-radius:12px;
+}
+
+/* mapa */
+#mapa{
+ height:160px;
+ width:100%;
+ border-radius:15px;
+ margin-top:10px;
+}
+
+/* scroll */
+.scroll{
+ display:flex;
+ overflow-x:auto;
+ gap:8px;
+ padding:10px 0;
+}
+.bloque{
+ background:rgba(255,255,255,0.2);
+ padding:10px;
+ border-radius:10px;
+ min-width:90px;
+}
+
+/* IA */
+#explicacion{
+ background:rgba(0,0,0,0.6);
+ padding:10px;
+ border-radius:10px;
+ margin:10px 0;
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<h2>🌦️ Sistema Meteorológico</h2>
+
+<button onclick="activarVoz()">🔊 Voz</button>
+<button onclick="toggleUbicacion()">📍 Ubicación</button>
+
+<div class="dashboard">
+<div class="card" id="temp"></div>
+<div class="card" id="hum"></div>
+<div class="card" id="v
