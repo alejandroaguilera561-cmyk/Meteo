@@ -2,10 +2,8 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Sistema Meteorológico</title>
+<title>Sistema Meteorológico Inteligente</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
-<link rel="manifest" href="manifest.json">
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -15,55 +13,44 @@
 body{
  margin:0;
  font-family:'Segoe UI';
+ color:white;
+ text-align:center;
  background:url('https://images.unsplash.com/photo-1506744038136-46273834b3fb') no-repeat center/cover;
 }
 
-/* 🔥 CONTENEDOR PRINCIPAL (CLAVE) */
 .app{
- background:rgba(0,0,0,0.55);
+ background:rgba(0,0,0,0.6);
  min-height:100vh;
  padding:10px;
- color:white;
- overflow-y:auto;
 }
 
-/* tarjetas */
 .dashboard{
  display:grid;
  grid-template-columns:1fr 1fr;
  gap:10px;
 }
+
 .card{
- background:rgba(255,255,255,0.15);
+ background:rgba(255,255,255,0.2);
  padding:12px;
  border-radius:12px;
 }
 
-/* mapa */
+button{
+ margin:5px;
+ padding:8px;
+ border:none;
+ border-radius:8px;
+}
+
 #mapa{
- height:160px;
- width:100%;
- border-radius:15px;
+ height:180px;
  margin-top:10px;
-}
-
-/* scroll */
-.scroll{
- display:flex;
- overflow-x:auto;
- gap:8px;
- padding:10px 0;
-}
-.bloque{
- background:rgba(255,255,255,0.2);
- padding:10px;
  border-radius:10px;
- min-width:90px;
 }
 
-/* IA */
 #explicacion{
- background:rgba(0,0,0,0.6);
+ background:rgba(0,0,0,0.7);
  padding:10px;
  border-radius:10px;
  margin:10px 0;
@@ -75,12 +62,133 @@ body{
 
 <div class="app">
 
-<h2>🌦️ Sistema Meteorológico</h2>
+<h2>🌦️ Sistema Meteorológico Inteligente</h2>
 
 <button onclick="activarVoz()">🔊 Voz</button>
 <button onclick="toggleUbicacion()">📍 Ubicación</button>
 
 <div class="dashboard">
-<div class="card" id="temp"></div>
-<div class="card" id="hum"></div>
-<div class="card" id="v
+<div class="card" id="temp">--</div>
+<div class="card" id="sensacion">--</div>
+<div class="card" id="hum">--</div>
+<div class="card" id="viento">--</div>
+<div class="card" id="uv">--</div>
+<div class="card" id="lluvia">--</div>
+</div>
+
+<div id="explicacion">Cargando clima...</div>
+
+<canvas id="grafico"></canvas>
+<div id="mapa"></div>
+
+</div>
+
+<script>
+let lat=-25.3, lon=-57.6;
+let vozActiva=false;
+
+// activar voz
+function activarVoz(){
+ vozActiva=true;
+ alert("Voz activada");
+}
+
+function hablar(t){
+ if(!vozActiva) return;
+ let m=new SpeechSynthesisUtterance(t);
+ m.lang="es-ES";
+ speechSynthesis.speak(m);
+}
+
+// ubicación
+function toggleUbicacion(){
+ navigator.geolocation.getCurrentPosition(p=>{
+  lat=p.coords.latitude;
+  lon=p.coords.longitude;
+  mapa.setView([lat,lon],10);
+ });
+}
+
+// gráfico
+let chart=new Chart(document.getElementById("grafico"),{
+ type:'line',
+ data:{labels:[],datasets:[{label:"Temperatura °C",data:[],borderWidth:2,tension:0.4}]}
+});
+
+// IA
+function explicar(temp,lluvia,uv){
+ let t="";
+ if(lluvia>70) t="Alta probabilidad de lluvia.";
+ else if(lluvia>40) t="Posibles lluvias.";
+ else if(temp>35) t="Hace mucho calor.";
+ else if(temp<5) t="Hace frío.";
+ else t="Clima estable.";
+
+ if(uv>7) t+=" Radiación UV alta.";
+
+ document.getElementById("explicacion").innerText=t;
+ hablar(t);
+}
+
+// fondo dinámico
+function fondo(lluvia,temp){
+ if(lluvia>60){
+  document.body.style.backgroundImage="url('https://images.unsplash.com/photo-1501696461440-e6b7f5f9a8d9')";
+ }else if(temp>30){
+  document.body.style.backgroundImage="url('https://images.unsplash.com/photo-1501973801540-537f08ccae7b')";
+ }else{
+  document.body.style.backgroundImage="url('https://images.unsplash.com/photo-1506744038136-46273834b3fb')";
+ }
+}
+
+// clima
+async function clima(){
+ try{
+  let r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=relativehumidity_2m,precipitation_probability,apparent_temperature,uv_index&timezone=auto`);
+  let d=await r.json();
+
+  let temp=d.current_weather.temperature;
+  let viento=d.current_weather.windspeed;
+  let hum=d.hourly.relativehumidity_2m[0];
+  let lluvia=d.hourly.precipitation_probability[0];
+  let sensacion=d.hourly.apparent_temperature[0];
+  let uv=d.hourly.uv_index[0];
+
+  document.getElementById("temp").innerText="🌡️ "+temp+"°C";
+  document.getElementById("sensacion").innerText="🥵 "+sensacion+"°C";
+  document.getElementById("hum").innerText="💧 "+hum+"%";
+  document.getElementById("viento").innerText="🌬️ "+viento+" km/h";
+  document.getElementById("uv").innerText="☀️ UV "+uv;
+  document.getElementById("lluvia").innerText="🌧️ "+lluvia+"%";
+
+  explicar(temp,lluvia,uv);
+  fondo(lluvia,temp);
+
+  chart.data.labels.push(new Date().toLocaleTimeString());
+  chart.data.datasets[0].data.push(temp);
+
+  if(chart.data.labels.length>10){
+   chart.data.labels.shift();
+   chart.data.datasets[0].data.shift();
+  }
+
+  chart.update();
+
+ }catch(e){
+  document.getElementById("explicacion").innerText="Error al cargar clima";
+  console.log(e);
+ }
+}
+
+// ejecutar
+clima();
+setInterval(clima,5000);
+
+// mapa
+let mapa=L.map('mapa').setView([lat,lon],10);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapa);
+
+</script>
+
+</body>
+</html>
