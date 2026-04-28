@@ -1,12 +1,9 @@
-const CACHE = "meteo-v3";
+const CACHE = "meteo-v5";
 
 self.addEventListener("install", e=>{
  e.waitUntil(
   caches.open(CACHE).then(cache=>{
-   return cache.addAll([
-    "./",
-    "./index.html"
-   ]);
+   return cache.addAll(["./","./index.html"]);
   })
  );
 });
