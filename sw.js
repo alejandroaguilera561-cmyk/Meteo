@@ -1,4 +1,4 @@
-const CACHE = "meteo-v2";
+const CACHE = "meteo-v3";
 
 self.addEventListener("install", e=>{
  e.waitUntil(
