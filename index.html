@@ -21,6 +21,13 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
+
+// 🔥 REGISTRAR SERVICE WORKER (CLAVE)
+if ('serviceWorker' in navigator) {
+ navigator.serviceWorker.register('/firebase-messaging-sw.js')
+ .then(reg => console.log("SW OK"))
+ .catch(err => console.log("SW ERROR", err));
+}
 </script>
 
 <style>
@@ -82,7 +89,7 @@ button{
 
 let lat=-25.3, lon=-57.6;
 
-// 🔔 PUSH REAL (VISIBLE EN CELULAR)
+// 🔔 PUSH REAL
 async function activarPushReal(){
 
  const permiso = await Notification.requestPermission();
