@@ -5,7 +5,7 @@
 <title>Meteo MAX PRO</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<!-- Firebase -->
+<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js"></script>
 
@@ -23,34 +23,47 @@ firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-
 <style>
-body{margin:0;font-family:'Segoe UI';color:white;text-align:center;transition:1s;}
-.frio{background:linear-gradient(#1e3a8a,#020617);}
-.templado{background:linear-gradient(#0f172a,#020617);}
-.calor{background:linear-gradient(#7f1d1d,#020617);}
+body{
+ margin:0;
+ font-family:'Segoe UI';
+ color:white;
+ text-align:center;
+ background:#0f172a;
+}
 
-.dashboard{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.card{background:rgba(255,255,255,0.1);padding:10px;border-radius:10px;}
+button{
+ margin:5px;
+ padding:10px;
+ border:none;
+ border-radius:10px;
+}
 
-#pronostico,#horas{display:flex;overflow-x:auto;gap:10px;}
-.day{background:rgba(255,255,255,0.1);padding:10px;border-radius:10px;min-width:100px;}
+#pronostico,#horas{
+ display:flex;
+ gap:10px;
+ overflow-x:auto;
+}
+
+.day{
+ background:rgba(255,255,255,0.1);
+ padding:10px;
+ border-radius:10px;
+ min-width:100px;
+}
 </style>
 </head>
 
-<body class="templado">
+<body>
 
 <h2>🌦️ Meteo MAX PRO</h2>
 
-<button onclick="activarPushReal()">📡 Activar Push</button>
+<button onclick="activarPushReal()">📡 Activar Push REAL</button>
 
-<div id="temp"></div>
-<div id="sensacion"></div>
+<h3 id="temp">--</h3>
+<h3 id="sensacion">--</h3>
 
-<div id="explicacion"></div>
+<div id="explicacion">Cargando...</div>
 
 <h3>⏰ Hoy</h3>
 <div id="horas"></div>
@@ -59,19 +72,32 @@ body{margin:0;font-family:'Segoe UI';color:white;text-align:center;transition:1s
 <div id="pronostico"></div>
 
 <script>
+
 let lat=-25.3, lon=-57.6;
 
 // 🔔 PUSH REAL
 async function activarPushReal(){
+
  const permiso = await Notification.requestPermission();
- if(permiso!=="granted") return alert("Permiso denegado");
 
- const token = await messaging.getToken({
-  vapidKey: "ACA_TU_VAPID_KEY"
- });
+ if(permiso !== "granted"){
+  alert("Permiso denegado");
+  return;
+ }
 
- console.log("TOKEN:",token);
- alert("Push activado");
+ try{
+
+  const token = await messaging.getToken({
+   vapidKey: "BIsNs4Q0gW28FvBFl_79u9s2mBDemIIyhQPY83n2IsRyrMkpl0_uf61OCHSyVXovxv4clhJ9jZSlBu1hIsDmhmw"
+  });
+
+  console.log("TOKEN:", token);
+  alert("Push activado correctamente");
+
+ }catch(e){
+  console.log("Error:", e);
+ }
+
 }
 
 // EMOJI
@@ -85,14 +111,21 @@ function emojiTemp(t){
 
 // MENSAJE
 function explicar(temp,lluvia){
- let txt=temp<10?"Hace frío":"Clima normal";
- if(lluvia>60) txt+=" y puede llover";
+ let txt="";
+
+ if(temp<10) txt="Hace frío, abrígate.";
+ else if(temp>30) txt="Hace mucho calor.";
+ else txt="Clima normal.";
+
+ if(lluvia>60) txt+=" Llevá paraguas.";
+
  document.getElementById("explicacion").innerText=txt;
 }
 
 // CLIMA
 async function clima(){
- let r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&hourly=temperature_2m,precipitation_probability&timezone=auto`);
+
+ let r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&daily=temperature_2m_max,temperature_2m_min&hourly=temperature_2m,precipitation_probability&timezone=auto`);
  let d=await r.json();
 
  let temp=d.current_weather.temperature;
@@ -106,7 +139,7 @@ async function clima(){
  // HORAS
  let horasDiv=document.getElementById("horas");
  horasDiv.innerHTML="";
- [["Mañana",8],["Tarde",14],["Noche",20]].forEach(b=>{
+ [["🌅 Mañana",8],["🌇 Tarde",14],["🌙 Noche",20]].forEach(b=>{
   let t=d.hourly.temperature_2m[b[1]];
   horasDiv.innerHTML+=`<div class="day">${b[0]}<br>${emojiTemp(t)} ${t}°</div>`;
  });
@@ -117,10 +150,12 @@ async function clima(){
  d.daily.time.forEach((dia,i)=>{
   cont.innerHTML+=`<div class="day">${dia.slice(5)}<br>🌡️${d.daily.temperature_2m_max[i]}°<br>❄️${d.daily.temperature_2m_min[i]}°</div>`;
  });
+
 }
 
 clima();
 setInterval(clima,30000);
+
 </script>
 
 </body>
