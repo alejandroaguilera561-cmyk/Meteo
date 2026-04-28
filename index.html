@@ -65,10 +65,10 @@ body{margin:0;font-family:'Segoe UI';color:white;text-align:center;transition:1s
 <script>
 let lat=-25.3, lon=-57.6;
 
-// PROMEDIO INTELIGENTE
+// PROMEDIO
 function promedio(arr,n=6){
  let suma=0;
- for(let i=0;i<n;i++) suma+=arr[i];
+ for(let i=0;i<n;i++) suma+=arr[i] || 0;
  return Math.round(suma/n);
 }
 
@@ -78,13 +78,13 @@ function activarVoz(){
  speechSynthesis.speak(new SpeechSynthesisUtterance(texto));
 }
 
-// UBICACIÓN REAL
+// UBICACIÓN
 function toggleUbicacion(){
  navigator.geolocation.getCurrentPosition(p=>{
   lat=p.coords.latitude;
   lon=p.coords.longitude;
   mapa.setView([lat,lon],10);
-  clima(); // 🔥 mejora precisión
+  clima();
  });
 }
 
@@ -106,78 +106,96 @@ function explicar(temp,lluvia){
  document.getElementById("explicacion").innerText=t;
 }
 
-// GRÁFICO
+// GRÁFICO MEJORADO
 let chart=new Chart(document.getElementById("grafico"),{
  type:'line',
- data:{labels:[],datasets:[{label:"Temp °C",data:[]}]}
+ data:{
+  labels:[],
+  datasets:[{
+    label:"Temp °C",
+    data:[],
+    tension:0.4
+  }]
+ },
+ options:{
+  responsive:true,
+  plugins:{legend:{display:true}},
+  scales:{y:{beginAtZero:false}}
+ }
 });
 
-// CLIMA
+// CLIMA (ARREGLADO)
 async function clima(){
- let r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}
- &current_weather=true
- &daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum
- &hourly=temperature_2m,relativehumidity_2m,precipitation_probability,apparent_temperature,uv_index,windspeed_10m,windgusts_10m
- &timezone=auto`);
+ try{
+  let url=`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum&hourly=temperature_2m,relativehumidity_2m,precipitation_probability,apparent_temperature,uv_index,windspeed_10m,windgusts_10m&timezone=auto`;
 
- let d=await r.json();
+  let r=await fetch(url);
+  let d=await r.json();
 
- let temp=d.current_weather.temperature;
- let sens=promedio(d.hourly.apparent_temperature);
- let lluvia=promedio(d.hourly.precipitation_probability);
- let humedad=promedio(d.hourly.relativehumidity_2m);
- let uv=Math.max(...d.hourly.uv_index.slice(0,6));
- let viento=promedio(d.hourly.windspeed_10m);
+  if(!d.current_weather) throw "Error";
 
- // MOSTRAR
- tempEl=temp+"°C";
- document.getElementById("temp").innerText=tempEl;
- document.getElementById("sensacion").innerText=sens+"°C";
- document.getElementById("hum").innerText=humedad+"%";
- document.getElementById("viento").innerText=viento+" km/h";
- document.getElementById("uv").innerText=uv;
- document.getElementById("lluvia").innerText=lluvia+"%";
+  let temp=d.current_weather.temperature;
+  let sens=promedio(d.hourly.apparent_temperature);
+  let lluvia=promedio(d.hourly.precipitation_probability);
+  let humedad=promedio(d.hourly.relativehumidity_2m);
+  let uv=Math.max(...d.hourly.uv_index.slice(0,6));
+  let viento=promedio(d.hourly.windspeed_10m);
 
- alerta(temp,lluvia);
- explicar(temp,lluvia);
+  document.getElementById("temp").innerText=temp+"°C";
+  document.getElementById("sensacion").innerText=sens+"°C";
+  document.getElementById("hum").innerText=humedad+"%";
+  document.getElementById("viento").innerText=viento+" km/h";
+  document.getElementById("uv").innerText=uv;
+  document.getElementById("lluvia").innerText=lluvia+"%";
 
- // HORAS
- horas.innerHTML="";
- [["Mañana",8],["Tarde",14],["Noche",20]].forEach(b=>{
-  let t=d.hourly.temperature_2m[b[1]];
-  let l=d.hourly.precipitation_probability[b[1]];
-  horas.innerHTML+=`<div class="day">${b[0]}<br>${t}°<br>🌧️${l}%</div>`;
- });
+  alerta(temp,lluvia);
+  explicar(temp,lluvia);
 
- // PRONÓSTICO
- pronostico.innerHTML="";
- d.daily.time.forEach((dia,i)=>{
-  pronostico.innerHTML+=`<div class="day">
-  ${dia.slice(5)}<br>
-  🌡️${d.daily.temperature_2m_max[i]}°<br>
-  ❄️${d.daily.temperature_2m_min[i]}°<br>
-  🌧️${d.daily.precipitation_probability_max[i]}%
-  </div>`;
- });
+  // HORAS
+  let horasEl=document.getElementById("horas");
+  horasEl.innerHTML="";
+  [["Mañana",8],["Tarde",14],["Noche",20]].forEach(b=>{
+   let t=d.hourly.temperature_2m[b[1]];
+   let l=d.hourly.precipitation_probability[b[1]];
+   horasEl.innerHTML+=`<div class="day">${b[0]}<br>${t}°<br>🌧️${l}%</div>`;
+  });
 
- // GRÁFICO
- chart.data.labels.push(new Date().toLocaleTimeString());
- chart.data.datasets[0].data.push(temp);
- if(chart.data.labels.length>10){
-  chart.data.labels.shift();
-  chart.data.datasets[0].data.shift();
+  // PRONÓSTICO
+  let pronosticoEl=document.getElementById("pronostico");
+  pronosticoEl.innerHTML="";
+  d.daily.time.forEach((dia,i)=>{
+   pronosticoEl.innerHTML+=`<div class="day">
+    ${dia.slice(5)}<br>
+    🌡️${d.daily.temperature_2m_max[i]}°<br>
+    ❄️${d.daily.temperature_2m_min[i]}°<br>
+    🌧️${d.daily.precipitation_probability_max[i]}%
+   </div>`;
+  });
+
+  // GRÁFICO
+  chart.data.labels.push(new Date().toLocaleTimeString());
+  chart.data.datasets[0].data.push(temp);
+
+  if(chart.data.labels.length>10){
+   chart.data.labels.shift();
+   chart.data.datasets[0].data.shift();
+  }
+
+  chart.update();
+
+ }catch(e){
+  document.getElementById("alerta").innerText="Error al cargar clima";
+  console.error(e);
  }
- chart.update();
 }
 
 // MAPA
 let mapa=L.map('mapa').setView([lat,lon],10);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapa);
 
-// EJECUCIÓN
+// INICIO
 clima();
-setInterval(clima,600000); // 🔥 cada 10 min (más estable)
-
+setInterval(clima,600000);
 </script>
 
 </body>
