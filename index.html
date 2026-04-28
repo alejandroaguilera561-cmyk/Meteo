@@ -10,10 +10,8 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 
 <style>
-body{margin:0;font-family:'Segoe UI';color:white;text-align:center;transition:1s;}
-.frio{background:linear-gradient(#1e3a8a,#020617);}
-.templado{background:linear-gradient(#0f172a,#020617);}
-.calor{background:linear-gradient(#7f1d1d,#020617);}
+body{margin:0;font-family:'Segoe UI';color:white;text-align:center;}
+.templado{background:#020617;}
 .app{padding:15px;}
 .dashboard{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 .card{background:rgba(255,255,255,0.1);padding:15px;border-radius:15px;}
@@ -28,14 +26,13 @@ body{margin:0;font-family:'Segoe UI';color:white;text-align:center;transition:1s
 <body class="templado">
 
 <div class="app">
-
 <h2>🌦️ Meteo MAX PRO</h2>
 
-<div id="alerta">Cargando alertas...</div>
+<div id="alerta">Cargando...</div>
 
 <div class="dashboard">
 <div class="card">Temperatura<div class="big" id="temp">--</div></div>
-<div class="card">Sensación 🥶🥵<div class="big" id="sensacion">--</div></div>
+<div class="card">Sensación<div class="big" id="sensacion">--</div></div>
 <div class="card">💧 Humedad<br><span id="hum"></span></div>
 <div class="card">🌬️ Viento<br><span id="viento"></span></div>
 <div class="card">☀️ UV<br><span id="uv"></span></div>
@@ -49,10 +46,6 @@ body{margin:0;font-family:'Segoe UI';color:white;text-align:center;transition:1s
 
 <h3>⏰ Hoy</h3>
 <div id="horas"></div>
-
-<canvas id="grafico"></canvas>
-
-<div id="mapa" style="height:200px;margin-top:10px;border-radius:10px;"></div>
 
 </div>
 
@@ -68,39 +61,20 @@ function emojiTemp(t){
  return "❄️";
 }
 
-// alerta
-function alerta(temp,lluvia){
- let a="✅ Sin alertas";
- if(temp<8) a="⚠️ Mucho frío";
- if(temp>35) a="🔥 Calor extremo";
- if(lluvia>60) a+=" 🌧️ Lluvia fuerte";
- document.getElementById("alerta").innerText=a;
-}
-
-// explicación
-function explicar(temp,lluvia){
- let t="",c="";
- if(temp>=30){t="Mucho calor.";c="Usá ropa liviana.";}
- else if(temp>=20){t="Cálido.";c="Salí cómodo.";}
- else if(temp>=15){t="Templado.";c="Llevá abrigo.";}
- else if(temp>=8){t="Frío.";c="Abrigate.";}
- else{t="Mucho frío.";c="Abrigo fuerte.";}
- if(lluvia>60) c+=" Paraguas.";
- document.getElementById("explicacion").innerText=t+" "+c;
-}
-
 // clima
 async function clima(){
  try{
- let r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=temperature_2m,relativehumidity_2m,precipitation_probability,apparent_temperature,uv_index,time&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto`);
- let d=await r.json();
+ let url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=temperature_2m,relativehumidity_2m,precipitation_probability,apparent_temperature,uv_index,time&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto`;
 
- // índice real de hora
+ let r = await fetch(url);
+ let d = await r.json();
+
+ // índice de hora REAL
  let ahora = new Date().toISOString().slice(0,13);
  let i = d.hourly.time.findIndex(t=>t.includes(ahora));
  if(i<0) i=0;
 
- // PROMEDIO para más precisión
+ // DATOS MÁS PRECISOS (promedio)
  let temp = d.current_weather.temperature;
  let sens = (d.hourly.apparent_temperature[i] + d.hourly.apparent_temperature[i+1]) / 2;
  let hum = (d.hourly.relativehumidity_2m[i] + d.hourly.relativehumidity_2m[i+1]) / 2;
@@ -108,9 +82,9 @@ async function clima(){
  let uv = d.hourly.uv_index[i];
  let viento = d.current_weather.windspeed;
 
- // mostrar
+ // MOSTRAR
  document.getElementById("temp").innerText = temp+"°C "+emojiTemp(temp);
- document.getElementById("sensacion").innerText = sens.toFixed(1)+"°C "+emojiTemp(sens);
+ document.getElementById("sensacion").innerText = sens.toFixed(1)+"°C";
  document.getElementById("hum").innerText = hum.toFixed(0)+"%";
  document.getElementById("viento").innerText = viento+" km/h";
 
@@ -119,40 +93,46 @@ async function clima(){
 
  document.getElementById("lluvia").innerText = lluvia.toFixed(0)+"%";
 
- alerta(temp,lluvia);
- explicar(temp,lluvia);
+ // TEXTO
+ document.getElementById("explicacion").innerText =
+  lluvia>60 ? "Lluvia probable. Llevar paraguas." :
+  temp>30 ? "Mucho calor." :
+  temp<10 ? "Hace frío." :
+  "Clima agradable.";
 
- // horas
- let horasDiv=document.getElementById("horas");
+ // ALERTA
+ document.getElementById("alerta").innerText =
+  lluvia>70 ? "🌧️ Lluvia fuerte" :
+  temp>35 ? "🔥 Calor extremo" :
+  temp<5 ? "❄️ Frío extremo" :
+  "✅ Sin alertas";
+
+ // HORAS
+ let horasDiv = document.getElementById("horas");
  horasDiv.innerHTML="";
- [["🌅 Mañana",8],["🌇 Tarde",14],["🌙 Noche",20]].forEach(b=>{
-  let t=d.hourly.temperature_2m[b[1]];
-  let l=d.hourly.precipitation_probability[b[1]];
-  horasDiv.innerHTML+=`<div class="day">${b[0]}<br>${emojiTemp(t)} ${t}°<br>🌧️ ${l}%</div>`;
- });
+ for(let x=i;x<i+12;x+=3){
+  let t=d.hourly.temperature_2m[x];
+  let l=d.hourly.precipitation_probability[x];
+  horasDiv.innerHTML+=`<div class="day">${emojiTemp(t)}<br>${t}°<br>${l}%</div>`;
+ }
 
- // días
- let proDiv=document.getElementById("pronostico");
+ // PRONÓSTICO
+ let proDiv = document.getElementById("pronostico");
  proDiv.innerHTML="";
- d.daily.time.forEach((dia,i)=>{
-  let max=d.daily.temperature_2m_max[i];
-  let min=d.daily.temperature_2m_min[i];
-  let lluvia=d.daily.precipitation_probability_max[i];
+ d.daily.time.forEach((dia,x)=>{
+  let max=d.daily.temperature_2m_max[x];
+  let min=d.daily.temperature_2m_min[x];
+  let lluvia=d.daily.precipitation_probability_max[x];
   proDiv.innerHTML+=`<div class="day">${dia.slice(5)}<br>🌡️${max}°<br>❄️${min}°<br>🌧️${lluvia}%</div>`;
  });
 
  }catch(e){
-  document.getElementById("alerta").innerText="⚠️ Error al cargar datos";
+  document.getElementById("alerta").innerText="⚠️ Error cargando clima";
  }
 }
 
 clima();
 setInterval(clima,60000);
-
-// mapa
-let mapa=L.map('mapa').setView([lat,lon],10);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapa);
-
 </script>
 
 </body>
