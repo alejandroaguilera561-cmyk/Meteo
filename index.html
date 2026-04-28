@@ -10,12 +10,12 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 
 <style>
-body{margin:0;font-family:'Segoe UI';color:white;text-align:center;background:#020617;}
+body{margin:0;font-family:'Segoe UI';background:#020617;color:white;text-align:center;}
 .app{padding:15px;}
 .card{background:rgba(255,255,255,0.1);padding:15px;border-radius:15px;margin:8px;}
 .dashboard{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-#mapa{height:250px;border-radius:10px;margin-top:10px;}
-.day{background:rgba(255,255,255,0.1);padding:10px;border-radius:10px;min-width:110px;}
+#mapa{height:220px;border-radius:10px;margin-top:10px;}
+.day{background:rgba(255,255,255,0.1);padding:10px;border-radius:10px;min-width:100px;}
 #horas,#pronostico{display:flex;overflow-x:auto;gap:10px;}
 #alerta{background:#7f1d1d;padding:10px;border-radius:10px;margin:10px 0;}
 </style>
@@ -30,20 +30,20 @@ body{margin:0;font-family:'Segoe UI';color:white;text-align:center;background:#0
 <div id="alerta">Cargando...</div>
 
 <div class="dashboard">
-<div class="card">🌡️ <span id="temp"></span></div>
-<div class="card">🥶🥵 <span id="sens"></span></div>
-<div class="card">💧 <span id="hum"></span></div>
-<div class="card">🌬️ <span id="viento"></span></div>
-<div class="card">☀️ UV <span id="uv"></span></div>
-<div class="card">🌧️ <span id="lluvia"></span></div>
+<div class="card">🌡️ <span id="temp">--</span></div>
+<div class="card">🥶🥵 <span id="sens">--</span></div>
+<div class="card">💧 <span id="hum">--</span></div>
+<div class="card">🌬️ <span id="viento">--</span></div>
+<div class="card">☀️ <span id="uv">--</span></div>
+<div class="card">🌧️ <span id="lluvia">--</span></div>
 </div>
 
-<div id="explicacion"></div>
+<div id="explicacion">Cargando clima...</div>
 
 <h3>⏰ Próximas horas</h3>
 <div id="horas"></div>
 
-<h3>📅 Próximos días</h3>
+<h3>📅 Pronóstico</h3>
 <div id="pronostico"></div>
 
 <div id="mapa"></div>
@@ -53,51 +53,43 @@ body{margin:0;font-family:'Segoe UI';color:white;text-align:center;background:#0
 <script>
 let lat=-25.3, lon=-57.6;
 
-// EMOJIS
-function emoji(temp,lluvia){
- if(lluvia>70) return "🌧️";
- if(temp>30) return "🥵";
- if(temp>20) return "🙂";
- if(temp>10) return "🧥";
+// emoji
+function emoji(t,l){
+ if(l>70) return "🌧️";
+ if(t>30) return "🥵";
+ if(t>20) return "🙂";
+ if(t>10) return "🧥";
  return "🥶";
 }
 
-// TEXTO NOTICIERO
-function resumen(temp,lluvia){
- if(lluvia>70) return "Se esperan lluvias importantes. Salí con paraguas.";
- if(temp>30) return "Calor intenso durante el día.";
- if(temp<8) return "Frío fuerte. Abrigate bien.";
- return "Clima estable y agradable.";
+// alerta
+function alerta(t,l){
+ let msg="✅ Sin alertas";
+ if(l>80) msg="⛈️ Tormenta fuerte";
+ else if(l>60) msg="🌧️ Lluvia probable";
+ else if(t>35) msg="🔥 Calor extremo";
+ else if(t<5) msg="❄️ Frío extremo";
+
+ document.getElementById("alerta").innerText=msg;
 }
 
-// ALERTA
-function alerta(temp,lluvia){
- let t="✅ Sin alertas";
-
- if(lluvia>80) t="⛈️ Tormenta fuerte en camino";
- else if(lluvia>60) t="🌧️ Lluvia probable";
- else if(temp>35) t="🔥 Calor extremo";
- else if(temp<5) t="❄️ Frío extremo";
-
- document.getElementById("alerta").innerText=t;
-}
-
-// CLIMA
+// clima
 async function clima(){
+ try{
 
  let r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=temperature_2m,precipitation_probability,apparent_temperature,relativehumidity_2m,uv_index,time&daily=temperature_2m_max,temperature_2m_min&timezone=auto`);
  let d=await r.json();
 
  let ahora = new Date().toISOString().slice(0,13);
- let index = d.hourly.time.findIndex(t=>t.includes(ahora));
- if(index<0) index=0;
+ let i = d.hourly.time.findIndex(t=>t.includes(ahora));
+ if(i<0) i=0;
 
- let temp=d.current_weather.temperature;
- let sens=d.hourly.apparent_temperature[index];
- let hum=d.hourly.relativehumidity_2m[index];
- let lluvia=d.hourly.precipitation_probability[index];
- let uv=d.hourly.uv_index[index];
- let viento=d.current_weather.windspeed;
+ let temp=d.current_weather.temperature || 0;
+ let sens=d.hourly.apparent_temperature[i] || temp;
+ let hum=d.hourly.relativehumidity_2m[i] || 0;
+ let lluvia=d.hourly.precipitation_probability[i] || 0;
+ let uv=d.hourly.uv_index[i] || 0;
+ let viento=d.current_weather.windspeed || 0;
 
  document.getElementById("temp").innerText=temp+"°C "+emoji(temp,lluvia);
  document.getElementById("sens").innerText=sens+"°C";
@@ -106,37 +98,48 @@ async function clima(){
  document.getElementById("uv").innerText=uv;
  document.getElementById("lluvia").innerText=lluvia+"%";
 
- document.getElementById("explicacion").innerText=resumen(temp,lluvia);
+ document.getElementById("explicacion").innerText =
+  lluvia>70 ? "Se esperan lluvias." :
+  temp>30 ? "Mucho calor." :
+  temp<8 ? "Hace frío." :
+  "Clima normal.";
 
  alerta(temp,lluvia);
 
- // HORAS (cada 3 horas)
- horas.innerHTML="";
- for(let i=index;i<index+12;i+=3){
-  let t=d.hourly.temperature_2m[i];
-  let l=d.hourly.precipitation_probability[i];
-  horas.innerHTML+=`<div class="day">${emoji(t,l)}<br>${t}°<br>🌧️${l}%</div>`;
+ // HORAS
+ let horasDiv=document.getElementById("horas");
+ horasDiv.innerHTML="";
+ for(let x=i;x<i+12;x+=3){
+  if(!d.hourly.temperature_2m[x]) continue;
+  let t=d.hourly.temperature_2m[x];
+  let l=d.hourly.precipitation_probability[x];
+  horasDiv.innerHTML+=`<div class="day">${emoji(t,l)}<br>${t}°<br>${l}%</div>`;
  }
 
  // DIAS
- pronostico.innerHTML="";
- d.daily.time.forEach((dia,i)=>{
-  let max=d.daily.temperature_2m_max[i];
-  let min=d.daily.temperature_2m_min[i];
-  pronostico.innerHTML+=`<div class="day">${dia.slice(5)}<br>🌡️${max}°<br>❄️${min}°</div>`;
+ let proDiv=document.getElementById("pronostico");
+ proDiv.innerHTML="";
+ d.daily.time.forEach((dia,x)=>{
+  let max=d.daily.temperature_2m_max[x];
+  let min=d.daily.temperature_2m_min[x];
+  proDiv.innerHTML+=`<div class="day">${dia.slice(5)}<br>${max}°<br>${min}°</div>`;
  });
+
+ }catch(e){
+  document.getElementById("explicacion").innerText="Error cargando datos";
+  console.log(e);
+ }
 }
 
-// MAPA + RADAR
+// mapa
 let mapa=L.map('mapa').setView([lat,lon],10);
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapa);
 
-// 🌧️ Radar lluvia (RainViewer)
-L.tileLayer('https://tilecache.rainviewer.com/v2/radar/latest/256/{z}/{x}/{y}/2/1_1.png', {
- opacity:0.6
-}).addTo(mapa);
+// radar
+L.tileLayer('https://tilecache.rainviewer.com/v2/radar/latest/256/{z}/{x}/{y}/2/1_1.png',{opacity:0.6}).addTo(mapa);
 
+// ejecutar
 clima();
 setInterval(clima,300000);
 
