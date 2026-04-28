@@ -27,29 +27,34 @@ const messaging = firebase.messaging();
 body{
  margin:0;
  font-family:'Segoe UI';
+ background:#0f172a;
  color:white;
  text-align:center;
- background:#0f172a;
 }
 
 button{
- margin:5px;
  padding:10px;
+ margin:10px;
  border:none;
  border-radius:10px;
-}
-
-#pronostico,#horas{
- display:flex;
- gap:10px;
- overflow-x:auto;
 }
 
 .day{
  background:rgba(255,255,255,0.1);
  padding:10px;
+ margin:5px;
  border-radius:10px;
- min-width:100px;
+ display:inline-block;
+}
+
+#tokenBox{
+ background:#000;
+ color:#0f0;
+ padding:10px;
+ margin:10px;
+ font-size:12px;
+ word-break:break-all;
+ border-radius:10px;
 }
 </style>
 </head>
@@ -60,10 +65,12 @@ button{
 
 <button onclick="activarPushReal()">📡 Activar Push REAL</button>
 
+<div id="tokenBox">Token aparecerá aquí...</div>
+
 <h3 id="temp">--</h3>
 <h3 id="sensacion">--</h3>
 
-<div id="explicacion">Cargando...</div>
+<div id="explicacion"></div>
 
 <h3>⏰ Hoy</h3>
 <div id="horas"></div>
@@ -75,7 +82,7 @@ button{
 
 let lat=-25.3, lon=-57.6;
 
-// 🔔 PUSH REAL
+// 🔔 PUSH REAL (VISIBLE EN CELULAR)
 async function activarPushReal(){
 
  const permiso = await Notification.requestPermission();
@@ -91,16 +98,15 @@ async function activarPushReal(){
    vapidKey: "BIsNs4Q0gW28FvBFl_79u9s2mBDemIIyhQPY83n2IsRyrMkpl0_uf61OCHSyVXovxv4clhJ9jZSlBu1hIsDmhmw"
   });
 
-  console.log("TOKEN:", token);
-  alert("Push activado correctamente");
+  document.getElementById("tokenBox").innerText = token;
 
  }catch(e){
-  console.log("Error:", e);
+  document.getElementById("tokenBox").innerText = "Error: " + e;
  }
 
 }
 
-// EMOJI
+// EMOJIS
 function emojiTemp(t){
  if(t>=30) return "🥵";
  if(t>=20) return "🙂";
