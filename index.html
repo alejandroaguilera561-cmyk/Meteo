@@ -34,13 +34,15 @@ body{
  background:rgba(255,255,255,0.2);
  padding:12px;
  border-radius:12px;
+ font-size:18px;
 }
 
 button{
  margin:5px;
- padding:8px;
+ padding:10px;
  border:none;
  border-radius:8px;
+ font-size:16px;
 }
 
 #mapa{
@@ -51,9 +53,10 @@ button{
 
 #explicacion{
  background:rgba(0,0,0,0.7);
- padding:10px;
+ padding:12px;
  border-radius:10px;
  margin:10px 0;
+ font-size:16px;
 }
 </style>
 </head>
@@ -87,17 +90,29 @@ button{
 let lat=-25.3, lon=-57.6;
 let vozActiva=false;
 
-// activar voz
+// control de voz
+let ultimaVoz = 0;
+let intervaloVoz = 20000; // 20 segundos
+
 function activarVoz(){
- vozActiva=true;
- alert("Voz activada");
+ vozActiva = true;
+ hablar(document.getElementById("explicacion").innerText);
 }
 
 function hablar(t){
  if(!vozActiva) return;
- let m=new SpeechSynthesisUtterance(t);
+
+ let ahora = Date.now();
+
+ if(ahora - ultimaVoz < intervaloVoz) return;
+
+ speechSynthesis.cancel();
+
+ let m = new SpeechSynthesisUtterance(t);
  m.lang="es-ES";
  speechSynthesis.speak(m);
+
+ ultimaVoz = ahora;
 }
 
 // ubicación
@@ -112,21 +127,49 @@ function toggleUbicacion(){
 // gráfico
 let chart=new Chart(document.getElementById("grafico"),{
  type:'line',
- data:{labels:[],datasets:[{label:"Temperatura °C",data:[],borderWidth:2,tension:0.4}]}
+ data:{
+  labels:[],
+  datasets:[{
+   label:"Temperatura °C",
+   data:[],
+   borderWidth:2,
+   tension:0.4
+  }]
+ }
 });
 
-// IA
-function explicar(temp,lluvia,uv){
+// IA mejorada
+function explicar(temp,lluvia,uv,hum,viento){
  let t="";
- if(lluvia>70) t="Alta probabilidad de lluvia.";
- else if(lluvia>40) t="Posibles lluvias.";
- else if(temp>35) t="Hace mucho calor.";
- else if(temp<5) t="Hace frío.";
- else t="Clima estable.";
 
- if(uv>7) t+=" Radiación UV alta.";
+ if(lluvia > 70){
+  t="Lluvia muy probable, llevá paraguas.";
+ } 
+ else if(lluvia > 40){
+  t="Hay posibilidad de lluvia.";
+ }
+ else if(temp > 35){
+  t="Hace mucho calor, hidratate bien.";
+ }
+ else if(temp > 28){
+  t="Clima caluroso.";
+ }
+ else if(temp < 5){
+  t="Hace mucho frío, abrígate.";
+ }
+ else if(temp < 15){
+  t="Clima fresco.";
+ }
+ else{
+  t="Clima agradable.";
+ }
 
- document.getElementById("explicacion").innerText=t;
+ if(hum > 80) t += " Alta humedad.";
+ if(viento > 30) t += " Viento fuerte.";
+ if(uv > 7) t += " Protección solar recomendada.";
+
+ document.getElementById("explicacion").innerText = t;
+
  hablar(t);
 }
 
@@ -161,7 +204,7 @@ async function clima(){
   document.getElementById("uv").innerText="☀️ UV "+uv;
   document.getElementById("lluvia").innerText="🌧️ "+lluvia+"%";
 
-  explicar(temp,lluvia,uv);
+  explicar(temp,lluvia,uv,hum,viento);
   fondo(lluvia,temp);
 
   chart.data.labels.push(new Date().toLocaleTimeString());
@@ -182,7 +225,7 @@ async function clima(){
 
 // ejecutar
 clima();
-setInterval(clima,5000);
+setInterval(clima,30000); // cada 30 segundos
 
 // mapa
 let mapa=L.map('mapa').setView([lat,lon],10);
