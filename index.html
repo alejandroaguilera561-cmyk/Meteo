@@ -49,7 +49,6 @@ body{margin:0;font-family:'Segoe UI';color:white;text-align:center;transition:1s
 <button onclick="toggleUbicacion()">📍 Ubicación</button>
 <button onclick="activarNotificaciones()">🔔 Notificaciones</button>
 
-<!-- WIDGET -->
 <div id="widget" style="background:rgba(255,255,255,0.1);border-radius:15px;padding:10px;margin:10px;">
  <b id="widgetTemp">--</b><br>
  <span id="widgetEstado">Cargando...</span>
@@ -83,6 +82,7 @@ body{margin:0;font-family:'Segoe UI';color:white;text-align:center;transition:1s
 let lat=-25.3, lon=-57.6;
 let vozActiva=false, ultimaVoz=0;
 let notifActiva=false, ultimaNoti=0;
+let ultimaAlerta="";
 
 // VOZ
 function activarVoz(){
@@ -135,7 +135,7 @@ function explicar(temp,lluvia){
  hablar(f);
 }
 
-// ALERTAS
+// ALERTA VISUAL
 function alerta(temp,lluvia){
  let a="✅ Sin alertas";
  if(temp<8) a="⚠️ Mucho frío";
@@ -178,9 +178,8 @@ async function clima(){
  let lluvia=d.hourly.precipitation_probability[0];
  let sens=d.hourly.apparent_temperature[0];
 
- tempEl=temp+"°C "+emojiTemp(temp);
+ let tempEl=temp+"°C "+emojiTemp(temp);
 
- tempEl=temp+"°C "+emojiTemp(temp);
  document.getElementById("temp").innerText=tempEl;
  document.getElementById("sensacion").innerText=sens+"°C "+emojiTemp(sens);
 
@@ -188,9 +187,16 @@ async function clima(){
  alerta(temp,lluvia);
  fondo(temp,lluvia);
 
- // NOTIFICACIONES INTELIGENTES
- if(temp<5) enviarNoti("Hace mucho frío");
- if(lluvia>70) enviarNoti("Lluvia fuerte hoy");
+ // 🔔 NOTIFICACIONES INTELIGENTES
+ let mensaje="";
+ if(temp<5) mensaje="🥶 Hace mucho frío";
+ else if(temp>35) mensaje="🥵 Calor extremo";
+ else if(lluvia>70) mensaje="🌧️ Lluvia fuerte hoy";
+
+ if(mensaje && mensaje!==ultimaAlerta){
+  enviarNoti(mensaje);
+  ultimaAlerta=mensaje;
+ }
 
  // WIDGET
  widgetTemp.innerText=tempEl;
@@ -198,8 +204,7 @@ async function clima(){
 
  // HORAS
  horas.innerHTML="";
- let bloques=[["🌅 Mañana",8],["🌇 Tarde",14],["🌙 Noche",20]];
- bloques.forEach(b=>{
+ [["🌅 Mañana",8],["🌇 Tarde",14],["🌙 Noche",20]].forEach(b=>{
   let t=d.hourly.temperature_2m[b[1]];
   let l=d.hourly.precipitation_probability[b[1]];
   horas.innerHTML+=`<div class="day">${b[0]}<br>${emojiTemp(t)} ${t}°<br>🌧️ ${l}%</div>`;
@@ -226,9 +231,8 @@ async function clima(){
 }
 
 clima();
-setInterval(clima,30000);
+setInterval(clima,300000); // cada 5 min
 
-// MAPA
 let mapa=L.map('mapa').setView([lat,lon],10);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapa);
 
