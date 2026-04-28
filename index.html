@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Sistema Meteorológico Inteligente</title>
+<title>Meteo MAX PRO</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -15,107 +15,188 @@ body{
  font-family:'Segoe UI';
  color:white;
  text-align:center;
- background:url('https://images.unsplash.com/photo-1506744038136-46273834b3fb') no-repeat center/cover;
+ background:linear-gradient(180deg,#0f172a,#020617);
+ overflow-x:hidden;
+}
+
+/* EFECTO LLUVIA */
+.lluvia{
+ position:fixed;
+ width:100%;
+ height:100%;
+ pointer-events:none;
+ background:url('https://i.imgur.com/9Qx7K0E.png');
+ animation:rain 0.3s linear infinite;
+ opacity:0;
+}
+
+@keyframes rain{
+ 0%{background-position:0 0;}
+ 100%{background-position:-100px 200px;}
 }
 
 .app{
- background:rgba(0,0,0,0.6);
- min-height:100vh;
- padding:10px;
+ padding:15px;
+ backdrop-filter: blur(15px);
+}
+
+.card{
+ background:rgba(255,255,255,0.08);
+ padding:15px;
+ border-radius:15px;
+ backdrop-filter: blur(20px);
 }
 
 .dashboard{
  display:grid;
  grid-template-columns:1fr 1fr;
- gap:10px;
+ gap:12px;
 }
 
-.card{
- background:rgba(255,255,255,0.2);
- padding:12px;
- border-radius:12px;
- font-size:18px;
+.big{
+ font-size:28px;
 }
 
 button{
  margin:5px;
- padding:10px;
- border:none;
- border-radius:8px;
- font-size:16px;
-}
-
-#mapa{
- height:180px;
- margin-top:10px;
- border-radius:10px;
-}
-
-#explicacion{
- background:rgba(0,0,0,0.7);
  padding:12px;
+ border:none;
  border-radius:10px;
- margin:10px 0;
- font-size:16px;
 }
+
+#pronostico{
+ display:flex;
+ gap:10px;
+ overflow-x:auto;
+}
+
+.day{
+ background:rgba(255,255,255,0.1);
+ padding:10px;
+ border-radius:10px;
+ min-width:100px;
+}
+
+/* ICONOS ANIMADOS */
+.sol{
+ animation:spin 6s linear infinite;
+}
+@keyframes spin{
+ 100%{transform:rotate(360deg);}
+}
+
+.nube{
+ animation:float 3s ease-in-out infinite;
+}
+@keyframes float{
+ 0%,100%{transform:translateY(0);}
+ 50%{transform:translateY(-5px);}
+}
+
 </style>
 </head>
 
 <body>
 
+<div class="lluvia" id="lluviaFX"></div>
+
 <div class="app">
 
-<h2>🌦️ Sistema Meteorológico Inteligente</h2>
+<h2 id="icono">🌤️ Meteo MAX PRO</h2>
 
 <button onclick="activarVoz()">🔊 Voz</button>
 <button onclick="toggleUbicacion()">📍 Ubicación</button>
 
 <div class="dashboard">
-<div class="card" id="temp">--</div>
-<div class="card" id="sensacion">--</div>
-<div class="card" id="hum">--</div>
-<div class="card" id="viento">--</div>
-<div class="card" id="uv">--</div>
-<div class="card" id="lluvia">--</div>
+
+<div class="card">
+ Temperatura
+ <div class="big" id="temp">--</div>
 </div>
 
-<div id="explicacion">Cargando clima...</div>
+<div class="card">
+ Sensación 🥵🥶
+ <div class="big" id="sensacion">--</div>
+</div>
+
+<div class="card">💧 Humedad<br><span id="hum"></span></div>
+<div class="card">🌬️ Viento<br><span id="viento"></span></div>
+<div class="card">☀️ UV<br><span id="uv"></span></div>
+<div class="card">🌧️ Lluvia<br><span id="lluvia"></span></div>
+
+</div>
+
+<div id="explicacion">Cargando...</div>
+
+<h3>📅 Pronóstico</h3>
+<div id="pronostico"></div>
 
 <canvas id="grafico"></canvas>
-<div id="mapa"></div>
+<div id="mapa" style="height:200px;margin-top:10px;border-radius:10px;"></div>
 
 </div>
 
 <script>
 let lat=-25.3, lon=-57.6;
 let vozActiva=false;
-
-// control de voz
-let ultimaVoz = 0;
-let intervaloVoz = 20000; // 20 segundos
+let ultimaVoz=0;
 
 function activarVoz(){
- vozActiva = true;
+ vozActiva=true;
  hablar(document.getElementById("explicacion").innerText);
 }
 
 function hablar(t){
  if(!vozActiva) return;
-
- let ahora = Date.now();
-
- if(ahora - ultimaVoz < intervaloVoz) return;
+ let ahora=Date.now();
+ if(ahora-ultimaVoz<20000) return;
 
  speechSynthesis.cancel();
-
- let m = new SpeechSynthesisUtterance(t);
+ let m=new SpeechSynthesisUtterance(t);
  m.lang="es-ES";
  speechSynthesis.speak(m);
 
- ultimaVoz = ahora;
+ ultimaVoz=ahora;
 }
 
-// ubicación
+function emojiTemp(t){
+ if(t>30) return "🥵";
+ if(t<10) return "🥶";
+ return "😌";
+}
+
+// ICONOS DINÁMICOS
+function iconoClima(lluvia,temp){
+ let el=document.getElementById("icono");
+
+ if(lluvia>60){
+  el.innerHTML="🌧️ Meteo MAX PRO";
+  document.getElementById("lluviaFX").style.opacity=1;
+ }
+ else if(temp>30){
+  el.innerHTML="<span class='sol'>☀️</span> Meteo MAX PRO";
+  document.getElementById("lluviaFX").style.opacity=0;
+ }
+ else{
+  el.innerHTML="<span class='nube'>☁️</span> Meteo MAX PRO";
+  document.getElementById("lluviaFX").style.opacity=0;
+ }
+}
+
+function explicar(temp,lluvia,uv){
+ let t="";
+
+ if(temp>35) t="Mucho calor.";
+ else if(temp<10) t="Hace frío.";
+ else t="Clima agradable.";
+
+ if(lluvia>60) t+=" Lluvia probable.";
+ if(uv>7) t+=" Usar protector solar.";
+
+ document.getElementById("explicacion").innerText=t;
+ hablar(t);
+}
+
 function toggleUbicacion(){
  navigator.geolocation.getCurrentPosition(p=>{
   lat=p.coords.latitude;
@@ -124,110 +205,58 @@ function toggleUbicacion(){
  });
 }
 
-// gráfico
 let chart=new Chart(document.getElementById("grafico"),{
  type:'line',
- data:{
-  labels:[],
-  datasets:[{
-   label:"Temperatura °C",
-   data:[],
-   borderWidth:2,
-   tension:0.4
-  }]
- }
+ data:{labels:[],datasets:[{label:"Temp °C",data:[],borderWidth:2}]}
 });
 
-// IA mejorada
-function explicar(temp,lluvia,uv,hum,viento){
- let t="";
-
- if(lluvia > 70){
-  t="Lluvia muy probable, llevá paraguas.";
- } 
- else if(lluvia > 40){
-  t="Hay posibilidad de lluvia.";
- }
- else if(temp > 35){
-  t="Hace mucho calor, hidratate bien.";
- }
- else if(temp > 28){
-  t="Clima caluroso.";
- }
- else if(temp < 5){
-  t="Hace mucho frío, abrígate.";
- }
- else if(temp < 15){
-  t="Clima fresco.";
- }
- else{
-  t="Clima agradable.";
- }
-
- if(hum > 80) t += " Alta humedad.";
- if(viento > 30) t += " Viento fuerte.";
- if(uv > 7) t += " Protección solar recomendada.";
-
- document.getElementById("explicacion").innerText = t;
-
- hablar(t);
-}
-
-// fondo dinámico
-function fondo(lluvia,temp){
- if(lluvia>60){
-  document.body.style.backgroundImage="url('https://images.unsplash.com/photo-1501696461440-e6b7f5f9a8d9')";
- }else if(temp>30){
-  document.body.style.backgroundImage="url('https://images.unsplash.com/photo-1501973801540-537f08ccae7b')";
- }else{
-  document.body.style.backgroundImage="url('https://images.unsplash.com/photo-1506744038136-46273834b3fb')";
- }
-}
-
-// clima
 async function clima(){
- try{
-  let r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=relativehumidity_2m,precipitation_probability,apparent_temperature,uv_index&timezone=auto`);
-  let d=await r.json();
+ let r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&hourly=relativehumidity_2m,precipitation_probability,apparent_temperature,uv_index&timezone=auto`);
+ let d=await r.json();
 
-  let temp=d.current_weather.temperature;
-  let viento=d.current_weather.windspeed;
-  let hum=d.hourly.relativehumidity_2m[0];
-  let lluvia=d.hourly.precipitation_probability[0];
-  let sensacion=d.hourly.apparent_temperature[0];
-  let uv=d.hourly.uv_index[0];
+ let temp=d.current_weather.temperature;
+ let viento=d.current_weather.windspeed;
+ let hum=d.hourly.relativehumidity_2m[0];
+ let lluvia=d.hourly.precipitation_probability[0];
+ let sensacion=d.hourly.apparent_temperature[0];
+ let uv=d.hourly.uv_index[0];
 
-  document.getElementById("temp").innerText="🌡️ "+temp+"°C";
-  document.getElementById("sensacion").innerText="🥵 "+sensacion+"°C";
-  document.getElementById("hum").innerText="💧 "+hum+"%";
-  document.getElementById("viento").innerText="🌬️ "+viento+" km/h";
-  document.getElementById("uv").innerText="☀️ UV "+uv;
-  document.getElementById("lluvia").innerText="🌧️ "+lluvia+"%";
+ document.getElementById("temp").innerText=temp+"°C "+emojiTemp(temp);
+ document.getElementById("sensacion").innerText=sensacion+"°C "+emojiTemp(sensacion);
+ document.getElementById("hum").innerText=hum+"%";
+ document.getElementById("viento").innerText=viento+" km/h";
+ document.getElementById("uv").innerText=uv;
+ document.getElementById("lluvia").innerText=lluvia+"%";
 
-  explicar(temp,lluvia,uv,hum,viento);
-  fondo(lluvia,temp);
+ explicar(temp,lluvia,uv);
+ iconoClima(lluvia,temp);
 
-  chart.data.labels.push(new Date().toLocaleTimeString());
-  chart.data.datasets[0].data.push(temp);
-
-  if(chart.data.labels.length>10){
-   chart.data.labels.shift();
-   chart.data.datasets[0].data.shift();
-  }
-
-  chart.update();
-
- }catch(e){
-  document.getElementById("explicacion").innerText="Error al cargar clima";
-  console.log(e);
+ // gráfico
+ chart.data.labels.push(new Date().toLocaleTimeString());
+ chart.data.datasets[0].data.push(temp);
+ if(chart.data.labels.length>10){
+  chart.data.labels.shift();
+  chart.data.datasets[0].data.shift();
  }
+ chart.update();
+
+ // pronóstico
+ let cont=document.getElementById("pronostico");
+ cont.innerHTML="";
+ d.daily.time.forEach((dia,i)=>{
+  cont.innerHTML+=`
+   <div class="day">
+    <b>${dia.slice(5)}</b><br>
+    🌡️ ${d.daily.temperature_2m_max[i]}° / ${d.daily.temperature_2m_min[i]}°<br>
+    🌧️ ${d.daily.precipitation_probability_max[i]}%
+   </div>
+  `;
+ });
 }
 
-// ejecutar
 clima();
-setInterval(clima,30000); // cada 30 segundos
+setInterval(clima,30000);
 
-// mapa
 let mapa=L.map('mapa').setView([lat,lon],10);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapa);
 
