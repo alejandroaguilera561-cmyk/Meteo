@@ -3,9 +3,8 @@
   "short_name": "Meteo",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#000000",
-  "theme_color": "#000000",
-  "orientation": "portrait",
+  "background_color": "#020617",
+  "theme_color": "#020617",
   "icons": [
     {
       "src": "https://cdn-icons-png.flaticon.com/512/1163/1163624.png",
