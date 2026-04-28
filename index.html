@@ -47,7 +47,6 @@ body{margin:0;font-family:'Segoe UI';color:white;text-align:center;transition:1s
 
 <button onclick="activarVoz()">🔊 Voz</button>
 <button onclick="toggleUbicacion()">📍 Ubicación</button>
-<button onclick="activarNotificaciones()">🔔 Notificaciones</button>
 
 <div id="widget" style="background:rgba(255,255,255,0.1);border-radius:15px;padding:10px;margin:10px;">
  <b id="widgetTemp">--</b><br>
@@ -81,8 +80,6 @@ body{margin:0;font-family:'Segoe UI';color:white;text-align:center;transition:1s
 <script>
 let lat=-25.3, lon=-57.6;
 let vozActiva=false, ultimaVoz=0;
-let notifActiva=false, ultimaNoti=0;
-let ultimaAlerta="";
 
 // VOZ
 function activarVoz(){
@@ -98,18 +95,6 @@ function hablar(t){
  m.lang="es-ES";
  speechSynthesis.speak(m);
  ultimaVoz=ahora;
-}
-
-// NOTIFICACIONES
-async function activarNotificaciones(){
- let p=await Notification.requestPermission();
- if(p==="granted") notifActiva=true;
-}
-function enviarNoti(t){
- let ahora=Date.now();
- if(!notifActiva || ahora-ultimaNoti<60000) return;
- new Notification("🌦️ Meteo MAX", {body:t});
- ultimaNoti=ahora;
 }
 
 // EMOJIS
@@ -135,12 +120,18 @@ function explicar(temp,lluvia){
  hablar(f);
 }
 
-// ALERTA VISUAL
-function alerta(temp,lluvia){
+// ALERTA VISUAL + FUTURA
+function alerta(temp,lluvia,proximaLluvia){
  let a="✅ Sin alertas";
+
  if(temp<8) a="⚠️ Mucho frío";
  if(temp>35) a="⚠️ Calor extremo";
  if(lluvia>60) a+=" 🌧️ Lluvia fuerte";
+
+ if(proximaLluvia!==null){
+  a+=" | 🌧️ Lluvia en "+proximaLluvia+"h";
+ }
+
  document.getElementById("alerta").innerText=a;
 }
 
@@ -171,34 +162,49 @@ let chart=new Chart(document.getElementById("grafico"),{
 
 // CLIMA
 async function clima(){
- let r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&hourly=temperature_2m,relativehumidity_2m,precipitation_probability,apparent_temperature,uv_index&timezone=auto`);
+ let r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&hourly=temperature_2m,relativehumidity_2m,precipitation_probability,apparent_temperature,uv_index,time&timezone=auto`);
  let d=await r.json();
 
+ // hora actual real
+ let ahoraIndex = d.hourly.time.findIndex(t =>
+  t.includes(new Date().toISOString().slice(0,13))
+ );
+ if(ahoraIndex === -1) ahoraIndex = 0;
+
  let temp=d.current_weather.temperature;
- let lluvia=d.hourly.precipitation_probability[0];
- let sens=d.hourly.apparent_temperature[0];
+ let lluvia=d.hourly.precipitation_probability[ahoraIndex];
+ let sens=d.hourly.apparent_temperature[ahoraIndex];
+
+ let hum=d.hourly.relativehumidity_2m[ahoraIndex];
+ let viento=d.current_weather.windspeed;
+ let uv=d.hourly.uv_index[ahoraIndex];
+
+ // 🔍 BUSCAR LLUVIA FUTURA
+ let proximaLluvia=null;
+ for(let i=ahoraIndex;i<d.hourly.precipitation_probability.length;i++){
+  if(d.hourly.precipitation_probability[i]>60){
+   proximaLluvia = i - ahoraIndex;
+   break;
+  }
+ }
 
  let tempEl=temp+"°C "+emojiTemp(temp);
+
+ tempEl=temp+"°C "+emojiTemp(temp);
 
  document.getElementById("temp").innerText=tempEl;
  document.getElementById("sensacion").innerText=sens+"°C "+emojiTemp(sens);
 
+ document.getElementById("hum").innerText=hum+"%";
+ document.getElementById("viento").innerText=viento+" km/h";
+ document.getElementById("uv").innerText=uv;
+ document.getElementById("lluvia").innerText=lluvia+"%";
+
  explicar(temp,lluvia);
- alerta(temp,lluvia);
+ alerta(temp,lluvia,proximaLluvia);
  fondo(temp,lluvia);
 
- // 🔔 NOTIFICACIONES INTELIGENTES
- let mensaje="";
- if(temp<5) mensaje="🥶 Hace mucho frío";
- else if(temp>35) mensaje="🥵 Calor extremo";
- else if(lluvia>70) mensaje="🌧️ Lluvia fuerte hoy";
-
- if(mensaje && mensaje!==ultimaAlerta){
-  enviarNoti(mensaje);
-  ultimaAlerta=mensaje;
- }
-
- // WIDGET
+ // widget
  widgetTemp.innerText=tempEl;
  widgetEstado.innerText=temp>25?"Calor":temp>15?"Templado":"Frío";
 
@@ -231,7 +237,7 @@ async function clima(){
 }
 
 clima();
-setInterval(clima,300000); // cada 5 min
+setInterval(clima,300000);
 
 let mapa=L.map('mapa').setView([lat,lon],10);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapa);
