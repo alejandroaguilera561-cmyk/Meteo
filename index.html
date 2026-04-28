@@ -10,237 +10,135 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 
 <style>
-body{margin:0;font-family:'Segoe UI';color:white;text-align:center;transition:1s;}
-.frio{background:linear-gradient(#1e3a8a,#020617);}
-.templado{background:linear-gradient(#0f172a,#020617);}
-.calor{background:linear-gradient(#7f1d1d,#020617);}
-
+body{margin:0;font-family:'Segoe UI';color:white;text-align:center;background:#020617;}
 .app{padding:15px;}
-
-.dashboard{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-.card{background:rgba(255,255,255,0.1);padding:15px;border-radius:15px;}
-.big{font-size:26px;}
-
-#alerta{background:#7f1d1d;padding:10px;border-radius:10px;margin-bottom:10px;}
-#explicacion{background:#1e293b;padding:15px;border-radius:12px;margin:10px 0;}
-
-#pronostico,#horas{display:flex;gap:10px;overflow-x:auto;}
-.day{background:rgba(255,255,255,0.1);padding:10px;border-radius:10px;min-width:120px;}
-
-.lluvia,.nieve{position:fixed;width:100%;height:100%;pointer-events:none;opacity:0;}
-.lluvia{background:url('https://i.imgur.com/9Qx7K0E.png');animation:rain .3s linear infinite;}
-.nieve{background:url('https://i.imgur.com/5QF6R5O.png');animation:snow 5s linear infinite;}
-
-@keyframes rain{100%{background-position:-100px 200px;}}
-@keyframes snow{100%{background-position:100px 300px;}}
+.card{background:rgba(255,255,255,0.1);padding:15px;border-radius:15px;margin:8px;}
+.dashboard{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+#mapa{height:250px;border-radius:10px;margin-top:10px;}
+.day{background:rgba(255,255,255,0.1);padding:10px;border-radius:10px;min-width:110px;}
+#horas,#pronostico{display:flex;overflow-x:auto;gap:10px;}
+#alerta{background:#7f1d1d;padding:10px;border-radius:10px;margin:10px 0;}
 </style>
 </head>
 
-<body class="templado">
-
-<div class="lluvia" id="lluviaFX"></div>
-<div class="nieve" id="nieveFX"></div>
+<body>
 
 <div class="app">
 
 <h2>🌦️ Meteo MAX PRO</h2>
 
-<button onclick="activarVoz()">🔊 Voz</button>
-<button onclick="toggleUbicacion()">📍 Ubicación</button>
-
-<div id="widget" style="background:rgba(255,255,255,0.1);border-radius:15px;padding:10px;margin:10px;">
- <b id="widgetTemp">--</b><br>
- <span id="widgetEstado">Cargando...</span>
-</div>
-
-<div id="alerta">Cargando alertas...</div>
+<div id="alerta">Cargando...</div>
 
 <div class="dashboard">
-<div class="card">Temperatura<div class="big" id="temp">--</div></div>
-<div class="card">Sensación 🥶🥵<div class="big" id="sensacion">--</div></div>
-<div class="card">💧 Humedad<br><span id="hum"></span></div>
-<div class="card">🌬️ Viento<br><span id="viento"></span></div>
-<div class="card">☀️ UV<br><span id="uv"></span></div>
-<div class="card">🌧️ Lluvia<br><span id="lluvia"></span></div>
+<div class="card">🌡️ <span id="temp"></span></div>
+<div class="card">🥶🥵 <span id="sens"></span></div>
+<div class="card">💧 <span id="hum"></span></div>
+<div class="card">🌬️ <span id="viento"></span></div>
+<div class="card">☀️ UV <span id="uv"></span></div>
+<div class="card">🌧️ <span id="lluvia"></span></div>
 </div>
 
-<div id="explicacion">Cargando...</div>
+<div id="explicacion"></div>
 
-<h3>📅 Pronóstico</h3>
-<div id="pronostico"></div>
-
-<h3>⏰ Hoy</h3>
+<h3>⏰ Próximas horas</h3>
 <div id="horas"></div>
 
-<canvas id="grafico"></canvas>
-<div id="mapa" style="height:200px;margin-top:10px;border-radius:10px;"></div>
+<h3>📅 Próximos días</h3>
+<div id="pronostico"></div>
+
+<div id="mapa"></div>
 
 </div>
 
 <script>
 let lat=-25.3, lon=-57.6;
-let vozActiva=false, ultimaVoz=0;
-
-// VOZ
-function activarVoz(){
- vozActiva=true;
- hablar(document.getElementById("explicacion").innerText);
-}
-function hablar(t){
- if(!vozActiva) return;
- let ahora=Date.now();
- if(ahora-ultimaVoz<20000) return;
- speechSynthesis.cancel();
- let m=new SpeechSynthesisUtterance(t);
- m.lang="es-ES";
- speechSynthesis.speak(m);
- ultimaVoz=ahora;
-}
 
 // EMOJIS
-function emojiTemp(t){
- if(t>=30) return "🥵";
- if(t>=20) return "🙂";
- if(t>=12) return "🧥";
- if(t>=6) return "🥶";
- return "❄️";
+function emoji(temp,lluvia){
+ if(lluvia>70) return "🌧️";
+ if(temp>30) return "🥵";
+ if(temp>20) return "🙂";
+ if(temp>10) return "🧥";
+ return "🥶";
 }
 
-// MENSAJE
-function explicar(temp,lluvia){
- let t="",c="";
- if(temp>=30){t="Mucho calor.";c="Usá ropa liviana.";}
- else if(temp>=20){t="Cálido.";c="Salí cómodo.";}
- else if(temp>=15){t="Templado.";c="Llevá abrigo.";}
- else if(temp>=8){t="Frío.";c="Abrigate.";}
- else{t="Mucho frío.";c="Abrigo fuerte.";}
- if(lluvia>60) c+=" Paraguas.";
- let f=t+" "+c;
- document.getElementById("explicacion").innerText=f;
- hablar(f);
+// TEXTO NOTICIERO
+function resumen(temp,lluvia){
+ if(lluvia>70) return "Se esperan lluvias importantes. Salí con paraguas.";
+ if(temp>30) return "Calor intenso durante el día.";
+ if(temp<8) return "Frío fuerte. Abrigate bien.";
+ return "Clima estable y agradable.";
 }
 
-// ALERTA VISUAL + FUTURA
-function alerta(temp,lluvia,proximaLluvia){
- let a="✅ Sin alertas";
+// ALERTA
+function alerta(temp,lluvia){
+ let t="✅ Sin alertas";
 
- if(temp<8) a="⚠️ Mucho frío";
- if(temp>35) a="⚠️ Calor extremo";
- if(lluvia>60) a+=" 🌧️ Lluvia fuerte";
+ if(lluvia>80) t="⛈️ Tormenta fuerte en camino";
+ else if(lluvia>60) t="🌧️ Lluvia probable";
+ else if(temp>35) t="🔥 Calor extremo";
+ else if(temp<5) t="❄️ Frío extremo";
 
- if(proximaLluvia!==null){
-  a+=" | 🌧️ Lluvia en "+proximaLluvia+"h";
- }
-
- document.getElementById("alerta").innerText=a;
+ document.getElementById("alerta").innerText=t;
 }
-
-// FONDO
-function fondo(temp,lluvia){
- document.body.className="";
- if(temp<10){document.body.classList.add("frio");nieveFX.style.opacity=0.5;}
- else{nieveFX.style.opacity=0;}
- if(temp>28) document.body.classList.add("calor");
- else document.body.classList.add("templado");
- lluviaFX.style.opacity=lluvia>60?0.5:0;
-}
-
-// UBICACIÓN
-function toggleUbicacion(){
- navigator.geolocation.getCurrentPosition(p=>{
-  lat=p.coords.latitude;
-  lon=p.coords.longitude;
-  mapa.setView([lat,lon],10);
- });
-}
-
-// GRÁFICO
-let chart=new Chart(document.getElementById("grafico"),{
- type:'line',
- data:{labels:[],datasets:[{label:"Temp °C",data:[]}]}
-});
 
 // CLIMA
 async function clima(){
- let r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&hourly=temperature_2m,relativehumidity_2m,precipitation_probability,apparent_temperature,uv_index,time&timezone=auto`);
+
+ let r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=temperature_2m,precipitation_probability,apparent_temperature,relativehumidity_2m,uv_index,time&daily=temperature_2m_max,temperature_2m_min&timezone=auto`);
  let d=await r.json();
 
- // hora actual real
- let ahoraIndex = d.hourly.time.findIndex(t =>
-  t.includes(new Date().toISOString().slice(0,13))
- );
- if(ahoraIndex === -1) ahoraIndex = 0;
+ let ahora = new Date().toISOString().slice(0,13);
+ let index = d.hourly.time.findIndex(t=>t.includes(ahora));
+ if(index<0) index=0;
 
  let temp=d.current_weather.temperature;
- let lluvia=d.hourly.precipitation_probability[ahoraIndex];
- let sens=d.hourly.apparent_temperature[ahoraIndex];
-
- let hum=d.hourly.relativehumidity_2m[ahoraIndex];
+ let sens=d.hourly.apparent_temperature[index];
+ let hum=d.hourly.relativehumidity_2m[index];
+ let lluvia=d.hourly.precipitation_probability[index];
+ let uv=d.hourly.uv_index[index];
  let viento=d.current_weather.windspeed;
- let uv=d.hourly.uv_index[ahoraIndex];
 
- // 🔍 BUSCAR LLUVIA FUTURA
- let proximaLluvia=null;
- for(let i=ahoraIndex;i<d.hourly.precipitation_probability.length;i++){
-  if(d.hourly.precipitation_probability[i]>60){
-   proximaLluvia = i - ahoraIndex;
-   break;
-  }
- }
-
- let tempEl=temp+"°C "+emojiTemp(temp);
-
- tempEl=temp+"°C "+emojiTemp(temp);
-
- document.getElementById("temp").innerText=tempEl;
- document.getElementById("sensacion").innerText=sens+"°C "+emojiTemp(sens);
-
+ document.getElementById("temp").innerText=temp+"°C "+emoji(temp,lluvia);
+ document.getElementById("sens").innerText=sens+"°C";
  document.getElementById("hum").innerText=hum+"%";
  document.getElementById("viento").innerText=viento+" km/h";
  document.getElementById("uv").innerText=uv;
  document.getElementById("lluvia").innerText=lluvia+"%";
 
- explicar(temp,lluvia);
- alerta(temp,lluvia,proximaLluvia);
- fondo(temp,lluvia);
+ document.getElementById("explicacion").innerText=resumen(temp,lluvia);
 
- // widget
- widgetTemp.innerText=tempEl;
- widgetEstado.innerText=temp>25?"Calor":temp>15?"Templado":"Frío";
+ alerta(temp,lluvia);
 
- // HORAS
+ // HORAS (cada 3 horas)
  horas.innerHTML="";
- [["🌅 Mañana",8],["🌇 Tarde",14],["🌙 Noche",20]].forEach(b=>{
-  let t=d.hourly.temperature_2m[b[1]];
-  let l=d.hourly.precipitation_probability[b[1]];
-  horas.innerHTML+=`<div class="day">${b[0]}<br>${emojiTemp(t)} ${t}°<br>🌧️ ${l}%</div>`;
- });
+ for(let i=index;i<index+12;i+=3){
+  let t=d.hourly.temperature_2m[i];
+  let l=d.hourly.precipitation_probability[i];
+  horas.innerHTML+=`<div class="day">${emoji(t,l)}<br>${t}°<br>🌧️${l}%</div>`;
+ }
 
- // PRONÓSTICO
+ // DIAS
  pronostico.innerHTML="";
  d.daily.time.forEach((dia,i)=>{
   let max=d.daily.temperature_2m_max[i];
   let min=d.daily.temperature_2m_min[i];
-  let lluvia=d.daily.precipitation_probability_max[i];
-  let estado=max>30?"🥵":max>20?"🙂":max>15?"🧥":"🥶";
-  pronostico.innerHTML+=`<div class="day">${dia.slice(5)}<br>${estado}<br>🌡️${max}°<br>❄️${min}°<br>🌧️${lluvia}%</div>`;
+  pronostico.innerHTML+=`<div class="day">${dia.slice(5)}<br>🌡️${max}°<br>❄️${min}°</div>`;
  });
-
- // gráfico
- chart.data.labels.push(new Date().toLocaleTimeString());
- chart.data.datasets[0].data.push(temp);
- if(chart.data.labels.length>10){
-  chart.data.labels.shift();
-  chart.data.datasets[0].data.shift();
- }
- chart.update();
 }
+
+// MAPA + RADAR
+let mapa=L.map('mapa').setView([lat,lon],10);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapa);
+
+// 🌧️ Radar lluvia (RainViewer)
+L.tileLayer('https://tilecache.rainviewer.com/v2/radar/latest/256/{z}/{x}/{y}/2/1_1.png', {
+ opacity:0.6
+}).addTo(mapa);
 
 clima();
 setInterval(clima,300000);
-
-let mapa=L.map('mapa').setView([lat,lon],10);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapa);
 
 </script>
 
