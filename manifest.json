@@ -1,15 +1,33 @@
 {
   "name": "Meteo MAX PRO",
   "short_name": "Meteo",
+  "description": "Estación meteorológica avanzada con pronóstico, radar y alertas",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#020617",
-  "theme_color": "#020617",
+  "orientation": "portrait-primary",
+  "background_color": "#050b18",
+  "theme_color": "#050b18",
+  "lang": "es",
+  "categories": ["weather", "utilities"],
   "icons": [
     {
       "src": "https://cdn-icons-png.flaticon.com/512/1163/1163624.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/1163/1163624.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Ver clima actual",
+      "url": "./index.html",
+      "description": "Abre la app en el clima actual"
     }
   ]
 }
