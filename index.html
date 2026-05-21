@@ -3,976 +3,398 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#05111f">
-<meta name="description" content="Pronóstico-ZAP PRO - Centro Meteorológico Inteligente">
 
-<title>Pronóstico-ZAP PRO</title>
+<title>Pronóstico-Zap AI</title>
+
+<meta name="theme-color" content="#0b1220">
+<meta name="description" content="Sistema Meteorológico Inteligente Pronóstico-Zap AI">
 
 <link rel="manifest" href="manifest.json">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+<link rel="stylesheet"
+href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-<style>
-
-:root{
- --bg:#050b18;
- --panel:rgba(255,255,255,.06);
- --border:rgba(255,255,255,.12);
- --accent:#38bdf8;
- --accent2:#0ea5e9;
- --success:#22c55e;
- --warn:#f59e0b;
- --danger:#ef4444;
- --text:#e2e8f0;
- --muted:#64748b;
- --radius:18px;
- --mono:'Space Mono',monospace;
- --font:'Syne',sans-serif;
-}
-
-*{
- margin:0;
- padding:0;
- box-sizing:border-box;
-}
-
-html{
- scroll-behavior:smooth;
-}
-
-body{
- background:var(--bg);
- color:var(--text);
- font-family:var(--font);
- min-height:100vh;
- overflow-x:hidden;
-}
-
-/* Fondo animado */
-
-body::before{
- content:'';
- position:fixed;
- inset:0;
- background:
- radial-gradient(circle at 20% 20%,rgba(56,189,248,.15),transparent 30%),
- radial-gradient(circle at 80% 30%,rgba(14,165,233,.10),transparent 30%),
- radial-gradient(circle at 50% 90%,rgba(56,189,248,.08),transparent 30%);
- z-index:-2;
-}
-
-body::after{
- content:'';
- position:fixed;
- inset:0;
- backdrop-filter:blur(120px);
- z-index:-1;
-}
-
-/* Layout */
-
-.container{
- width:min(1200px,95%);
- margin:auto;
- padding:18px;
-}
-
-/* Header */
-
-header{
- display:flex;
- justify-content:space-between;
- align-items:center;
- gap:12px;
- margin-bottom:20px;
-}
-
-.logo{
- font-size:1.3rem;
- font-weight:800;
- letter-spacing:-1px;
-}
-
-.logo span{
- color:var(--accent);
-}
-
-.actions{
- display:flex;
- gap:8px;
- flex-wrap:wrap;
-}
-
-.btn{
- background:var(--panel);
- border:1px solid var(--border);
- color:white;
- border-radius:999px;
- padding:10px 15px;
- cursor:pointer;
- transition:.2s;
-}
-
-.btn:hover{
- border-color:var(--accent);
- transform:translateY(-2px);
-}
-
-/* Banner */
-
-#alerta{
- margin-bottom:15px;
- padding:12px 16px;
- border-radius:14px;
- font-size:.9rem;
- font-weight:700;
-}
-
-.ok{
- background:rgba(34,197,94,.15);
- border:1px solid rgba(34,197,94,.4);
- color:#4ade80;
-}
-
-.warn{
- background:rgba(245,158,11,.15);
- border:1px solid rgba(245,158,11,.4);
- color:#fbbf24;
-}
-
-.danger{
- background:rgba(239,68,68,.15);
- border:1px solid rgba(239,68,68,.4);
- color:#f87171;
-}
-
-/* Hero */
-
-.hero{
- display:grid;
- grid-template-columns:1fr auto;
- gap:20px;
- background:var(--panel);
- border:1px solid var(--border);
- border-radius:var(--radius);
- padding:25px;
- margin-bottom:18px;
- backdrop-filter:blur(20px);
-}
-
-.hero-temp{
- font-size:clamp(60px,12vw,100px);
- font-family:var(--mono);
- font-weight:700;
- line-height:1;
-}
-
-.hero-city{
- color:var(--muted);
- margin-bottom:8px;
-}
-
-.hero-desc{
- margin-top:8px;
- color:#cbd5e1;
-}
-
-.hero-icon{
- font-size:80px;
-}
-
-/* Tarjetas */
-
-.grid{
- display:grid;
- grid-template-columns:
- repeat(auto-fit,minmax(170px,1fr));
- gap:12px;
- margin-bottom:20px;
-}
-
-.card{
- background:var(--panel);
- border:1px solid var(--border);
- border-radius:var(--radius);
- padding:18px;
- backdrop-filter:blur(10px);
- transition:.2s;
-}
-
-.card:hover{
- transform:translateY(-3px);
- border-color:var(--accent);
-}
-
-.card-title{
- color:var(--muted);
- font-size:.8rem;
- text-transform:uppercase;
- margin-bottom:10px;
-}
-
-.card-value{
- font-size:1.7rem;
- font-family:var(--mono);
- font-weight:700;
-}
-
-/* Secciones */
-
-.section-title{
- margin:25px 0 10px;
- color:var(--muted);
- text-transform:uppercase;
- letter-spacing:2px;
- font-size:.8rem;
-}
-
-/* Pronóstico horas */
-
-.hours{
- display:flex;
- gap:10px;
- overflow:auto;
- padding-bottom:10px;
-}
-
-.hour{
- min-width:90px;
- text-align:center;
- background:var(--panel);
- border:1px solid var(--border);
- border-radius:14px;
- padding:12px;
-}
-
-/* Pronóstico semanal */
-
-.days{
- display:flex;
- gap:10px;
- overflow:auto;
- padding-bottom:10px;
-}
-
-.day{
- min-width:120px;
- text-align:center;
- background:var(--panel);
- border:1px solid var(--border);
- border-radius:14px;
- padding:14px;
-}
-
-/* Gráficos */
-
-.chart-box{
- background:var(--panel);
- border:1px solid var(--border);
- border-radius:var(--radius);
- padding:16px;
- margin-bottom:16px;
-}
-
-/* Mapa */
-
-#map{
- height:320px;
- border-radius:var(--radius);
- overflow:hidden;
- border:1px solid var(--border);
-}
-
-/* Modal búsqueda */
-
-.modal{
- position:fixed;
- inset:0;
- background:rgba(0,0,0,.75);
- display:none;
- justify-content:center;
- align-items:center;
- z-index:999;
-}
-
-.modal.active{
- display:flex;
-}
-
-.modal-content{
- width:min(500px,90%);
- background:#09131f;
- border:1px solid var(--border);
- border-radius:20px;
- padding:20px;
-}
-
-.modal-content input{
- width:100%;
- padding:14px;
- border:none;
- border-radius:12px;
- background:#0f1d2c;
- color:white;
- margin-bottom:10px;
-}
-
-/* Footer */
-
-footer{
- text-align:center;
- margin-top:30px;
- color:var(--muted);
- font-size:.8rem;
-}
-
-/* Responsive */
-
-@media(max-width:700px){
-
-.hero{
- grid-template-columns:1fr;
-}
-
-.hero-icon{
- font-size:60px;
-}
-
-}
-
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
-
-<script>
-
-// =============================
-// PRONÓSTICO-ZAP PRO v3.0
-// =============================
-
-const estado = {
-  lat: -35.18,
-  lon: -59.09,
-  ciudad: "Lobos",
-  unidad: "C",
-  mapa: null,
-  graficoTemp: null,
-  graficoHistorial: null
-};
-
-// =============================
-// ICONOS CLIMA
-// =============================
-
-function iconoClima(code){
-
-if(code===0) return "☀️";
-if(code<=2) return "🌤️";
-if(code===3) return "☁️";
-
-if(
-code===51||
-code===53||
-code===55||
-code===61||
-code===63||
-code===65||
-code===80||
-code===81||
-code===82
-) return "🌧️";
-
-if(
-code===71||
-code===73||
-code===75
-) return "❄️";
-
-if(
-code===95||
-code===96||
-code===99
-) return "⛈️";
-
-return "🌡️";
-
-}
-
-// =============================
-// DESCRIPCIÓN
-// =============================
-
-function descripcionClima(code){
-
-const mapa = {
-
-0:"Despejado",
-1:"Mayormente despejado",
-2:"Parcialmente nublado",
-3:"Nublado",
-
-45:"Neblina",
-
-51:"Llovizna leve",
-53:"Llovizna moderada",
-55:"Llovizna intensa",
-
-61:"Lluvia leve",
-63:"Lluvia moderada",
-65:"Lluvia intensa",
-
-71:"Nevada leve",
-73:"Nevada moderada",
-75:"Nevada intensa",
-
-80:"Chaparrones",
-81:"Lluvia fuerte",
-
-95:"Tormenta",
-96:"Tormenta con granizo",
-99:"Tormenta severa"
-
-};
-
-return mapa[code] || "Condición variable";
-
-}
-
-// =============================
-// ALERTAS
-// =============================
-
-function mostrarAlerta(texto,tipo){
-
-const alerta=document.getElementById("alerta");
-
-alerta.className=tipo;
-alerta.innerHTML=texto;
-
-}
-
-// =============================
-// CLIMA OPEN METEO
-// =============================
-
-async function obtenerClima(){
-
-try{
-
-mostrarAlerta(
-"⏳ Actualizando información meteorológica...",
-"ok"
-);
-
-const url=
-`https://api.open-meteo.com/v1/forecast?latitude=${estado.lat}&longitude=${estado.lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&hourly=temperature_2m,precipitation_probability&daily=temperature_2m_max,temperature_2m_min&forecast_days=7&timezone=auto`;
-
-const respuesta = await fetch(url);
-
-const data = await respuesta.json();
-
-const actual = data.current;
-
-document.getElementById("temperatura").innerText=
-Math.round(actual.temperature_2m);
-
-document.getElementById("descripcion").innerText=
-descripcionClima(actual.weather_code);
-
-document.getElementById("icono").innerText=
-iconoClima(actual.weather_code);
-
-document.getElementById("humedad").innerText=
-actual.relative_humidity_2m+"%";
-
-document.getElementById("viento").innerText=
-Math.round(actual.wind_speed_10m)+" km/h";
-
-document.getElementById("uv").innerText="--";
-
-document.getElementById("lluvia").innerText=
-(data.hourly.precipitation_probability[0]||0)+"%";
-
-document.getElementById("maxima").innerText=
-Math.round(data.daily.temperature_2m_max[0])+"°";
-
-document.getElementById("minima").innerText=
-Math.round(data.daily.temperature_2m_min[0])+"°";
-
-crearHoras(data);
-crearSemana(data);
-crearGraficoHoras(data);
-
-mostrarAlerta(
-"✅ Datos actualizados correctamente",
-"ok"
-);
-
-}catch(error){
-
-mostrarAlerta(
-"⚠️ Error obteniendo datos meteorológicos",
-"danger"
-);
-
-console.error(error);
-
-}
-
-}
-
-// =============================
-// HORAS
-// =============================
-
-function crearHoras(data){
-
-const cont=document.getElementById("horas");
-
-cont.innerHTML="";
-
-for(let i=0;i<24;i++){
-
-const div=document.createElement("div");
-
-div.className="hour";
-
-div.innerHTML=`
-<div>${i}:00</div>
-<div>🌡️</div>
-<div>${Math.round(data.hourly.temperature_2m[i])}°</div>
-`;
-
-cont.appendChild(div);
-
-}
-
-}
-
-// =============================
-// SEMANA
-// =============================
-
-function crearSemana(data){
-
-const dias=document.getElementById("dias");
-
-dias.innerHTML="";
-
-const nombres=[
-"Dom","Lun","Mar",
-"Mié","Jue","Vie","Sáb"
-];
-
-for(let i=0;i<7;i++){
-
-const fecha=
-new Date(data.daily.time[i]);
-
-const card=document.createElement("div");
-
-card.className="day";
-
-card.innerHTML=`
-<div>${nombres[fecha.getDay()]}</div>
-<div>🌤️</div>
-<div>${Math.round(data.daily.temperature_2m_max[i])}°</div>
-<div>${Math.round(data.daily.temperature_2m_min[i])}°</div>
-`;
-
-dias.appendChild(card);
-
-}
-
-}
-
-// =============================
-// GRÁFICO
-// =============================
-
-function crearGraficoHoras(data){
-
-const horas=
-Array.from({length:24},(_,i)=>i);
-
-if(estado.graficoTemp){
-
-estado.graficoTemp.destroy();
-
-}
-
-estado.graficoTemp=
-new Chart(
-document.getElementById("graficoTemp"),
-{
-type:"line",
-
-data:{
-labels:horas,
-
-datasets:[
-{
-label:"Temperatura",
-data:data.hourly.temperature_2m.slice(0,24),
-borderColor:"#38bdf8",
-fill:false
-}
-]
-}
-}
-);
-
-}
-
-// =============================
-// MAPA
-// =============================
-
-function iniciarMapa(){
-
-estado.mapa=L.map("map")
-.setView([estado.lat,estado.lon],9);
-
-L.tileLayer(
-"https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-{
-maxZoom:19
-}
-).addTo(estado.mapa);
-
-L.marker(
-[estado.lat,estado.lon]
-).addTo(estado.mapa);
-
-}
-
-// =============================
-// GEOLOCALIZACIÓN
-// =============================
-
-function detectarUbicacion(){
-
-if(!navigator.geolocation){
-
-obtenerClima();
-return;
-
-}
-
-navigator.geolocation.getCurrentPosition(
-
-pos=>{
-
-estado.lat=
-pos.coords.latitude;
-
-estado.lon=
-pos.coords.longitude;
-
-document.getElementById("ciudad")
-.innerHTML=
-"📍 Mi ubicación";
-
-obtenerClima();
-
-},
-
-()=>{
-obtenerClima();
-}
-
-);
-
-}
-
-// =============================
-// UNIDADES
-// =============================
-
-function cambiarUnidad(){
-
-estado.unidad=
-estado.unidad==="C" ? "F" : "C";
-
-document.getElementById("btnUnits")
-.innerText=
-estado.unidad==="C"
-? "°C"
-: "°F";
-
-}
-
-// =============================
-// VOZ
-// =============================
-
-function activarVoz(){
-
-const texto=
-document.getElementById("descripcion")
-.innerText;
-
-speechSynthesis.speak(
-new SpeechSynthesisUtterance(
-texto
-)
-);
-
-}
-
-// =============================
-// NOTIFICACIONES
-// =============================
-
-function toggleNotificaciones(){
-
-Notification.requestPermission()
-.then(r=>{
-
-if(r==="granted"){
-
-new Notification(
-"Pronóstico-ZAP",
-{
-body:"Notificaciones activadas"
-}
-);
-
-}
-
-});
-
-}
-
-// =============================
-// BUSCADOR
-// =============================
-
-function abrirBusqueda(){
-
-document
-.getElementById("modalBusqueda")
-.classList.add("active");
-
-}
-
-function cerrarBusqueda(){
-
-document
-.getElementById("modalBusqueda")
-.classList.remove("active");
-
-}
-
-function buscarCiudad(texto){
-
-const res=
-document.getElementById(
-"resultadosBusqueda"
-);
-
-if(texto.length<2){
-
-res.innerHTML="";
-return;
-
-}
-
-res.innerHTML=
-`
-<div style="padding:10px">
-Resultados para: ${texto}
-</div>
-`;
-
-}
-
-// =============================
-// INICIO
-// =============================
-
-window.onload=()=>{
-
-iniciarMapa();
-
-detectarUbicacion();
-
-};
-
-</script>
-
-</body>
-</html>
 
 <body>
 
-<div class="container">
+<div id="particles"></div>
 
-<header>
-<div class="logo">PRONÓSTICO<span>-ZAP</span> PRO</div>
+<header class="topbar">
+
+<div class="logo">
+🌦️ PRONÓSTICO-ZAP AI
+</div>
 
 <div class="actions">
-<button class="btn" onclick="abrirBusqueda()">🔍</button>
-<button class="btn" id="btnUnits" onclick="cambiarUnidad()">°C</button>
-<button class="btn" onclick="activarVoz()">🔊</button>
-<button class="btn" onclick="toggleNotificaciones()">🔔</button>
-<button class="btn" onclick="obtenerClima()">↻</button>
+
+<button onclick="buscarCiudad()">
+🔍
+</button>
+
+<button onclick="toggleUnits()">
+°C / °F
+</button>
+
+<button onclick="activarVoz()">
+🔊
+</button>
+
+<button onclick="actualizarClima()">
+↻
+</button>
+
 </div>
+
 </header>
 
-<div id="alerta" class="ok">
-✅ Sistema meteorológico iniciado correctamente
-</div>
+<section class="hero">
 
-<div class="hero">
+<div class="hero-left">
 
-<div>
-<div class="hero-city" id="ciudad">
+<div id="ubicacion">
 📍 Detectando ubicación...
 </div>
 
-<div class="hero-temp">
-<span id="temperatura">--</span>
-<span id="unidad">°C</span>
+<h1 id="temperatura">
+--°
+</h1>
+
+<div id="descripcion">
+Cargando clima...
 </div>
 
-<div class="hero-desc" id="descripcion">
-Cargando datos meteorológicos...
-</div>
-</div>
-
-<div class="hero-icon" id="icono">
-🌤️
+<div id="sensacion">
+Sensación térmica: --
 </div>
 
 </div>
 
-<div class="grid">
+<div class="hero-right">
 
-<div class="card">
-<div class="card-title">💧 Humedad</div>
-<div class="card-value" id="humedad">--</div>
+<div id="iconoClima">
+☀️
 </div>
 
-<div class="card">
-<div class="card-title">🌬️ Viento</div>
-<div class="card-value" id="viento">--</div>
 </div>
 
-<div class="card">
-<div class="card-title">☀️ UV</div>
-<div class="card-value" id="uv">--</div>
+</section>
+
+<section class="alertas">
+
+<div id="alertaMeteorologica" class="alerta ok">
+Sin alertas meteorológicas
 </div>
 
-<div class="card">
-<div class="card-title">🌧️ Lluvia</div>
-<div class="card-value" id="lluvia">--</div>
-</div>
+</section>
+
+<section class="cards-grid">
 
 <div class="card">
-<div class="card-title">🌡️ Máxima</div>
-<div class="card-value" id="maxima">--</div>
+<h3>💧 Humedad</h3>
+<div id="humedad">--%</div>
 </div>
 
 <div class="card">
-<div class="card-title">❄️ Mínima</div>
-<div class="card-value" id="minima">--</div>
+<h3>🌬️ Viento</h3>
+<div id="viento">-- km/h</div>
 </div>
 
+<div class="card">
+<h3>☀️ Índice UV</h3>
+<div id="uv">--</div>
 </div>
 
-<div class="section-title">
-⏰ Pronóstico próximas horas
+<div class="card">
+<h3>🌧️ Probabilidad lluvia</h3>
+<div id="lluvia">--%</div>
 </div>
 
-<div class="hours" id="horas">
-
-<div class="hour">
-<div>Ahora</div>
-<div>🌤️</div>
-<div>--°</div>
+<div class="card">
+<h3>🌡️ Máxima</h3>
+<div id="maxima">--°</div>
 </div>
 
+<div class="card">
+<h3>❄️ Mínima</h3>
+<div id="minima">--°</div>
 </div>
 
-<div class="section-title">
-📅 Pronóstico semanal
+</section>
+
+<section class="panel">
+
+<h2>
+⏰ Pronóstico por horas
+</h2>
+
+<div id="pronosticoHoras"
+class="forecast-scroll">
 </div>
 
-<div class="days" id="dias">
+</section>
 
-<div class="day">
-<div>Lun</div>
-<div>☀️</div>
-<div>25°</div>
+<section class="panel">
+
+<h2>
+📅 Pronóstico de 7 días
+</h2>
+
+<div id="pronostico7dias"
+class="forecast-days">
 </div>
 
-</div>
+</section>
 
-<div class="section-title">
-📈 Temperatura por hora
-</div>
+<section class="panel">
 
-<div class="chart-box">
-<canvas id="graficoTemp"></canvas>
-</div>
+<h2>
+📈 Temperatura del día
+</h2>
 
-<div class="section-title">
-📊 Historial
-</div>
+<canvas id="graficoTemperatura"></canvas>
 
-<div class="chart-box">
+</section>
+
+<section class="panel">
+
+<h2>
+📊 Historial Meteorológico Inteligente
+</h2>
+
 <canvas id="graficoHistorial"></canvas>
+
+</section>
+
+<section class="panel">
+
+<h2>
+🛰️ Radar Meteorológico
+</h2>
+
+<div id="radarContainer">
+
+<iframe
+id="radarFrame"
+src="https://embed.windy.com/embed2.html"
+allowfullscreen>
+</iframe>
+
 </div>
 
-<div class="section-title">
-🗺️ Radar meteorológico
+</section>
+
+<section class="panel">
+
+<h2>
+🗺️ Mapa Interactivo
+</h2>
+
+<div id="mapa"></div>
+</section>
+
+<!-- ===================================================== -->
+<!-- IA PRONÓSTICO-ZAP AI -->
+<!-- ===================================================== -->
+
+<section class="panel">
+
+<h2>
+🤖 Asistente IA Pronóstico-Zap
+</h2>
+
+<div id="chatContainer">
+
+<div id="chatMessages">
+
+<div class="bot-message">
+Hola 👋 Soy Pronóstico-Zap AI.
+Puedo ayudarte con información meteorológica,
+explicar fenómenos climáticos y responder preguntas.
 </div>
 
-<div id="map"></div>
+</div>
+
+<div class="chat-input-area">
+
+<input
+type="text"
+id="chatInput"
+placeholder="Escribe tu pregunta..."
+autocomplete="off">
+
+<button onclick="enviarMensajeIA()">
+Enviar
+</button>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- ===================================================== -->
+<!-- ESTACIÓN METEOROLÓGICA ESCOLAR -->
+<!-- ===================================================== -->
+
+<section class="panel">
+
+<h2>
+🌾 Estación Meteorológica Escolar
+</h2>
+
+<div class="cards-grid">
+
+<div class="card">
+<h3>🌡️ Temperatura</h3>
+<div id="sensorTemp">--°</div>
+</div>
+
+<div class="card">
+<h3>💨 Presión</h3>
+<div id="sensorPresion">-- hPa</div>
+</div>
+
+<div class="card">
+<h3>💧 Humedad</h3>
+<div id="sensorHumedad">--%</div>
+</div>
+
+<div class="card">
+<h3>🌬️ Dirección viento</h3>
+<div id="sensorDireccion">--</div>
+</div>
+
+</div>
+
+</section>
+
+<!-- ===================================================== -->
+<!-- DATOS ASTRONÓMICOS -->
+<!-- ===================================================== -->
+
+<section class="panel">
+
+<h2>
+🌙 Datos Astronómicos
+</h2>
+
+<div class="cards-grid">
+
+<div class="card">
+<h3>🌅 Amanecer</h3>
+<div id="amanecer">--:--</div>
+</div>
+
+<div class="card">
+<h3>🌇 Atardecer</h3>
+<div id="atardecer">--:--</div>
+</div>
+
+<div class="card">
+<h3>🌕 Fase Lunar</h3>
+<div id="faseLunar">--</div>
+</div>
+
+<div class="card">
+<h3>⭐ Visibilidad</h3>
+<div id="visibilidad">-- km</div>
+</div>
+
+</div>
+
+</section>
+
+<!-- ===================================================== -->
+<!-- FOOTER -->
+<!-- ===================================================== -->
 
 <footer>
 
-Pronóstico-ZAP PRO v3.0<br>
-Datos meteorológicos: Open-Meteo<br>
-Mapas: OpenStreetMap + Leaflet
+<div class="footer-logo">
+🌦️ Pronóstico-Zap AI
+</div>
 
-</footer>
+<div class="footer-text">
+
+Sistema Meteorológico Inteligente<br>
+
+Proyecto Escolar de Ciencias<br>
+
+Radar • IA • Mapas • Pronósticos • Historial
 
 </div>
 
-<!-- MODAL BUSQUEDA -->
+<div class="footer-version">
 
-<div class="modal" id="modalBusqueda">
+Versión 3.0 Ultimate Edition
+
+</div>
+
+</footer>
+
+<!-- ===================================================== -->
+<!-- MODAL BUSCADOR -->
+<!-- ===================================================== -->
+
+<div id="modalBusqueda" class="modal">
 
 <div class="modal-content">
 
-<h2 style="margin-bottom:15px">
+<h2>
 🔍 Buscar ciudad
 </h2>
 
 <input
 type="text"
-placeholder="Ejemplo: Lobos, Buenos Aires"
 id="buscadorCiudad"
-oninput="buscarCiudad(this.value)"
->
+placeholder="Ej: Lobos, Buenos Aires">
 
 <div id="resultadosBusqueda"></div>
 
-<button
-class="btn"
-style="margin-top:15px;width:100%"
-onclick="cerrarBusqueda()"
->
+<button onclick="cerrarBusqueda()">
 Cerrar
 </button>
 
 </div>
 
 </div>
+
+<!-- ===================================================== -->
+<!-- LOADING -->
+<!-- ===================================================== -->
+
+<div id="pantallaCarga">
+
+<div class="loader"></div>
+
+<div class="loadingText">
+
+Iniciando Pronóstico-Zap AI...
+
+</div>
+
+</div>
+
+<!-- ===================================================== -->
+<!-- APP JS -->
+<!-- ===================================================== -->
+
+<script src="app.js"></script>
+
+<script>
+
+if ('serviceWorker' in navigator) {
+navigator.serviceWorker.register('sw.js');
+}
+
+</script>
+
+</body>
+</html>
