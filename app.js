@@ -1,116 +1,188 @@
-const ciudad = document.getElementById("ciudad");
-const temp = document.getElementById("temp");
-const estado = document.getElementById("estado");
-const humedad = document.getElementById("humedad");
-const viento = document.getElementById("viento");
-const uv = document.getElementById("uv");
-const lluviaProb = document.getElementById("lluviaProb");
-const pronostico = document.getElementById("pronostico");
+// =====================================================
+// PRONOSTICO-ZAP AI
+// APP.JS
+// =====================================================
 
-let grafico;
+// Estado global
+const estado = {
+  lat: -35.186,
+  lon: -59.094,
+  ciudad: "Lobos",
+  unidad: "C",
+  mapa: null,
+  marcador: null
+};
 
-// Coordenadas iniciales (Lobos, Buenos Aires)
-let lat = -35.186;
-let lon = -59.094;
+// =====================================================
+// INICIO
+// =====================================================
 
-async function cargarClima() {
+window.addEventListener("load", () => {
 
-    try {
+  iniciarMapa();
 
-        const url =
-        `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&hourly=temperature_2m&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto`;
+  obtenerUbicacion();
 
-        const respuesta = await fetch(url);
-        const datos = await respuesta.json();
+  iniciarGraficos();
 
-        const actual = datos.current;
+  ocultarPantallaCarga();
 
-        temp.textContent = Math.round(actual.temperature_2m);
-        humedad.textContent = actual.relative_humidity_2m + " %";
-        viento.textContent = actual.wind_speed_10m + " km/h";
+});
 
-        estado.textContent = descripcionClima(actual.weather_code);
+// =====================================================
+// PANTALLA DE CARGA
+// =====================================================
 
-        ciudad.textContent = "PRONÓSTICO-ZAP";
+function ocultarPantallaCarga() {
 
-        uv.textContent = "Disponible próximamente";
+  setTimeout(() => {
 
-        lluviaProb.textContent =
-            datos.daily.precipitation_probability_max[0] + " %";
+    const pantalla =
+      document.getElementById("pantallaCarga");
 
-        cargarPronostico(datos);
-        crearGrafico(datos);
-
-    } catch (error) {
-
-        estado.textContent = "Error al cargar datos";
-
-        console.error(error);
-    }
-}
-
-function descripcionClima(codigo){
-
-    if(codigo === 0) return "☀️ Despejado";
-    if(codigo <= 3) return "⛅ Parcialmente nublado";
-    if(codigo <= 48) return "🌫️ Niebla";
-    if(codigo <= 67) return "🌧️ Lluvia";
-    if(codigo <= 77) return "❄️ Nieve";
-    if(codigo <= 99) return "⛈️ Tormenta";
-
-    return "Clima variable";
-}
-
-function cargarPronostico(datos){
-
-    pronostico.innerHTML = "";
-
-    const dias = datos.daily.time;
-
-    for(let i=0;i<7;i++){
-
-        const div = document.createElement("div");
-
-        div.className = "dia";
-
-        div.innerHTML = `
-            <h3>${dias[i]}</h3>
-            <p>🌡️ ${Math.round(datos.daily.temperature_2m_max[i])}°</p>
-            <p>❄️ ${Math.round(datos.daily.temperature_2m_min[i])}°</p>
-            <p>🌧️ ${datos.daily.precipitation_probability_max[i]}%</p>
-        `;
-
-        pronostico.appendChild(div);
-    }
-}
-
-function crearGrafico(datos){
-
-    const horas = datos.hourly.time.slice(0,24);
-    const temperaturas = datos.hourly.temperature_2m.slice(0,24);
-
-    const ctx = document.getElementById("graficoTemp");
-
-    if(grafico){
-        grafico.destroy();
+    if (pantalla) {
+      pantalla.style.display = "none";
     }
 
-    grafico = new Chart(ctx,{
-        type:"line",
-        data:{
-            labels:horas.map(h => h.substring(11,16)),
-            datasets:[{
-                label:"Temperatura °C",
-                data:temperaturas,
-                borderWidth:3,
-                tension:0.4
-            }]
-        },
-        options:{
-            responsive:true
-        }
-    });
+  }, 2000);
+
 }
 
-cargarClima();
-setInterval(cargarClima,600000);
+// =====================================================
+// UBICACIÓN
+// =====================================================
+
+function obtenerUbicacion() {
+
+  if (!navigator.geolocation) {
+
+    actualizarClima();
+
+    return;
+
+  }
+
+  navigator.geolocation.getCurrentPosition(
+
+    posicion => {
+
+      estado.lat =
+        posicion.coords.latitude;
+
+      estado.lon =
+        posicion.coords.longitude;
+
+      actualizarClima();
+
+    },
+
+    () => {
+
+      actualizarClima();
+
+    }
+
+  );
+
+}
+
+// =====================================================
+// CLIMA OPEN-METEO
+// =====================================================
+
+async function actualizarClima() {
+
+  try {
+
+    const url =
+      `https://api.open-meteo.com/v1/forecast?latitude=${estado.lat}&longitude=${estado.lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&hourly=temperature_2m&daily=temperature_2m_max,temperature_2m_min&timezone=auto`;
+
+    const respuesta =
+      await fetch(url);
+
+    const datos =
+      await respuesta.json();
+
+    mostrarClima(datos);
+
+  }
+
+  catch(error) {
+
+    console.error(error);
+
+  }
+
+}
+
+// =====================================================
+// MOSTRAR DATOS
+// =====================================================
+
+function mostrarClima(datos) {
+
+  document.getElementById("temperatura")
+    .textContent =
+    Math.round(
+      datos.current.temperature_2m
+    ) + "°";
+
+  document.getElementById("humedad")
+    .textContent =
+    datos.current.relative_humidity_2m + "%";
+
+  document.getElementById("viento")
+    .textContent =
+    Math.round(
+      datos.current.wind_speed_10m
+    ) + " km/h";
+
+  document.getElementById("descripcion")
+    .textContent =
+    descripcionClima(
+      datos.current.weather_code
+    );
+
+  document.getElementById("maxima")
+    .textContent =
+    Math.round(
+      datos.daily.temperature_2m_max[0]
+    ) + "°";
+
+  document.getElementById("minima")
+    .textContent =
+    Math.round(
+      datos.daily.temperature_2m_min[0]
+    ) + "°";
+
+}
+
+// =====================================================
+// DESCRIPCIÓN CLIMA
+// =====================================================
+
+function descripcionClima(codigo) {
+
+  const codigos = {
+
+    0:"Despejado ☀️",
+    1:"Mayormente despejado 🌤️",
+    2:"Parcialmente nublado ⛅",
+    3:"Nublado ☁️",
+
+    45:"Niebla 🌫️",
+    48:"Niebla 🌫️",
+
+    51:"Llovizna 🌦️",
+    61:"Lluvia 🌧️",
+
+    71:"Nieve ❄️",
+
+    95:"Tormenta ⛈️"
+
+  };
+
+  return codigos[codigo]
+    || "Condición variable";
+
+}
