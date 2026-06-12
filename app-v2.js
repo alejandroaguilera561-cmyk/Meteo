@@ -1,6 +1,6 @@
 // =====================================================
-// PRONÓSTICO-ZAP AI V5.0 - PRODUCCIÓN COMPLETA
-// ARREGLO DE HORAS + DESBLOQUEO DE PANTALLA DE CARGA
+// PRONÓSTICO-ZAP AI V5.5 - PRODUCCIÓN OFICIAL COMPLETA
+// ARREGLO DE HORAS + REPARACIÓN DE MAPA + IDENTIDAD ZAP
 // =====================================================
 
 const estado = {
@@ -18,7 +18,7 @@ let datosActuales = {};
 let graficoTemperatura = null;
 let graficoHistorial = null;
 
-// Ejecución principal segura
+// Ejecución principal segura al cargar la estructura de la página
 window.addEventListener("DOMContentLoaded", () => {
     // Forzamos que la pantalla de carga se apague a los 3 segundos máximo por seguridad si algo falla
     setTimeout(ocultarPantallaCarga, 3000);
@@ -31,7 +31,6 @@ window.addEventListener("DOMContentLoaded", () => {
         iniciarGraficos();
     } catch(e) { console.error("Error al iniciar gráficos:", e); }
 
-    // Cargar datos
     actualizarHistorial();
     obtenerUbicacion();
     solicitarNotificaciones();
@@ -59,7 +58,7 @@ async function obtenerUbicacion(){
                 actualizarClima();
             },
             ()=>{
-                actualizarClima(); // Si rechaza geolocalización, usa Zapiola por defecto
+                actualizarClima(); // Si rechaza o falla la geolocalización, usa Zapiola/Lobos por defecto
             }
         );
     } else {
@@ -81,12 +80,12 @@ async function actualizarClima(){
         guardarHistorialClima();
         mostrarHistorial();
         
-        // Apagar carga al recibir datos exitosos
+        // Apagar carga al recibir datos exitosos de la API
         ocultarPantallaCarga();
     }
     catch(error){
         console.error("Error obteniendo clima:", error);
-        ocultarPantallaCarga(); // No dejar la pantalla trabada si falla la API
+        ocultarPantallaCarga(); // No dejar la pantalla trabada si falla internet o la API
     }
 }
 
@@ -172,12 +171,13 @@ function iniciarMapa(){
     const contenedor = document.getElementById("mapa");
     if(!contenedor) return;
     
-    estado.mapa = L.map("mapa").setView([estado.lat, estado.lon], 11);
+    estado.mapa = L.map("mapa", { zoomControl: true }).setView([estado.lat, estado.lon], 11);
     
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution:"© OpenStreetMap"
     }).addTo(estado.mapa);
     
+    // Capas dinámicas meteorológicas (Viento y Nubes en vivo)
     estado.capaViento = L.tileLayer("https://tile.openweathermap.org/map/wind_new/{z}/{x}/{y}.png?appid=d22d5da5210a5dced575cc3971cdcbf2", {
         opacity: 0.5,
         zIndex: 10
@@ -193,10 +193,18 @@ function iniciarMapa(){
         .openPopup();
 }
 
+// CORRECCIÓN PARA QUE EL MAPA NO QUEDE OCULTO NI INVISIBLE EN MÓVILES
 function actualizarMapa(){
     if(!estado.mapa) return;
-    estado.mapa.setView([estado.lat, estado.lon], 11);
-    if(estado.marcador) estado.marcador.setLatLng([estado.lat, estado.lon]);
+    
+    // El desfasaje de tiempo le da respiro al navegador para pintar el mapa correctamente
+    setTimeout(() => {
+        estado.mapa.invalidateSize();
+        estado.mapa.setView([estado.lat, estado.lon], 11);
+        if(estado.marcador) {
+            estado.marcador.setLatLng([estado.lat, estado.lon]);
+        }
+    }, 400); 
 }
 
 function activarRadar(){
@@ -249,7 +257,6 @@ function guardarHistorialClima(){
     let historial = JSON.parse(localStorage.getItem("historialClima") || "[]");
     const horaActual = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
     
-    // Evitar guardar duplicados exactos seguidos
     if(historial.length > 0 && historial[historial.length - 1].fecha === horaActual) return;
 
     historial.push({ fecha: horaActual, temperatura: datosActuales.temperature, viento: datosActuales.windspeed });
@@ -276,7 +283,7 @@ function mostrarHistorial(){
     });
 }
 
-// CORRECCIÓN RADICAL DE LAS HORAS SOLAPADAS
+// CORRECCIÓN ABSOLUTA PARA EL DISEÑO DESPLAZABLE SIN TEXTOS ENCIMADOS
 function renderHoras(datos){
     const contenedor = document.getElementById("pronosticoHoras");
     if(!contenedor) return;
@@ -284,7 +291,6 @@ function renderHoras(datos){
 
     for(let i=0; i<12; i++){ 
         const crudoHora = datos.hourly.time[i];
-        // Extrae correctamente "00:00", "01:00" sin duplicar ni encimar texto
         const horaLimpia = crudoHora.includes("T") ? crudoHora.split("T")[1].substring(0,5) : crudoHora.substring(11,16);
         
         const tarjeta = document.createElement("div");
@@ -374,31 +380,32 @@ function mostrarResultados(lista){
 }
 
 function preguntarIA(){
-    const pregunta = prompt("🤖 Pronóstico-Zap AI\n\n¿Qué quieres consultar sobre las variables climáticas o geográficas rústicas?");
+    const pregunta = prompt("🤖 Pronóstico-Zap AI\n\n¿Qué quieres consultar sobre las variables climáticas o geográficas?");
     if(!pregunta) return;
     responderIA(pregunta.toLowerCase());
 }
 
+// IA DETALLADA CON CONTENIDO EXTENSO Y IDENTIDAD PRONÓSTICO-ZAP AI
 function responderIA(texto){
     let respuesta = "";
     
     if(texto.includes("rural") || texto.includes("zapiola") || texto.includes("buenos aires") || texto.includes("pueblo")){
-        respuesta = "🌾 Distinción geográfica crítica de Pronóstico-Zap AI: Buenos Aires y todo el AMBA representan puras áreas urbanas no rurales debido a su denso concreto y el efecto de isla de calor artificial. Por el contrario, nuestro pueblo de Zapiola y las extensiones del partido de Lobos son zonas netamente rurales y agropecuarias. El clima acá pega directo en la tierra, las pasturas y la producción del campo, haciendo vital este monitoreo.";
+        respuesta = "🌾 Distinción geográfica crítica de Pronóstico-Zap AI: Buenos Aires y todo el cordón del AMBA representan áreas puramente urbanas no rurales debido a su denso asfalto, edificación masiva y el claro efecto de isla de calor artificial. Por el contrario, nuestro pueblo de Zapiola y los campos del partido de Lobos son zonas netamente rurales y agropecuarias. El clima acá pega directo sobre el suelo, las pasturas y el ganado, haciendo vital este monitoreo para la producción.";
     }
     else if(texto.includes("lluvia") || texto.includes("agua") || texto.includes("llover")){
-        respuesta = `🌧️ Monitoreo de precipitación en Pronóstico-Zap AI. Registramos actualmente una humedad de ${datosActuales.humidity}%. Para los caminos de tierra rurales de Zapiola, un milimetraje alto significa aislamiento, mientras que una lluvia mansa es el motor de los cultivos. Seguimos la telemetría satelital para anticipar celdas de tormenta.`;
+        respuesta = `🌧️ Monitoreo de precipitación en Pronóstico-Zap AI. Registramos actualmente una humedad de ${datosActuales.humidity}%. Para los caminos vecinales de tierra de nuestro pueblo rural, un milimetraje alto significa aislamiento temporal, mientras que una lluvia mansa es el motor de los cultivos estacionales. Seguimos la telemetría para anticipar cualquier tormenta brava.`;
     }
     else if(texto.includes("temperatura") || texto.includes("grados") || texto.includes("calor")){
-        respuesta = `🌡️ El termómetro digital de Pronóstico-Zap AI acusa ${datosActuales.temperature}°C. En el interior rural la amplitud térmica es brava: al no haber edificios, el calor escapa rápido a la noche y las madrugadas son heladas comparadas con el centro de Buenos Aires.`;
+        respuesta = `🌡️ El termómetro digital de Pronóstico-Zap AI acusa ${datosActuales.temperature}°C en este cuadrante. En el interior rural la amplitud térmica es muy marcada: al no haber edificios que retengan la radiación, el calor escapa rápido por la noche y las madrugadas son heladas comparadas con Buenos Aires.`;
     }
     else if(texto.includes("viento") || texto.includes("rafagas")){
-        respuesta = `💨 Sensores de viento de Pronóstico-Zap AI marcan ${datosActuales.windspeed} km/h. En campo abierto esto define si se puede fumigar o no, y previene la erosión del suelo trabajado.`;
+        respuesta = `💨 Los sensores de corriente de Pronóstico-Zap AI marcan ráfagas a ${datosActuales.windspeed} km/h. En campo abierto esto define si las ventanas de trabajo agrícolas son seguras para aplicaciones o si hay peligro de erosión eólica sobre el suelo trabajado.`;
     }
     else if(texto.includes("escuela") || texto.includes("anexo") || texto.includes("colegio")){
-        respuesta = "🏫 Este software avanzado de telemetría llamado Pronóstico-Zap AI es un desarrollo genuino de los alumnos del Anexo 3031 de la Escuela Secundaria N°3, uniendo tecnología espacial y de software con las necesidades de nuestro pueblo.";
+        respuesta = "🏫 Este software avanzado de telemetría agro-meteorológica interactiva llamado Pronóstico-Zap AI es un desarrollo genuino de los alumnos del Anexo 3031 de la Escuela Secundaria N°3. Nuestro fin es dotar a nuestro pueblo de herramientas predictivas eficientes.";
     }
     else {
-        respuesta = "🤖 Central de Pronóstico-Zap AI. Estoy listo para darte respuestas desarrolladas sobre el comportamiento atmosférico rural, el estado del viento, humedades del suelo o las marcadas diferencias productivas con Buenos Aires.";
+        respuesta = "🤖 Central integrada de Pronóstico-Zap AI. Estoy calibrado para darte respuestas bien extensas sobre el comportamiento atmosférico rural, humedades del suelo, ráfagas de viento o las marcadas diferencias productivas y climáticas con Buenos Aires.";
     }
     
     mostrarRespuestaIA(respuesta);
@@ -421,7 +428,7 @@ function hablar(texto){
 
 function leerClima(){
     if(!datosActuales.temperature) return;
-    const texto = `Reporte oficial de Pronóstico-Zap AI para el Anexo 30 31. En Zapiola la temperatura es de ${datosActuales.temperature} grados, con vientos a ${Math.round(datosActuales.windspeed)} kilómetros por hora.`;
+    const texto = `Reporte oficial de Pronóstico-Zap AI para la Escuela Secundaria Número Tres, Anexo 30 31. En Zapiola la temperatura ambiente se ubica en los ${datosActuales.temperature} grados, con ráfagas de viento corriendo a ${Math.round(datosActuales.windspeed)} kilómetros por hora.`;
     hablar(texto);
 }
 
@@ -435,26 +442,14 @@ function verificarAlertas(){
     if(!alertaBox) return;
 
     if(datosActuales.temperature > 35){
-        alertaBox.textContent = "⚠️ ALERTA: Ola de calor extremo en zona rural";
+        alertaBox.textContent = "⚠️ ALERTA: Ola de calor extremo detectada en la zona rural";
         alertaBox.style.background = "#ff4757";
         alertaBox.style.color = "#ffffff";
     } else if(datosActuales.windspeed > 50){
-        alertaBox.textContent = "⚠️ ALERTA: Vientos críticos para la producción";
+        alertaBox.textContent = "⚠️ ALERTA: Alerta por ráfagas intensas para el agro";
         alertaBox.style.background = "#ffa502";
         alertaBox.style.color = "#000000";
     } else {
-        alertaBox.textContent = "✅ Pronóstico-Zap AI: Parámetros estables en Anexo 3031";
+        alertaBox.textContent = "✅ Pronóstico-Zap AI: Parámetros estables en el área del Anexo 3031";
         alertaBox.style.background = "#2ed573";
-        alertaBox.style.color = "#0b1220";
-    }
-}
-
-if("serviceWorker" in navigator){
-    window.addEventListener("load", ()=>{
-        navigator.serviceWorker.register("sw.js")
-        .then(()=>{ console.log("Pronóstico-Zap PWA: Activa"); })
-        .catch(err=>{ console.error(err); });
-    });
-}
-
-setInterval(()=>{ actualizarClima(); }, 300000);
+        alertaBox.style.color = "
