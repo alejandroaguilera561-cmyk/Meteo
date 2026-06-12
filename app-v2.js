@@ -1,6 +1,6 @@
 // =====================================================
-// PRONÓSTICO-ZAP AI V6.5 - ELIMINACIÓN FORZADA DEL DOM
-// REMOCIÓN FÍSICA DE CARGA + ACTUALIZACIÓN DE IDENTIDAD
+// PRONÓSTICO-ZAP AI V7.0 - CORRECCIÓN DE FLUJO ASÍNCRONO
+// REMOCIÓN INDEPENDIENTE DE CARGA + FILTROS DE SEGURIDAD
 // =====================================================
 
 const estado = {
@@ -18,47 +18,51 @@ let datosActuales = {};
 let graficoTemperatura = null;
 let graficoHistorial = null;
 
-// Control seguro cuando todo el ecosistema de la página levantó
-window.addEventListener("load", () => {
-    
-    // 1. CAMBIO DE NOMBRE FORZADO EN LA CARGA
-    // Buscamos el párrafo o el contenedor de texto dentro de la pantalla de carga para rebautizarlo
+// Ejecución inmediata al cargar la estructura del documento
+window.addEventListener("DOMContentLoaded", () => {
+    // Aseguramos el texto correcto desde el milisegundo uno
     const textoCarga = document.querySelector("#pantallaCarga p") || document.querySelector("#pantallaCarga div");
     if(textoCarga) {
         textoCarga.textContent = "Iniciando Pronóstico-Zap...";
     }
+});
 
-    // 2. DESTRUCCIÓN ABSOLUTA: Sacamos el bloqueo de la pantalla de inmediato
-    extirparPantallaCarga();
+// Evento maestro de carga del sistema
+window.addEventListener("load", () => {
     
-    // Contra-seguro por si el teléfono tarda en procesar las librerías
-    setTimeout(extirparPantallaCarga, 1500);
-
-    // 3. Inicialización modular protegida
+    // 1. INICIALIZACIÓN DE COMPONENTES CON COLA DE SEGURIDAD INDEPENDIENTE
     try {
         iniciarMapa();
     } catch(e) { 
-        console.error("Error al iniciar mapa:", e); 
+        console.error("Error controlado en mapa:", e); 
     }
 
     try {
         iniciarGraficos();
     } catch(e) { 
-        console.error("Error al iniciar gráficos:", e); 
+        console.error("Error controlado en gráficos:", e); 
     }
 
-    // 4. Carga de flujos analíticos
+    // 2. DISPARO DE APIS
     actualizarHistorial();
-    obtenerUbicacion();
+    obtenerUbicacion(); // Internamente llama a actualizarClima()
     solicitarNotificaciones();
+
+    // 3. REMOCIÓN INDEPENDIENTE (No espera a las APIs lentas)
+    // Se ejecuta a los 800ms para dar una transición fluida y visual
+    setTimeout(extirparPantallaCarga, 800);
 });
 
-// FUNCIÓN MÁGICA: En vez de ocultarlo, lo borra del mapa
+// FUNCIÓN DE EXTRACCIÓN DIRECTA DEL DOM
 function extirparPantallaCarga(){
     const pantalla = document.getElementById("pantallaCarga");
     if(pantalla) {
-        console.log("Pronóstico-Zap AI: Extirpando pantalla de carga del sistema.");
-        pantalla.remove(); // Chau elemento, ya no puede bloquear ningún clic
+        console.log("Pronóstico-Zap AI: Liberando interfaz principal.");
+        pantalla.style.transition = "opacity 0.4s ease";
+        pantalla.style.opacity = "0";
+        setTimeout(() => {
+            if(pantalla) pantalla.remove(); // Borrado físico total
+        }, 400);
     }
 }
 
@@ -88,6 +92,7 @@ async function actualizarClima(){
     try{
         const url = `https://api.open-meteo.com/v1/forecast?latitude=${estado.lat}&longitude=${estado.lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&hourly=temperature_2m,precipitation_probability,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto`;
         const respuesta = await fetch(url);
+        if(!respuesta.ok) throw new Error("Error en servidor metereológico");
         const datos = await respuesta.json();
 
         mostrarClima(datos);
@@ -97,13 +102,9 @@ async function actualizarClima(){
         actualizarGraficoHoras(datos);
         guardarHistorialClima();
         mostrarHistorial();
-        
-        // Tercer control de vaciado por las dudas
-        extirparPantallaCarga();
     }
     catch(error){
-        console.error("Error obteniendo clima:", error);
-        extirparPantallaCarga();
+        console.error("Error obteniendo clima, el flujo sigue activo:", error);
     }
 }
 
@@ -213,8 +214,10 @@ function iniciarMapa(){
 function actualizarMapa(){
     if(!estado.mapa) return;
     setTimeout(() => {
-        estado.mapa.invalidateSize();
-        estado.mapa.setView([estado.lat, estado.lon], 11);
+        if(estado.mapa) {
+            estado.mapa.invalidateSize();
+            estado.mapa.setView([estado.lat, estado.lon], 11);
+        }
         if(estado.marcador) {
             estado.marcador.setLatLng([estado.lat, estado.lon]);
         }
@@ -381,6 +384,7 @@ function mostrarResultados(lista){
         item.style = "padding:10px; border-bottom:1px solid rgba(255,255,255,0.1); cursor:pointer;";
         item.textContent = `${ciudad.name}, ${ciudad.country}`;
         item.onclick = ()=>{
+            maximoHistorialIntento = 0;
             estado.lat = ciudad.latitude;
             estado.lon = ciudad.longitude;
             estado.ciudad = ciudad.name;
@@ -400,7 +404,6 @@ function preguntarIA(){
 
 function responderIA(texto){
     let respuesta = "";
-    
     if(texto.includes("rural") || texto.includes("zapiola") || texto.includes("buenos aires") || texto.includes("pueblo")){
         respuesta = "🌾 Distinción geográfica crítica de Pronóstico-Zap AI: Buenos Aires y todo el cordón del AMBA representan áreas puramente urbanas no rurales debido a su denso asfalto, edificación masiva y el claro efecto de isla de calor artificial. Por el contrario, nuestro pueblo de Zapiola y los campos del partido de Lobos son zonas netamente rurales y agropecuarias. El clima acá pega directo sobre el suelo, las pasturas y el ganado, haciendo vital este monitoreo para la producción.";
     }
@@ -419,7 +422,6 @@ function responderIA(texto){
     else {
         respuesta = "🤖 Central integrada de Pronóstico-Zap AI. Estoy calibrado para darte respuestas bien extensas sobre el comportamiento atmosférico rural, humedades del suelo, ráfagas de viento o las marcadas diferencias productivas y climáticas con Buenos Aires.";
     }
-    
     mostrarRespuestaIA(respuesta);
     hablar(respuesta);
 }
@@ -458,8 +460,4 @@ function verificarAlertas(){
         alertaBox.style.background = "#ff4757";
         alertaBox.style.color = "#ffffff";
     } else if(datosActuales.windspeed > 50){
-        alertaBox.textContent = "⚠️ ALERTA: Alerta por ráfagas intensas para el agro";
-        alertaBox.style.background = "#ffa502";
-        alertaBox.style.color = "#000000";
-    } else {
-        alertaBox.textConten
+        alertaBox.textContent = "⚠️ ALERTA: Al
