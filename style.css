@@ -1,850 +1,176 @@
 /* =====================================================
-   PRONÓSTICO-ZAP AI
-   SISTEMA METEOROLÓGICO INTELIGENTE
-===================================================== */
-
-:root{
-  --bg:#050b18;
-  --bg2:#0d1728;
-  --panel:rgba(255,255,255,.06);
-  --panel-hover:rgba(255,255,255,.10);
-
-  --border:rgba(255,255,255,.10);
-
-  --text:#ecf4ff;
-  --muted:#8fa7c7;
-
-  --cyan:#38bdf8;
-  --blue:#0ea5e9;
-  --green:#22c55e;
-  --yellow:#f59e0b;
-  --red:#ef4444;
-
-  --radius:18px;
-
-  --shadow:
-  0 10px 40px rgba(0,0,0,.35);
-
-  --glass:
-  blur(18px);
+   ESTILOS GENERALES Y DISEÑO RESPONSIVO (MOBILE)
+   ===================================================== */
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #0b1220;
+    color: #ffffff;
+    font-family: 'Poppins', sans-serif;
+    overflow-x: hidden;
 }
 
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
+.topbar {
+    background: #10192c;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid rgba(0, 210, 255, 0.2);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
 
-html{
-  scroll-behavior:smooth;
+.logo {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: 1.1em;
+    letter-spacing: 0.5px;
 }
 
-body{
-  background:
-  radial-gradient(circle at top left,#102448,#050b18 55%),
-  radial-gradient(circle at bottom right,#08131f,#050b18 60%);
-  color:var(--text);
-  font-family:Poppins,sans-serif;
-  min-height:100vh;
-  overflow-x:hidden;
+.actions button {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1em;
+    margin-left: 4px;
+    transition: 0.2s;
 }
 
-/* =====================================================
-   PARTICLES
-===================================================== */
-
-#particles{
-  position:fixed;
-  inset:0;
-  pointer-events:none;
-  opacity:.18;
-  z-index:0;
-  background-image:
-  radial-gradient(circle,#38bdf8 1px,transparent 1px);
-  background-size:30px 30px;
+.actions button:hover {
+    background: #00d2ff;
+    color: #0b1220;
 }
 
-/* =====================================================
-   TOPBAR
-===================================================== */
-
-.topbar{
-  position:sticky;
-  top:0;
-  z-index:50;
-
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-
-  padding:16px 24px;
-
-  backdrop-filter:blur(20px);
-
-  background:
-  rgba(5,11,24,.75);
-
-  border-bottom:
-  1px solid rgba(255,255,255,.08);
+.hero {
+    background: linear-gradient(135deg, #131c2e 0%, #0b1220 100%);
+    padding: 25px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
 }
 
-.logo{
-  font-family:Orbitron,sans-serif;
-  font-size:22px;
-  font-weight:700;
-  color:var(--cyan);
-  text-shadow:
-  0 0 20px rgba(56,189,248,.4);
+#ubicacion {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.85em;
+    color: #00d2ff;
+    font-weight: 600;
 }
 
-.actions{
-  display:flex;
-  gap:10px;
+#temperatura {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 3.5em;
+    margin: 10px 0 2px 0;
+    font-weight: 700;
 }
 
-.actions button{
-  border:none;
-  outline:none;
-
-  padding:10px 14px;
-
-  border-radius:12px;
-
-  background:
-  rgba(255,255,255,.08);
-
-  color:white;
-
-  cursor:pointer;
-
-  transition:.25s;
+#descripcion {
+    font-size: 1em;
+    opacity: 0.9;
+    margin-bottom: 10px;
 }
 
-.actions button:hover{
-  background:
-  rgba(56,189,248,.20);
+#iconoClima {
+    font-size: 4em;
+    filter: drop-shadow(0 0 10px rgba(255,200,0,0.3));
+}
 
-  transform:translateY(-2px);
+.alertas {
+    padding: 10px 15px;
+}
+
+.alerta {
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 0.9em;
+    font-weight: 500;
+    text-align: center;
+}
+
+.alerta.ok {
+    background: #2ed573;
+    color: #0b1220;
+}
+
+.card {
+    background: #131c2e;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-sizing: border-box;
+}
+
+.card h3 {
+    margin-top: 0;
+    font-size: 0.95em;
+    color: rgba(255,255,255,0.7);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    padding-bottom: 8px;
+    margin-bottom: 12px;
 }
 
 /* =====================================================
-   HERO
-===================================================== */
-
-.hero{
-  width:min(1200px,95%);
-  margin:30px auto;
-
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-
-  gap:20px;
-
-  padding:35px;
-
-  background:var(--panel);
-
-  backdrop-filter:var(--glass);
-
-  border:1px solid var(--border);
-
-  border-radius:28px;
-
-  box-shadow:var(--shadow);
-}
-
-.hero-left{
-  flex:1;
-}
-
-#ubicacion{
-  color:var(--muted);
-  margin-bottom:12px;
-}
-
-#temperatura{
-  font-size:clamp(70px,10vw,120px);
-  font-weight:700;
-  line-height:1;
-}
-
-#descripcion{
-  font-size:22px;
-  margin-top:10px;
-}
-
-#sensacion{
-  margin-top:10px;
-  color:var(--muted);
-}
-
-.hero-right{
-  display:flex;
-  justify-content:center;
-  align-items:center;
-}
-
-#iconoClima{
-  font-size:110px;
-  animation:floatIcon 4s ease-in-out infinite;
-}
-
-@keyframes floatIcon{
-  0%{transform:translateY(0);}
-  50%{transform:translateY(-12px);}
-  100%{transform:translateY(0);}
-}
-
-/* =====================================================
-   ALERTAS
-===================================================== */
-
-.alertas{
-  width:min(1200px,95%);
-  margin:auto;
-}
-
-.alerta{
-  padding:14px 20px;
-  border-radius:16px;
-  margin-bottom:20px;
-  font-weight:600;
-  border:1px solid transparent;
-}
-
-.alerta.ok{
-  background:rgba(34,197,94,.12);
-  color:#7dffaf;
-  border-color:rgba(34,197,94,.30);
-}
-
-.alerta.warn{
-  background:rgba(245,158,11,.12);
-  color:#ffd27a;
-  border-color:rgba(245,158,11,.30);
-}
-
-.alerta.danger{
-  background:rgba(239,68,68,.12);
-  color:#ff9a9a;
-  border-color:rgba(239,68,68,.30);
-}
-
-/* =====================================================
-   GRID PRINCIPAL
-===================================================== */
-
-.cards-grid{
-  width:min(1200px,95%);
-  margin:20px auto;
-
-  display:grid;
-  grid-template-columns:
-  repeat(auto-fit,minmax(180px,1fr));
-
-  gap:16px;
-}
-
-/* =====================================================
-   TARJETAS
-===================================================== */
-
-.card{
-  background:var(--panel);
-
-  backdrop-filter:var(--glass);
-
-  border:1px solid var(--border);
-
-  border-radius:20px;
-
-  padding:22px;
-
-  box-shadow:var(--shadow);
-
-  transition:.3s;
-}
-
-.card:hover{
-  transform:
-  translateY(-6px);
-
-  background:
-  var(--panel-hover);
-
-  border-color:
-  rgba(56,189,248,.4);
-}
-
-.card h3{
-  font-size:14px;
-  color:var(--muted);
-  margin-bottom:12px;
-}
-
-.card div{
-  font-size:28px;
-  font-weight:700;
-  color:white;
-}
-
-/* =====================================================
-   PANEL GENERAL
-===================================================== */
-
-.panel{
-  width:min(1200px,95%);
-  margin:20px auto;
-
-  background:var(--panel);
-
-  backdrop-filter:var(--glass);
-
-  border-radius:24px;
-
-  border:1px solid var(--border);
-
-  padding:25px;
-
-  box-shadow:var(--shadow);
-}
-
-.panel h2{
-  margin-bottom:20px;
-  color:var(--cyan);
-
-  font-size:22px;
-
-  font-family:Orbitron,sans-serif;
-}
-
-/* =====================================================
-   PRONÓSTICO HORARIO
-===================================================== */
-
-.forecast-scroll{
-  display:flex;
-  gap:12px;
-  overflow-x:auto;
-  padding-bottom:10px;
-}
-
-.forecast-scroll::-webkit-scrollbar{
-  height:6px;
-}
-
-.forecast-scroll::-webkit-scrollbar-thumb{
-  background:var(--cyan);
-  border-radius:20px;
-}
-
-.hour-card{
-  min-width:90px;
-
-  padding:14px;
-
-  text-align:center;
-
-  background:
-  rgba(255,255,255,.05);
-
-  border-radius:16px;
-
-  border:1px solid rgba(255,255,255,.08);
-}
-
-.hour-card .time{
-  font-size:12px;
-  color:var(--muted);
-}
-
-.hour-card .icon{
-  font-size:28px;
-  margin:8px 0;
-}
-
-.hour-card .temp{
-  font-weight:700;
-}
-
-/* =====================================================
-   PRONÓSTICO 7 DÍAS
-===================================================== */
-
-.forecast-days{
-  display:grid;
-
-  grid-template-columns:
-  repeat(auto-fit,minmax(130px,1fr));
-
-  gap:12px;
-}
-
-.day-card{
-  text-align:center;
-
-  background:
-  rgba(255,255,255,.05);
-
-  border-radius:18px;
-
-  padding:16px;
-
-  border:
-  1px solid rgba(255,255,255,.08);
-}
-
-.day-card .dia{
-  font-weight:600;
-}
-
-.day-card .icono{
-  font-size:32px;
-  margin:10px 0;
-}
-
-.day-card .max{
-  color:#fff;
-  font-weight:700;
-}
-
-.day-card .min{
-  color:var(--muted);
-}
-
-/* =====================================================
-   MAPA
-===================================================== */
-
-#mapa{
-  width:100%;
-  height:450px;
-
-  border-radius:20px;
-
-  overflow:hidden;
-
-  border:
-  1px solid rgba(255,255,255,.08);
-
-  box-shadow:
-  inset 0 0 30px rgba(0,0,0,.25);
-}
-
-/* =====================================================
-   RADAR
-===================================================== */
-
-#radarContainer{
-  width:100%;
-  height:500px;
-
-  overflow:hidden;
-
-  border-radius:20px;
-
-  border:
-  1px solid rgba(255,255,255,.08);
-}
-
-#radarFrame{
-  width:100%;
-  height:100%;
-
-  border:none;
-}
-
-/* =====================================================
-   CHAT IA
-===================================================== */
-
-#chatContainer{
-  display:flex;
-  flex-direction:column;
-  gap:15px;
-}
-
-#chatMessages{
-  height:420px;
-
-  overflow-y:auto;
-
-  padding:20px;
-
-  border-radius:18px;
-
-  background:
-  rgba(0,0,0,.18);
-
-  border:
-  1px solid rgba(255,255,255,.08);
-}
-
-.bot-message,
-.user-message{
-
-  max-width:80%;
-
-  padding:12px 16px;
-
-  border-radius:16px;
-
-  margin-bottom:12px;
-
-  animation:
-  fadeMessage .25s ease;
-}
-
-.bot-message{
-  background:
-  rgba(56,189,248,.15);
-
-  border:
-  1px solid rgba(56,189,248,.25);
-}
-
-.user-message{
-  background:
-  rgba(255,255,255,.10);
-
-  margin-left:auto;
-}
-
-@keyframes fadeMessage{
-
-  from{
-    opacity:0;
-    transform:translateY(10px);
-  }
-
-  to{
-    opacity:1;
-    transform:translateY(0);
-  }
-}
-
-.chat-input-area{
-  display:flex;
-  gap:10px;
-}
-
-.chat-input-area input{
-
-  flex:1;
-
-  border:none;
-  outline:none;
-
-  padding:14px;
-
-  border-radius:14px;
-
-  color:white;
-
-  background:
-  rgba(255,255,255,.08);
-}
-
-.chat-input-area button{
-
-  border:none;
-
-  padding:14px 20px;
-
-  border-radius:14px;
-
-  cursor:pointer;
-
-  color:white;
-
-  background:
-  linear-gradient(
-  135deg,
-  var(--cyan),
-  var(--blue)
-  );
-}
-
-/* =====================================================
-   MODAL BUSCADOR
-===================================================== */
-
-.modal{
-
-  display:none;
-
-  position:fixed;
-
-  inset:0;
-
-  background:
-  rgba(0,0,0,.7);
-
-  backdrop-filter:
-  blur(8px);
-
-  z-index:999;
-}
-
-.modal-content{
-
-  width:min(500px,90%);
-
-  margin:100px auto;
-
-  padding:25px;
-
-  border-radius:24px;
-
-  background:
-  #0b1528;
-
-  border:
-  1px solid rgba(255,255,255,.10);
-}
-
-.modal-content h2{
-  margin-bottom:15px;
-}
-
-.modal-content input{
-
-  width:100%;
-
-  padding:14px;
-
-  border:none;
-
-  border-radius:12px;
-
-  margin-bottom:15px;
-
-  background:
-  rgba(255,255,255,.08);
-
-  color:white;
-}
-
-.modal-content button{
-
-  width:100%;
-
-  padding:14px;
-
-  border:none;
-
-  border-radius:12px;
-
-  cursor:pointer;
-
-  color:white;
-
-  background:
-  var(--cyan);
-}
-
-/* =====================================================
-   RESULTADOS DE BÚSQUEDA
-===================================================== */
-
-#resultadosBusqueda{
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-  margin-bottom:15px;
-}
-
-.resultadoCiudad{
-
-  padding:12px;
-
-  border-radius:12px;
-
-  cursor:pointer;
-
-  background:
-  rgba(255,255,255,.05);
-
-  transition:.25s;
-}
-
-.resultadoCiudad:hover{
-
-  background:
-  rgba(56,189,248,.15);
-}
-
-/* =====================================================
-   LOADER
-===================================================== */
-
-#pantallaCarga{
-
-  position:fixed;
-  inset:0;
-
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-
-  gap:20px;
-
-  background:
-  #050b18;
-
-  z-index:5000;
-}
-
-.loader{
-
-  width:80px;
-  height:80px;
-
-  border-radius:50%;
-
-  border:6px solid
-  rgba(255,255,255,.1);
-
-  border-top-color:
-  var(--cyan);
-
-  animation:
-  spin 1s linear infinite;
-}
-
-@keyframes spin{
-  to{
-    transform:rotate(360deg);
-  }
-}
-
-.loadingText{
-
-  color:white;
-
-  font-size:18px;
-
-  font-weight:600;
-}
-
-/* =====================================================
-   GRÁFICOS
-===================================================== */
-
-canvas{
-  width:100% !important;
-}
-
-/* =====================================================
-   FOOTER
-===================================================== */
-
-footer{
-
-  text-align:center;
-
-  margin:40px auto;
-
-  width:min(1200px,95%);
-
-  padding:30px;
-
-  border-radius:24px;
-
-  background:
-  rgba(255,255,255,.04);
-
-  border:
-  1px solid rgba(255,255,255,.08);
-}
-
-.footer-logo{
-
-  font-family:
-  Orbitron,sans-serif;
-
-  color:var(--cyan);
-
-  font-size:24px;
-
-  margin-bottom:10px;
-}
-
-.footer-text{
-
-  color:var(--muted);
-
-  line-height:1.8;
-}
-
-.footer-version{
-
-  margin-top:15px;
-
-  color:#8be9fd;
-
-  font-weight:700;
-}
-
-/* =====================================================
-   RESPONSIVE
-===================================================== */
-
-@media(max-width:900px){
-
-.hero{
-  flex-direction:column;
-  text-align:center;
-}
-
-#temperatura{
-  font-size:80px;
-}
-
-#iconoClima{
-  font-size:90px;
-}
-
-.panel{
-  padding:18px;
-}
-
-}
-
-@media(max-width:600px){
-
-.topbar{
-  padding:12px;
-}
-
-.logo{
-  font-size:16px;
-}
-
-.actions{
-  gap:6px;
-}
-
-.actions button{
-  padding:8px 10px;
-}
-
-#temperatura{
-  font-size:65px;
-}
-
-#chatMessages{
-  height:320px;
-}
-
-#mapa{
-  height:320px;
-}
-
-#radarContainer{
-  height:320px;
-}
-
+   NUEVA CUADRÍCULA DE CUADRADITOS INDIVIDUALES
+   ===================================================== */
+.grid-detalles {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-top: 15px;
+    width: 100%;
+    max-width: 380px;
+}
+
+.tarjeta-mini {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-sizing: border-box;
+}
+
+.icon-mini {
+    font-size: 1.3em;
+    background: rgba(0, 210, 255, 0.1);
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.info-mini {
+    display: flex;
+    flex-direction: column;
+}
+
+.titulo-mini {
+    font-size: 0.65em;
+    color: #00d2ff;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+.valor-mini {
+    font-size: 1em;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+/* Contenedor dinámico horizontal sin encimarse */
+#pronosticoHoras {
+    display: flex;
+    overflow-x: auto;
+    gap: 12px;
+    padding: 5px 0 12px 0;
+    scrollbar-width: thin;
 }
