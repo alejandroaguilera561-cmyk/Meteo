@@ -1,400 +1,107 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Pronóstico-Zap AI</title>
-
-<meta name="theme-color" content="#0b1220">
-<meta name="description" content="Sistema Meteorológico Inteligente Pronóstico-Zap AI">
-
-<link rel="manifest" href="manifest.json">
-
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-
-<link rel="stylesheet"
-href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pronóstico-Zap AI - E.E.S N°3 Anexo 3031</title>
+    <meta name="theme-color" content="#0b1220">
+    <meta name="description" content="Sistema Meteorológico Inteligente Pronóstico-Zap AI - E.E.S N°3 Anexo 3031">
+    
+    <link rel="manifest" href="manifest.json">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-<div id="particles"></div>
-
-<header class="topbar">
-
-<div class="logo">
-🌦️ PRONÓSTICO-ZAP AI
-</div>
-
-<div class="actions">
-
-<button onclick="buscarCiudad()">
-🔍
-</button>
-
-<button onclick="toggleUnits()">
-°C / °F
-</button>
-
-<button onclick="activarVoz()">
-🔊
-</button>
-
-<button onclick="actualizarClima()">
-↻
-</button>
-
-</div>
-
-</header>
-
-<section class="hero">
-
-<div class="hero-left">
-
-<div id="ubicacion">
-📍 Detectando ubicación...
-</div>
-
-<h1 id="temperatura">
---°
-</h1>
-
-<div id="descripcion">
-Cargando clima...
-</div>
-
-<div id="sensacion">
-Sensación térmica: --
-</div>
-
-</div>
-
-<div class="hero-right">
-
-<div id="iconoClima">
-☀️
-</div>
-
-</div>
-
-</section>
-
-<section class="alertas">
-
-<div id="alertaMeteorologica" class="alerta ok">
-Sin alertas meteorológicas
-</div>
-
-</section>
-
-<section class="cards-grid">
-
-<div class="card">
-<h3>💧 Humedad</h3>
-<div id="humedad">--%</div>
-</div>
-
-<div class="card">
-<h3>🌬️ Viento</h3>
-<div id="viento">-- km/h</div>
-</div>
-
-<div class="card">
-<h3>☀️ Índice UV</h3>
-<div id="uv">--</div>
-</div>
-
-<div class="card">
-<h3>🌧️ Probabilidad lluvia</h3>
-<div id="lluvia">--%</div>
-</div>
-
-<div class="card">
-<h3>🌡️ Máxima</h3>
-<div id="maxima">--°</div>
-</div>
-
-<div class="card">
-<h3>❄️ Mínima</h3>
-<div id="minima">--°</div>
-</div>
-
-</section>
-
-<section class="panel">
-
-<h2>
-⏰ Pronóstico por horas
-</h2>
-
-<div id="pronosticoHoras"
-class="forecast-scroll">
-</div>
-
-</section>
-
-<section class="panel">
-
-<h2>
-📅 Pronóstico de 7 días
-</h2>
-
-<div id="pronostico7dias"
-class="forecast-days">
-</div>
-
-</section>
-
-<section class="panel">
-
-<h2>
-📈 Temperatura del día
-</h2>
-
-<canvas id="graficoTemperatura"></canvas>
-
-</section>
-
-<section class="panel">
-
-<h2>
-📊 Historial Meteorológico Inteligente
-</h2>
-
-<canvas id="graficoHistorial"></canvas>
-
-</section>
-
-<section class="panel">
-
-<h2>
-🛰️ Radar Meteorológico
-</h2>
-
-<div id="radarContainer">
-
-<iframe
-id="radarFrame"
-src="https://embed.windy.com/embed2.html"
-allowfullscreen>
-</iframe>
-
-</div>
-
-</section>
-
-<section class="panel">
-
-<h2>
-🗺️ Mapa Interactivo
-</h2>
-
-<div id="mapa"></div>
-</section>
-
-<!-- ===================================================== -->
-<!-- IA PRONÓSTICO-ZAP AI -->
-<!-- ===================================================== -->
-
-<section class="panel">
-
-<h2>
-🤖 Asistente IA Pronóstico-Zap
-</h2>
-
-<div id="chatContainer">
-
-<div id="chatMessages">
-
-<div class="bot-message">
-Hola 👋 Soy Pronóstico-Zap AI.
-Puedo ayudarte con información meteorológica,
-explicar fenómenos climáticos y responder preguntas.
-</div>
-
-</div>
-
-<div class="chat-input-area">
-
-<input
-type="text"
-id="chatInput"
-placeholder="Escribe tu pregunta..."
-autocomplete="off">
-
-<button onclick="enviarMensajeIA()">
-Enviar
-</button>
-
-</div>
-
-</div>
-
-</section>
-
-<!-- ===================================================== -->
-<!-- ESTACIÓN METEOROLÓGICA ESCOLAR -->
-<!-- ===================================================== -->
-
-<section class="panel">
-
-<h2>
-🌾 Estación Meteorológica Escolar
-</h2>
-
-<div class="cards-grid">
-
-<div class="card">
-<h3>🌡️ Temperatura</h3>
-<div id="sensorTemp">--°</div>
-</div>
-
-<div class="card">
-<h3>💨 Presión</h3>
-<div id="sensorPresion">-- hPa</div>
-</div>
-
-<div class="card">
-<h3>💧 Humedad</h3>
-<div id="sensorHumedad">--%</div>
-</div>
-
-<div class="card">
-<h3>🌬️ Dirección viento</h3>
-<div id="sensorDireccion">--</div>
-</div>
-
-</div>
-
-</section>
-
-<!-- ===================================================== -->
-<!-- DATOS ASTRONÓMICOS -->
-<!-- ===================================================== -->
-
-<section class="panel">
-
-<h2>
-🌙 Datos Astronómicos
-</h2>
-
-<div class="cards-grid">
-
-<div class="card">
-<h3>🌅 Amanecer</h3>
-<div id="amanecer">--:--</div>
-</div>
-
-<div class="card">
-<h3>🌇 Atardecer</h3>
-<div id="atardecer">--:--</div>
-</div>
-
-<div class="card">
-<h3>🌕 Fase Lunar</h3>
-<div id="faseLunar">--</div>
-</div>
-
-<div class="card">
-<h3>⭐ Visibilidad</h3>
-<div id="visibilidad">-- km</div>
-</div>
-
-</div>
-
-</section>
-
-<!-- ===================================================== -->
-<!-- FOOTER -->
-<!-- ===================================================== -->
-
-<footer>
-
-<div class="footer-logo">
-🌦️ Pronóstico-Zap AI
-</div>
-
-<div class="footer-text">
-
-Sistema Meteorológico Inteligente<br>
-
-Proyecto Escolar de Ciencias<br>
-
-Radar • IA • Mapas • Pronósticos • Historial
-
-</div>
-
-<div class="footer-version">
-
-Versión 3.0 Ultimate Edition
-
-</div>
-
-</footer>
-
-<!-- ===================================================== -->
-<!-- MODAL BUSCADOR -->
-<!-- ===================================================== -->
-
-<div id="modalBusqueda" class="modal">
-
-<div class="modal-content">
-
-<h2>
-🔍 Buscar ciudad
-</h2>
-
-<input
-type="text"
-id="buscadorCiudad"
-placeholder="Ej: Lobos, Buenos Aires">
-
-<div id="resultadosBusqueda"></div>
-
-<button onclick="cerrarBusqueda()">
-Cerrar
-</button>
-
-</div>
-
-</div>
-
-<!-- ===================================================== -->
-<!-- LOADING -->
-<!-- ===================================================== -->
-
-<div id="pantallaCarga">
-
-<div class="loader"></div>
-
-<div class="loadingText">
-
-Iniciando Pronóstico-Zap AI...
-
-</div>
-
-</div>
-
-<!-- ===================================================== -->
-<!-- APP JS -->
-<!-- ===================================================== -->
-
-<script src="app.js"></script>
-
-<script>
-
-if ('serviceWorker' in navigator) {
-navigator.serviceWorker.register('sw.js');
-}
-
-</script>
-
+    <div id="pantallaCarga" style="position: fixed; top:0; left:0; width:100%; height:100%; background:#0b1220; z-index:9999; display:flex; flex-direction:column; justify-content:center; align-items:center; color:white; font-family:'Orbitron', sans-serif; transition: opacity 0.5s;">
+        <h2>E.E.S N°3 - ANEXO 3031</h2>
+        <p>Iniciando Telemetría Rural...</p>
+    </div>
+
+    <div id="particles"></div>
+
+    <header class="topbar">
+        <div class="logo">
+            🌦️ PRONÓSTICO-ZAP AI
+        </div>
+        <div class="actions">
+            <button onclick="abrirBuscador()" title="Buscar Ciudad">🔍</button>
+            <button onclick="activarRadar()" title="Radar H2O">📡</button>
+            <button onclick="preguntarIA()" title="Asistente IA">🤖</button>
+            <button onclick="leerClima()" title="Escuchar reporte">🔊</button>
+            <button onclick="actualizarClima()" title="Actualizar">↻</button>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="hero-left">
+            <div id="ubicacion">📍 E.E.S N°3 ANEXO 3031</div>
+            <h1 id="temperatura">--°</h1>
+            <div id="descripcion">Cargando clima...</div>
+            <div id="sensacion">Humedad: <span id="humedad">--%</span> | Viento: <span id="viento">-- km/h</span></div>
+            <div style="margin-top: 10px; font-size: 0.9em; opacity: 0.8;">
+                Máx: <span id="maxima">--</span> Min: <span id="minima">--</span>
+            </div>
+        </div>
+        <div class="hero-right">
+            <div id="iconoClima">☀️</div>
+        </div>
+    </section>
+
+    <section class="alertas">
+        <div id="alertaMeteorologica" class="alerta ok">
+            Sin alertas meteorológicas en la región
+        </div>
+    </section>
+
+    <main class="dashboard-container" style="padding: 15px; max-width: 1200px; margin: auto;">
+        <div class="card ia-box" style="background: rgba(20, 30, 55, 0.7); padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 5px solid #00d2ff;">
+            <h3 style="font-family: 'Orbitron'; color: #00d2ff; margin-top:0;">🤖 Pronóstico-Zap AI Chat</h3>
+            <div id="respuestaIA">Haz clic en el botón del robot 🤖 de arriba para consultar al asistente de la E.E.S N°3.</div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+            <div class="card">
+                <h3>🗺️ Satélite Agro-Meteorológico</h3>
+                <div id="mapa" style="height: 300px; border-radius: 8px;"></div>
+            </div>
+            <div class="card">
+                <h3>📈 Comportamiento Térmico (Próximas 24hs)</h3>
+                <canvas id="graficoTemperatura"></canvas>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 20px;">
+            <div class="card">
+                <h3>📋 Pronóstico por Horas</h3>
+                <div id="pronosticoHoras" style="display: flex; overflow-x: auto; gap: 10px; padding-bottom: 10px;"></div>
+            </div>
+            <div class="card">
+                <h3>📅 Tendencia 7 Días</h3>
+                <div id="pronostico7dias"></div>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top:20px;">
+            <h3>📊 Gráfico de Historial Acumulado</h3>
+            <canvas id="graficoHistorial" style="max-height: 200px;"></canvas>
+            <div id="historial" style="margin-top:10px; max-height: 150px; overflow-y:auto;"></div>
+        </div>
+    </main>
+
+    <div id="modalBusqueda" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); display:none; justify-content:center; align-items:center; z-index:10000;">
+        <div style="background:#131c2e; padding:20px; border-radius:10px; width:90%; max-width:400px; color:white;">
+            <h3>🔍 Buscar Localidad</h3>
+            <input type="text" id="inputCiudad" placeholder="Escribe al menos 3 letras..." oninput="buscarCiudadTexto(this.value)" style="width:100%; padding:10px; border-radius:5px; border:none; margin-bottom:15px;">
+            <div id="resultadosBusqueda" style="max-height:200px; overflow-y:auto;"></div>
+            <button onclick="cerrarBusqueda()" style="background:#ff4757; color:white; border:none; padding:8px 12px; border-radius:5px; cursor:pointer; margin-top:10px; width:100%;">Cerrar</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
 </body>
 </html>
