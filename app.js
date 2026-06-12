@@ -1,6 +1,6 @@
 // =====================================================
-// PRONÓSTICO-ZAP AI V3.6
-// APP.JS - DASHBOARD INDIVIDUALIZADO COMPLETO
+// PRONÓSTICO-ZAP AI V4.0
+// APP.JS - REESTRUCTURADO SIN FALLAS DE FORMATO
 // =====================================================
 
 const estado = {
@@ -93,7 +93,7 @@ function mostrarClima(datos){
     if(temperatura) temperatura.textContent = Math.round(datos.current.temperature_2m) + "°";
     if(descripcion) descripcion.textContent = descripcionClima(datos.current.weather_code);
 
-    // --- RENDERIZADO DE LOS CUADRADITOS INDIVIDUALES DETERMINADOS ---
+    // INYECTAR LOS CUADRADITOS DIRECTO DESDE JAVASCRIPT
     const contenedorTarjetas = document.getElementById("tarjetas-detalles");
     if(contenedorTarjetas) {
         const probLluvia = datos.hourly.precipitation_probability[0] || 0;
@@ -116,17 +116,17 @@ function mostrarClima(datos){
             <div class="tarjeta-mini">
                 <span class="icon-mini">🌧️</span>
                 <div class="info-mini">
-                    <span class="titulo-mini">TENDENCIA</span>
-                    <span class="valor-mini">${probLluvia}% Lluvia</span>
+                    <span class="titulo-mini">LLUVIA</span>
+                    <span class="valor-mini">${probLluvia}% Prob.</span>
                 </div>
             </div>
             <div class="tarjeta-mini">
                 <span class="icon-mini">📊</span>
                 <div class="info-mini">
                     <span class="titulo-mini">EXTREMAS</span>
-                    <div style="margin-top:2px;">
-                        <span style="font-size:0.85em; font-weight:bold; color:#ff4757;">▲${Math.round(datos.daily.temperature_2m_max[0])}°</span>
-                        <span style="font-size:0.85em; font-weight:bold; color:#00d2ff; margin-left:4px;">▼${Math.round(datos.daily.temperature_2m_min[0])}°</span>
+                    <div style="display:flex; gap:4px; margin-top:2px;">
+                        <span style="color:#ff4757; font-weight:bold; font-size:0.85em;">▲${Math.round(datos.daily.temperature_2m_max[0])}°</span>
+                        <span style="color:#00d2ff; font-weight:bold; font-size:0.85em;">▼${Math.round(datos.daily.temperature_2m_min[0])}°</span>
                     </div>
                 </div>
             </div>
@@ -229,21 +229,23 @@ function mostrarHistorial(){
     });
 }
 
+// CORRECCIÓN TOTAL PARA EVITAR EL FORMATO DE TRES DÍGITOS O ACUMULACIÓN EN HORAS
 function renderHoras(datos){
     const contenedor = document.getElementById("pronosticoHoras");
     if(!contenedor) return;
     contenedor.innerHTML = "";
 
     for(let i=0; i<12; i++){ 
-        const horaFormateada = datos.hourly.time[i].substring(11,16);
+        // Cortamos estrictamente el string para tomar solo HH:MM
+        const crudoHora = datos.hourly.time[i];
+        const horaLimpia = crudoHora.includes("T") ? crudoHora.split("T")[1].substring(0,5) : crudoHora.substring(11,16);
         
         const tarjeta = document.createElement("div");
-        tarjeta.className = "hour-card"; 
-        tarjeta.style = "background: rgba(255, 255, 255, 0.05); padding: 12px; border-radius: 8px; min-width: 75px; text-align: center; box-sizing: border-box; border: 1px solid rgba(255,255,255,0.1);";
+        tarjeta.className = "hour-card-fija"; 
         tarjeta.innerHTML = `
-            <div style="font-size: 0.9em; opacity: 0.8; font-weight: 600; font-family: 'Orbitron';">${horaFormateada}</div>
-            <div style="margin: 6px 0; font-size: 1.2em;">🌡️</div>
-            <div style="font-weight: bold; font-size: 1.1em; color: #ff4757;">${Math.round(datos.hourly.temperature_2m[i])}°</div>
+            <div style="font-size: 0.85em; opacity: 0.8; font-weight: 600; font-family: 'Orbitron';">${horaLimpia}</div>
+            <div style="margin: 4px 0; font-size: 1.1em;">🌡️</div>
+            <div style="font-weight: bold; font-size: 1em; color: #ff4757;">${Math.round(datos.hourly.temperature_2m[i])}°</div>
         `;
         contenedor.appendChild(tarjeta);
     }
@@ -276,4 +278,142 @@ function render7Dias(datos){
             <div style="width: 90px; font-weight: 500;">${nombreDia}</div>
             <div style="font-size: 1.2em; width: 30px; text-align: center;">${iconoExacto}</div>
             <div style="text-align: right; font-family: 'Orbitron'; font-size: 0.9em;">
-                <span style="color: #ff4757; font-weight: bold; margin-right: 8px;">${Math
+                <span style="color: #ff4757; font-weight: bold; margin-right: 8px;">${Math.round(datos.daily.temperature_2m_max[i])}°</span>
+                <span style="color: #00d2ff;">${Math.round(datos.daily.temperature_2m_min[i])}°</span>
+            </div>
+        `;
+        contenedor.appendChild(tarjeta);
+    }
+}
+
+function abrirBuscador(){
+    const modal = document.getElementById("modalBusqueda");
+    if(modal) modal.style.display = "flex";
+}
+
+function cerrarBusqueda(){
+    const modal = document.getElementById("modalBusqueda");
+    if(modal) modal.style.display = "none";
+}
+
+async function buscarCiudadTexto(texto){
+    if(texto.length < 3) return;
+    try{
+        const url = `https://geocoding-api.open-meteo.com/v1/search?name=${texto}&count=5&language=es&format=json`;
+        const respuesta = await fetch(url);
+        const datos = await respuesta.json();
+        mostrarResultados(datos.results || []);
+    } catch(error){ console.error(error); }
+}
+
+function mostrarResultados(lista){
+    const contenedor = document.getElementById("resultadosBusqueda");
+    if(!contenedor) return;
+    contenedor.innerHTML = "";
+    lista.forEach(ciudad=>{
+        const item = document.createElement("div");
+        item.style = "padding:10px; border-bottom:1px solid rgba(255,255,255,0.1); cursor:pointer;";
+        item.textContent = `${ciudad.name}, ${ciudad.country}`;
+        item.onclick = ()=>{
+            estado.lat = ciudad.latitude;
+            estado.lon = ciudad.longitude;
+            estado.ciudad = ciudad.name;
+            actualizarMapa();
+            actualizarClima();
+            cerrarBusqueda();
+        };
+        contenedor.appendChild(item);
+    });
+}
+
+function preguntarIA(){
+    const pregunta = prompt("🤖 Pronóstico-Zap (E.E.S N°3)\n\n¿Qué quieres preguntar al nodo rural?");
+    if(!pregunta) return;
+    responderIA(pregunta.toLowerCase());
+}
+
+function responderIA(texto){
+    let respuesta = "";
+    if(texto.includes("lluvia") || texto.includes("agua")){
+        respuesta = "🌧️ Analizando el mapa de radar en vivo: Alta estabilidad atmosférica en este bloque de tiempo.";
+    }
+    else if(texto.includes("temperatura") || texto.includes("grados")){
+        respuesta = `🌡️ El nodo computacional registra actualmente ${datosActuales.temperature}°C en la zona rural asignada.`;
+    }
+    else if(texto.includes("viento")){
+        respuesta = `💨 Ráfagas activas a ${datosActuales.windspeed} km/h, evaluando impacto en los cultivos del distrito.`;
+    }
+    else if(texto.includes("escuela") || texto.includes("anexo") || texto.includes("colegio")){
+        respuesta = "🏫 Sistema meteorológico desarrollado con orgullo por los estudiantes de la Escuela Secundaria N°3 - ANEXO 3031.";
+    }
+    else if(texto.includes("humedad")){
+        respuesta = `💧 Higrómetros digitales marcan un ${datosActuales.humidity}% de humedad ambiental en tiempo real.`;
+    }
+    else if(texto.includes("frio") || texto.includes("helada")){
+        respuesta = "🥶 Alerta agro: Riesgo moderado de heladas directas en el suelo durante la madrugada.";
+    }
+    else {
+        respuesta = "🤖 Nodo Inteligente activo. Consultas admitidas: temperatura, escuela, lluvia, humedad o viento.";
+    }
+    mostrarRespuestaIA(respuesta);
+    hablar(respuesta);
+}
+
+function mostrarRespuestaIA(texto){
+    const caja = document.getElementById("respuestaIA");
+    if(caja) caja.innerHTML = `<div class="ia-msg" style="color:#00d2ff; font-weight:500;">${texto}</div>`;
+}
+
+function hablar(texto){
+    if(!window.speechSynthesis) return;
+    speechSynthesis.cancel();
+    const voz = new SpeechSynthesisUtterance(texto);
+    voz.lang = "es-AR"; 
+    speechSynthesis.speak(voz);
+}
+
+function leerClima(){
+    if(!datosActuales.temperature) return;
+    const texto = `Reporte para la Escuela Secundaria Número Tres, Anexo 30 31. La temperatura ambiente es de ${datosActuales.temperature} grados, con un porcentaje de humedad de ${datosActuales.humidity} por ciento.`;
+    hablar(texto);
+}
+
+function solicitarNotificaciones(){
+    if("Notification" in window && Notification.permission !== "granted") Notification.requestPermission();
+}
+
+function verificarAlertas(){
+    if(!datosActuales.temperature) return;
+    const alertaBox = document.getElementById("alertaMeteorologica");
+    if(!alertaBox) return;
+
+    if(datosActuales.temperature > 35){
+        alertaBox.textContent = "⚠️ ALERTA: Ola de calor extremo detectada en la zona rural";
+        alertaBox.style.background = "#ff4757";
+        alertaBox.style.color = "#ffffff";
+        notificar("🔥 Alerta de calor extremo");
+    } else if(datosActuales.windspeed > 50){
+        alertaBox.textContent = "⚠️ ALERTA: Alerta por ráfagas intensas para el agro";
+        alertaBox.style.background = "#ffa502";
+        alertaBox.style.color = "#000000";
+        notificar("🌪️ Vientos fuertes detectados");
+    } else {
+        alertaBox.textContent = "✅ Condiciones normales estables sobre el área del Anexo 3031";
+        alertaBox.style.background = "#2ed573";
+        alertaBox.style.color = "#0b1220";
+    }
+}
+
+function notificar(texto){
+    if(Notification.permission === "granted") new Notification("Pronóstico-Zap AI", { body:texto });
+}
+
+if("serviceWorker" in navigator){
+    window.addEventListener("load", ()=>{
+        navigator.serviceWorker.register("sw.js")
+        .then(()=>{ console.log("PWA: Service Worker Activo"); })
+        .catch(err=>{ console.error(err); });
+    });
+}
+
+setInterval(()=>{ actualizarClima(); }, 300000);
