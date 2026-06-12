@@ -1,6 +1,6 @@
 // =====================================================
-// PRONÓSTICO-ZAP AI V5.8 - EDICIÓN ANTIBLOQUEO
-// ARREGLO DE EVENTOS DE CARGA + PROTOCOLO DE SEGURIDAD
+// PRONÓSTICO-ZAP AI V6.0 - PARCHE DE REMOCIÓN ABSOLUTA
+// EXTINCIÓN DE PANTALLA FLOTANTE + ACTUALIZACIÓN DE TEXTO
 // =====================================================
 
 const estado = {
@@ -18,15 +18,22 @@ let datosActuales = {};
 let graficoTemperatura = null;
 let graficoHistorial = null;
 
-// CAMBIO CRÍTICO: Usamos "load" para esperar que Leaflet y Chart.js existan en el navegador
+// Esperamos que todo esté listo en el navegador
 window.addEventListener("load", () => {
-    // 1. PRIORIDAD ABSOLUTA: Apagar la pantalla de carga inmediatamente para no trabar la app
-    ocultarPantallaCarga();
     
-    // Por seguridad extrema, un segundo intento de apagado a los 2 segundos
-    setTimeout(ocultarPantallaCarga, 2000);
+    // CORRECCIÓN DE TEXTO EN TIEMPO REAL (Fuerza la identidad del proyecto)
+    const textoCarga = document.querySelector("#pantallaCarga p");
+    if(textoCarga) {
+        textoCarga.textContent = "Iniciando Pronóstico-Zap...";
+    }
 
-    // 2. Ejecutar módulos de forma aislada para que si uno falla, no arrastre al resto
+    // 1. PRIORIDAD MAESTRA: Apagamos y destruimos la pantalla flotante de inmediato
+    destruirPantallaCarga();
+    
+    // Refuerzo de seguridad absoluta a los 1.5 segundos por si el cel es lento
+    setTimeout(destruirPantallaCarga, 1500);
+
+    // 2. Iniciar componentes de manera aislada
     try {
         iniciarMapa();
     } catch(e) { 
@@ -39,19 +46,19 @@ window.addEventListener("load", () => {
         console.error("Error al iniciar gráficos:", e); 
     }
 
-    // 3. Cargar flujo de datos meteorológicos
+    // 3. Flujo de datos
     actualizarHistorial();
     obtenerUbicacion();
     solicitarNotificaciones();
 });
 
-function ocultarPantallaCarga(){
+// FUNCIÓN REESCRITA PARA ELIMINAR EL BLOQUEO FLOTANTE
+function destruirPantallaCarga(){
     const pantalla = document.getElementById("pantallaCarga");
-    if(pantalla && pantalla.style.display !== "none") {
+    if(pantalla) {
         pantalla.style.opacity = "0";
-        setTimeout(() => { 
-            pantalla.style.display = "none"; 
-        }, 400);
+        pantalla.style.display = "none"; // Desaparece por completo del flujo de clics
+        pantalla.style.pointerEvents = "none"; // Deja pasar todos los clics hacia los botones de atrás
     }
 }
 
@@ -69,7 +76,7 @@ async function obtenerUbicacion(){
                 actualizarClima();
             },
             ()=>{
-                actualizarClima(); // Si el usuario rechaza la ubicación, usa Zapiola por defecto
+                actualizarClima();
             }
         );
     } else {
@@ -90,9 +97,13 @@ async function actualizarClima(){
         actualizarGraficoHoras(datos);
         guardarHistorialClima();
         mostrarHistorial();
+        
+        // Remoción de seguridad extra al completar la API con éxito
+        destruirPantallaCarga();
     }
     catch(error){
-        console.error("Error obteniendo clima de Open-Meteo:", error);
+        console.error("Error obteniendo clima:", error);
+        destruirPantallaCarga();
     }
 }
 
@@ -176,7 +187,7 @@ function descripcionClima(codigo){
 
 function iniciarMapa(){
     const contenedor = document.getElementById("mapa");
-    if(!contenedor || typeof L === "undefined") return; // Evita romper si Leaflet no bajó a tiempo
+    if(!contenedor || typeof L === "undefined") return;
     
     estado.mapa = L.map("mapa", { zoomControl: true }).setView([estado.lat, estado.lon], 11);
     
@@ -226,7 +237,7 @@ function activarRadar(){
 
 function iniciarGraficos(){
     const canvasTemp = document.getElementById("graficoTemperatura");
-    if(!canvasTemp || typeof Chart === "undefined") return; // Evita romper si Chart.js no se cargó
+    if(!canvasTemp || typeof Chart === "undefined") return;
     
     graficoTemperatura = new Chart(canvasTemp, {
         type:"line",
@@ -406,7 +417,7 @@ function responderIA(texto){
         respuesta = "🏫 Este software avanzado de telemetría agro-meteorológica interactiva llamado Pronóstico-Zap AI es un desarrollo genuino de los alumnos del Anexo 3031 de la Escuela Secundaria N°3. Nuestro fin es dotar a nuestro pueblo de herramientas predictivas eficientes.";
     }
     else {
-        respuesta = "🤖 Central integrada de Pronóstico-Zap AI. Estoy calibrado para darte respuestas bien extensas sobre el comportamiento atmospheric rural, humedades del suelo, ráfagas de viento o las marcadas diferencias productivas y climáticas con Buenos Aires.";
+        respuesta = "🤖 Central integrada de Pronóstico-Zap AI. Estoy calibrado para darte respuestas bien extensas sobre el comportamiento atmosférico rural, humedades del suelo, ráfagas de viento o las marcadas diferencias productivas y climáticas con Buenos Aires.";
     }
     
     mostrarRespuestaIA(respuesta);
@@ -451,12 +462,4 @@ function verificarAlertas(){
         alertaBox.style.background = "#ffa502";
         alertaBox.style.color = "#000000";
     } else {
-        alertaBox.textContent = "✅ Pronóstico-Zap AI: Parámetros estables en el área del Anexo 3031";
-        alertaBox.style.background = "#2ed573";
-        alertaBox.style.color = "#0b1220";
-    }
-}
-
-if("serviceWorker" in navigator){
-    window.addEventListener("load", ()=>{
-        navigator.serviceWorker.regist
+        alertaBox.textContent = "✅ Pronóstico-Zap AI: Parámetros estables
