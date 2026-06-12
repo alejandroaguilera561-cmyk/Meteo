@@ -1,6 +1,6 @@
 // =====================================================
-// PRONÓSTICO-ZAP AI V6.0 - PARCHE DE REMOCIÓN ABSOLUTA
-// EXTINCIÓN DE PANTALLA FLOTANTE + ACTUALIZACIÓN DE TEXTO
+// PRONÓSTICO-ZAP AI V6.5 - ELIMINACIÓN FORZADA DEL DOM
+// REMOCIÓN FÍSICA DE CARGA + ACTUALIZACIÓN DE IDENTIDAD
 // =====================================================
 
 const estado = {
@@ -18,22 +18,23 @@ let datosActuales = {};
 let graficoTemperatura = null;
 let graficoHistorial = null;
 
-// Esperamos que todo esté listo en el navegador
+// Control seguro cuando todo el ecosistema de la página levantó
 window.addEventListener("load", () => {
     
-    // CORRECCIÓN DE TEXTO EN TIEMPO REAL (Fuerza la identidad del proyecto)
-    const textoCarga = document.querySelector("#pantallaCarga p");
+    // 1. CAMBIO DE NOMBRE FORZADO EN LA CARGA
+    // Buscamos el párrafo o el contenedor de texto dentro de la pantalla de carga para rebautizarlo
+    const textoCarga = document.querySelector("#pantallaCarga p") || document.querySelector("#pantallaCarga div");
     if(textoCarga) {
         textoCarga.textContent = "Iniciando Pronóstico-Zap...";
     }
 
-    // 1. PRIORIDAD MAESTRA: Apagamos y destruimos la pantalla flotante de inmediato
-    destruirPantallaCarga();
+    // 2. DESTRUCCIÓN ABSOLUTA: Sacamos el bloqueo de la pantalla de inmediato
+    extirparPantallaCarga();
     
-    // Refuerzo de seguridad absoluta a los 1.5 segundos por si el cel es lento
-    setTimeout(destruirPantallaCarga, 1500);
+    // Contra-seguro por si el teléfono tarda en procesar las librerías
+    setTimeout(extirparPantallaCarga, 1500);
 
-    // 2. Iniciar componentes de manera aislada
+    // 3. Inicialización modular protegida
     try {
         iniciarMapa();
     } catch(e) { 
@@ -46,19 +47,18 @@ window.addEventListener("load", () => {
         console.error("Error al iniciar gráficos:", e); 
     }
 
-    // 3. Flujo de datos
+    // 4. Carga de flujos analíticos
     actualizarHistorial();
     obtenerUbicacion();
     solicitarNotificaciones();
 });
 
-// FUNCIÓN REESCRITA PARA ELIMINAR EL BLOQUEO FLOTANTE
-function destruirPantallaCarga(){
+// FUNCIÓN MÁGICA: En vez de ocultarlo, lo borra del mapa
+function extirparPantallaCarga(){
     const pantalla = document.getElementById("pantallaCarga");
     if(pantalla) {
-        pantalla.style.opacity = "0";
-        pantalla.style.display = "none"; // Desaparece por completo del flujo de clics
-        pantalla.style.pointerEvents = "none"; // Deja pasar todos los clics hacia los botones de atrás
+        console.log("Pronóstico-Zap AI: Extirpando pantalla de carga del sistema.");
+        pantalla.remove(); // Chau elemento, ya no puede bloquear ningún clic
     }
 }
 
@@ -98,12 +98,12 @@ async function actualizarClima(){
         guardarHistorialClima();
         mostrarHistorial();
         
-        // Remoción de seguridad extra al completar la API con éxito
-        destruirPantallaCarga();
+        // Tercer control de vaciado por las dudas
+        extirparPantallaCarga();
     }
     catch(error){
         console.error("Error obteniendo clima:", error);
-        destruirPantallaCarga();
+        extirparPantallaCarga();
     }
 }
 
@@ -462,4 +462,4 @@ function verificarAlertas(){
         alertaBox.style.background = "#ffa502";
         alertaBox.style.color = "#000000";
     } else {
-        alertaBox.textContent = "✅ Pronóstico-Zap AI: Parámetros estables
+        alertaBox.textConten
