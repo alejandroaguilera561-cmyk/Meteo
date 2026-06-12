@@ -109,7 +109,7 @@
             margin-bottom: 12px;
         }
 
-        /* DISEÑO DE CONTENEDORES CONTRA EL AMONTONAMIENTO DE HORAS */
+        /* DISEÑO PARA EVITAR EL ACOPLAMIENTO DE HORAS Y PERMITIR DESPLAZAMIENTO */
         .contenedor-scroll-horas {
             display: flex !important;
             flex-direction: row !important;
@@ -118,7 +118,6 @@
             padding: 10px 5px !important;
             width: 100% !important;
             box-sizing: border-box;
-            scrollbar-width: thin;
         }
         .hour-card-fija {
             background: rgba(255, 255, 255, 0.05) !important;
@@ -132,7 +131,7 @@
             border: 1px solid rgba(255,255,255,0.1) !important;
         }
 
-        /* CUADRADITOS INDIVIDUALES EN EL HERO */
+        /* CUADRADITOS DEL HERO */
         .grid-detalles-fijo {
             display: grid !important;
             grid-template-columns: repeat(2, 1fr) !important;
@@ -187,18 +186,16 @@
         <p>Iniciando Telemetría Rural...</p>
     </div>
 
-    <div id="particles"></div>
-
     <header class="topbar">
         <div class="logo">
             Publicación Rural: <span style="color: #00d2ff;">PRONÓSTICO-ZAP AI</span>
         </div>
         <div class="actions">
-            <button onclick="abrirBuscador()" title="Buscar Ciudad">🔍</button>
-            <button onclick="activarRadar()" title="Radar H2O">📡</button>
-            <button onclick="preguntarIA()" title="Asistente IA">🤖</button>
-            <button onclick="leerClima()" title="Escuchar reporte">🔊</button>
-            <button onclick="actualizarClima()" title="Actualizar">↻</button>
+            <button onclick="abrirBuscador()">🔍</button>
+            <button onclick="activarRadar()">📡</button>
+            <button onclick="preguntarIA()">🤖</button>
+            <button onclick="leerClima()">🔊</button>
+            <button onclick="actualizarClima()">↻</button>
         </div>
     </header>
 
@@ -265,6 +262,6 @@
         </div>
     </div>
 
-    <script src="app.js"></script>
+    <script src="app-v2.js?v=2"></script>
 </body>
 </html>
