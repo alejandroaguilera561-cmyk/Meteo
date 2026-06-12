@@ -3,6 +3,8 @@ const CACHE_NAME = "pronostico-zap-v1";
 const urlsToCache = [
   "./",
   "./index.html",
+  "./style.css",
+  "./app.js",
   "./manifest.json"
 ];
 
