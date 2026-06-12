@@ -7,7 +7,6 @@
     <meta name="theme-color" content="#0b1220">
     <meta name="description" content="Sistema Meteorológico Inteligente Pronóstico-Zap AI - E.E.S N°3 Anexo 3031">
     
-    <link rel="manifest" href="manifest.json">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
     
@@ -177,7 +176,7 @@
 </head>
 <body>
 
-    <div id="pantallaCarga" style="position: fixed; top:0; left:0; width:100%; height:100%; background:#0b1220; z-index:9999; display:flex; flex-direction:column; justify-content:center; align-items:center; color:white; font-family:'Orbitron', sans-serif; transition: opacity 0.5s;">
+    <div id="pantallaCarga" style="position: fixed; top:0; left:0; width:100%; height:100%; background:#0b1220; z-index:9999; display:flex; flex-direction:column; justify-content:center; align-items:center; color:white; font-family:'Orbitron', sans-serif;">
         <h2>E.E.S N°3 - ANEXO 3031</h2>
         <p style="color: #00d2ff; letter-spacing: 1px;">Iniciando Pronóstico-Zap...</p>
     </div>
@@ -257,6 +256,17 @@
         </div>
     </div>
 
-    <script src="app-v2.js?v=3"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                for(let registration of registrations) {
+                    registration.unregister();
+                    console.log("Service Worker viejo borrado.");
+                }
+            });
+        }
+    </script>
+
+    <script src="app-v2.js?v=999"></script>
 </body>
 </html>
