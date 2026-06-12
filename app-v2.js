@@ -1,16 +1,17 @@
 // =====================================================
-// PRONÓSTICO-ZAP AI V4.0
-// APP.JS - REESTRUCTURADO SIN FALLAS DE FORMATO
+// PRONÓSTICO-ZAP AI V4.5
+// APP-V2.JS - MODO RURAL CORREGIDO + CAPA DE VIENTO + IA AVANZADA
 // =====================================================
 
 const estado = {
     lat: -35.186,
     lon: -59.094,
-    ciudad: "Lobos",
+    ciudad: "Zapiola (Pueblo Rural)",
     unidad: "C",
     mapa: null,
     marcador: null,
-    radarLayer: null
+    capaViento: null,
+    capaNubes: null
 };
 
 let datosActuales = {};
@@ -46,6 +47,12 @@ async function obtenerUbicacion(){
             (pos)=>{
                 estado.lat = pos.coords.latitude;
                 estado.lon = pos.coords.longitude;
+                // Si está cerca de Lobos/Zapiola forzamos la identidad de pueblo rural
+                if(Math.abs(estado.lat - (-35.18)) < 0.2){
+                    estado.ciudad = "Zapiola (Pueblo Rural)";
+                } else {
+                    estado.ciudad = "Zona Local";
+                }
                 actualizarClima();
                 resolve();
             },
@@ -84,8 +91,18 @@ function mostrarClima(datos){
         weather: datos.current.weather_code
     };
 
+    // Filtro inteligente de etiquetas para diferenciar lo urbano de lo rural
+    let etiquetaZona = "Zona Urbana / Ciudad";
+    if (estado.ciudad.toLowerCase().includes("zapiola") || estado.ciudad.toLowerCase().includes("lobos") || estado.ciudad.toLowerCase().includes("navarro") || estado.ciudad.toLowerCase().includes("monte")) {
+        etiquetaZona = "🏡 Pueblo y Zonas Rurales";
+    } else if (estado.ciudad.toLowerCase().includes("buenos aires") || estado.ciudad.toLowerCase().includes("capital") || estado.ciudad.toLowerCase().includes("federal")) {
+        etiquetaZona = "🏙️ Área Urbana No Rural";
+    } else {
+        etiquetaZona = "🌱 Entorno Agro-Rural";
+    }
+
     const ubicaContainer = document.getElementById("ubicacion");
-    if(ubicaContainer) ubicaContainer.textContent = `📍 ${estado.ciudad} (Zona Rural)`;
+    if(ubicaContainer) ubicaContainer.textContent = `📍 ${estado.ciudad} - ${etiquetaZona}`;
 
     const temperatura = document.getElementById("temperatura");
     const descripcion = document.getElementById("descripcion");
@@ -93,7 +110,6 @@ function mostrarClima(datos){
     if(temperatura) temperatura.textContent = Math.round(datos.current.temperature_2m) + "°";
     if(descripcion) descripcion.textContent = descripcionClima(datos.current.weather_code);
 
-    // INYECTAR LOS CUADRADITOS DIRECTO DESDE JAVASCRIPT
     const contenedorTarjetas = document.getElementById("tarjetas-detalles");
     if(contenedorTarjetas) {
         const probLluvia = datos.hourly.precipitation_probability[0] || 0;
@@ -144,22 +160,40 @@ function descripcionClima(codigo){
     return codigos[codigo] || "🌎 Condición variable";
 }
 
+// INICIAR MAPA CON CAPA METEOROLÓGICA DE VIENTO EN VIVO
 function iniciarMapa(){
     const contenedor = document.getElementById("mapa");
     if(!contenedor) return;
-    estado.mapa = L.map("mapa").setView([estado.lat, estado.lon], 10);
+    
+    estado.mapa = L.map("mapa").setView([estado.lat, estado.lon], 11);
+    
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution:"© OpenStreetMap"
     }).addTo(estado.mapa);
-    estado.marcador = L.marker([estado.lat, estado.lon]).addTo(estado.mapa);
+    
+    // Agregamos la capa dinámica interactiva para ver corrientes de viento y nubes
+    estado.capaViento = L.tileLayer("https://tile.openweathermap.org/map/wind_new/{z}/{x}/{y}.png?appid=d22d5da5210a5dced575cc3971cdcbf2", {
+        opacity: 0.6,
+        zIndex: 10
+    }).addTo(estado.mapa);
+
+    estado.capaNubes = L.tileLayer("https://tile.openweathermap.org/map/clouds_new/{z}/{x}/{y}.png?appid=d22d5da5210a5dced575cc3971cdcbf2", {
+        opacity: 0.4,
+        zIndex: 9
+    }).addTo(estado.mapa);
+
+    estado.marcador = L.marker([estado.lat, estado.lon]).addTo(estado.mapa)
+        .bindPopup("<b>Estación E.E.S N°3</b><br>Monitoreo Agropecuario.")
+        .openPopup();
 }
 
 function actualizarMapa(){
     if(!estado.mapa) return;
-    estado.mapa.setView([estado.lat, estado.lon], 10);
+    estado.mapa.setView([estado.lat, estado.lon], 11);
     estado.marcador.setLatLng([estado.lat, estado.lon]);
 }
 
+// BOTÓN RADAR ACTIVA EL RADAR TRADICIONAL DE PRECIPITACIONES DE RESPUESTA RÁPIDA
 function activarRadar(){
     if(!estado.mapa) return;
     if(estado.radarLayer){
@@ -168,7 +202,8 @@ function activarRadar(){
         return;
     }
     estado.radarLayer = L.tileLayer("https://tilecache.rainviewer.com/v2/radar/latest/256/{z}/{x}/{y}/2/1_1.png", {
-        opacity:0.6
+        opacity:0.7,
+        zIndex: 15
     });
     estado.radarLayer.addTo(estado.mapa);
 }
@@ -229,14 +264,12 @@ function mostrarHistorial(){
     });
 }
 
-// CORRECCIÓN TOTAL PARA EVITAR EL FORMATO DE TRES DÍGITOS O ACUMULACIÓN EN HORAS
 function renderHoras(datos){
     const contenedor = document.getElementById("pronosticoHoras");
     if(!contenedor) return;
     contenedor.innerHTML = "";
 
     for(let i=0; i<12; i++){ 
-        // Cortamos estrictamente el string para tomar solo HH:MM
         const crudoHora = datos.hourly.time[i];
         const horaLimpia = crudoHora.includes("T") ? crudoHora.split("T")[1].substring(0,5) : crudoHora.substring(11,16);
         
@@ -327,41 +360,44 @@ function mostrarResultados(lista){
 }
 
 function preguntarIA(){
-    const pregunta = prompt("🤖 Pronóstico-Zap (E.E.S N°3)\n\n¿Qué quieres preguntar al nodo rural?");
+    const pregunta = prompt("🤖 Pronóstico-Zap (E.E.S N°3)\n\n¿Qué quieres consultar sobre las variables climáticas o geográficas?");
     if(!pregunta) return;
     responderIA(pregunta.toLowerCase());
 }
 
+// LA IA AHORA HABLA MUCHO MÁS, EXPANDE Y DETALLA LA REALIDAD AGRO-RURAL
 function responderIA(texto){
     let respuesta = "";
-    if(texto.includes("lluvia") || texto.includes("agua")){
-        respuesta = "🌧️ Analizando el mapa de radar en vivo: Alta estabilidad atmosférica en este bloque de tiempo.";
+    
+    if(texto.includes("rural") || texto.includes("zapiola") || texto.includes("buenos aires") || texto.includes("pueblo")){
+        respuesta = "🌾 Distinción geográfica crítica del nodo Zap-AI: Buenos Aires (el área metropolitana) es puramente de asfalto y cemento, catalogado como área urbana no rural debido a su efecto de isla de calor. En contraste, pueblos como Zapiola o los campos del partido de Lobos son zonas netamente rurales y de producción agropecuaria. El clima acá impacta directo sobre el suelo, las pasturas y el ganado, por eso nuestro monitoreo se enfoca de lleno en dar soporte a las decisiones del campo.";
     }
-    else if(texto.includes("temperatura") || texto.includes("grados")){
-        respuesta = `🌡️ El nodo computacional registra actualmente ${datosActuales.temperature}°C en la zona rural asignada.`;
+    else if(texto.includes("lluvia") || texto.includes("agua") || texto.includes("llover")){
+        respuesta = `🌧️ Evaluando el mapa dinámico y las capas satelitales en tiempo real. Actualmente registramos una probabilidad inmediata y un porcentaje de humedad del ${datosActuales.humidity}%. Para los pueblos rurales esto es vital: un milimetraje adecuado estabiliza los rindes de siembra, mientras que tormentas fuertes complican los caminos vecinales de tierra. Mantenemos el monitoreo de radar encendido para alertar cualquier celda convectiva inestable.`;
     }
-    else if(texto.includes("viento")){
-        respuesta = `💨 Ráfagas activas a ${datosActuales.windspeed} km/h, evaluando impacto en los cultivos del distrito.`;
+    else if(texto.includes("temperatura") || texto.includes("grados") || texto.includes("calor")){
+        respuesta = `🌡️ Los sensores térmicos registran exactamente ${datosActuales.temperature}°C en este cuadrante. En las zonas de campo abierto y pueblos rurales, la amplitud térmica suele ser mucho mayor que en Buenos Aires porque no hay edificios que retengan el calor. Esto significa que las tardes pueden ser muy cálidas pero las madrugadas bajan de golpe afectando la energía térmica de la biomasa.`;
+    }
+    else if(texto.includes("viento") || texto.includes("rafagas")){
+        respuesta = `💨 El mapa dinámico de corrientes marca ráfagas activas a ${datosActuales.windspeed} km/h. En los entornos de chacras y campos, el viento causa erosión eólica directa y define las ventanas de trabajo para pulverizaciones agrícolas o aplicaciones aéreas. Si las velocidades superan el umbral crítico de 50 kilómetros por hora, nuestro nodo activa alertas de resguardo automáticas para estructuras rurales.`;
     }
     else if(texto.includes("escuela") || texto.includes("anexo") || texto.includes("colegio")){
-        respuesta = "🏫 Sistema meteorológico desarrollado con orgullo por los estudiantes de la Escuela Secundaria N°3 - ANEXO 3031.";
+        respuesta = "🏫 Esta plataforma de telemetría meteorológica interactiva y avanzada fue diseñada y programada con orgullo por el equipo de estudiantes del Anexo 3031 de la Escuela Educación Secundaria N°3. Nuestro propósito es dotar a nuestro pueblo de tecnología predictiva de vanguardia para demostrar el potencial técnico y científico que tenemos en el interior de la provincia.";
     }
     else if(texto.includes("humedad")){
-        respuesta = `💧 Higrómetros digitales marcan un ${datosActuales.humidity}% de humedad ambiental en tiempo real.`;
-    }
-    else if(texto.includes("frio") || texto.includes("helada")){
-        respuesta = "🥶 Alerta agro: Riesgo moderado de heladas directas en el suelo durante la madrugada.";
+        respuesta = `静态 El higrómetro marca un valor de ${datosActuales.humidity}% de humedad relativa. En nuestro pueblo rural, altos niveles combinados con bajas temperaturas generan los bancos de niebla matinales que reducen la visibilidad en las rutas, mientras que en verano niveles altos predisponen la aparición de plagas fúngicas en los cultivos locales.`;
     }
     else {
-        respuesta = "🤖 Nodo Inteligente activo. Consultas admitidas: temperatura, escuela, lluvia, humedad o viento.";
+        respuesta = "🤖 Saludo del nodo Pronóstico-Zap AI. Estoy calibrado para darte respuestas bien extensas sobre el clima en los pueblos rurales. Podés preguntarme con detalle sobre la humedad de los campos, la velocidad del viento, tormentas entrantes, o pedirme que te explique la diferencia climática entre Buenos Aires y nuestra zona de Zapiola.";
     }
+    
     mostrarRespuestaIA(respuesta);
     hablar(respuesta);
 }
 
 function mostrarRespuestaIA(texto){
     const caja = document.getElementById("respuestaIA");
-    if(caja) caja.innerHTML = `<div class="ia-msg" style="color:#00d2ff; font-weight:500;">${texto}</div>`;
+    if(caja) caja.innerHTML = `<div class="ia-msg" style="color:#00d2ff; font-weight:500; line-height: 1.5; text-align: justify;">${texto}</div>`;
 }
 
 function hablar(texto){
@@ -369,12 +405,13 @@ function hablar(texto){
     speechSynthesis.cancel();
     const voz = new SpeechSynthesisUtterance(texto);
     voz.lang = "es-AR"; 
+    voz.rate = 0.95; // Un poquito más pausado para que se entienda ideal en el stand
     speechSynthesis.speak(voz);
 }
 
 function leerClima(){
     if(!datosActuales.temperature) return;
-    const texto = `Reporte para la Escuela Secundaria Número Tres, Anexo 30 31. La temperatura ambiente es de ${datosActuales.temperature} grados, con un porcentaje de humedad de ${datosActuales.humidity} por ciento.`;
+    const texto = `Reporte oficial de telemetría para la Escuela Secundaria Número Tres, Anexo 30 31. En nuestro entorno rural, la temperatura ambiente se ubica en los ${datosActuales.temperature} grados, con ráfagas de viento corriendo a ${Math.round(datosActuales.windspeed)} kilómetros por hora.`;
     hablar(texto);
 }
 
@@ -393,27 +430,4 @@ function verificarAlertas(){
         alertaBox.style.color = "#ffffff";
         notificar("🔥 Alerta de calor extremo");
     } else if(datosActuales.windspeed > 50){
-        alertaBox.textContent = "⚠️ ALERTA: Alerta por ráfagas intensas para el agro";
-        alertaBox.style.background = "#ffa502";
-        alertaBox.style.color = "#000000";
-        notificar("🌪️ Vientos fuertes detectados");
-    } else {
-        alertaBox.textContent = "✅ Condiciones normales estables sobre el área del Anexo 3031";
-        alertaBox.style.background = "#2ed573";
-        alertaBox.style.color = "#0b1220";
-    }
-}
-
-function notificar(texto){
-    if(Notification.permission === "granted") new Notification("Pronóstico-Zap AI", { body:texto });
-}
-
-if("serviceWorker" in navigator){
-    window.addEventListener("load", ()=>{
-        navigator.serviceWorker.register("sw.js")
-        .then(()=>{ console.log("PWA: Service Worker Activo"); })
-        .catch(err=>{ console.error(err); });
-    });
-}
-
-setInterval(()=>{ actualizarClima(); }, 300000);
+        alertaBox.textContent = "⚠️ ALERTA: Alerta por ráfagas inte
