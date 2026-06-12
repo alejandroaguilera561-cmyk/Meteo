@@ -1,30 +1,33 @@
 // =====================================================
-// SCRIPT DE TELEMETRÍA TOTAL DESDE CERO - PRONÓSTICO-ZAP
+// SCRIPT DE LOGICA GENERAL - PRONÓSTICO-ZAP AI
 // =====================================================
 
 const estado = {
     lat: -35.186,
     lon: -59.094,
-    ciudad: "Zapiola (Pueblo Rural)"
+    ciudad: "Zapiola (Pueblo Rural)",
+    mapa: null,
+    marcador: null
 };
 
 let datosActuales = {};
 let graficoTemperatura = null;
 let graficoHistorial = null;
 
-// ARRANQUE IMPERATIVO: Mata la carga apenas el HTML termine de procesarse
+// Remoción de pantalla de carga inmediata una vez procesado el DOM
 window.addEventListener("DOMContentLoaded", () => {
     setTimeout(() => {
         const pantalla = document.getElementById("pantallaCarga");
         if(pantalla) {
-            pantalla.style.display = "none";
-            pantalla.remove();
-            console.log("Carga destruida con éxito.");
+            pantalla.style.transition = "opacity 0.3s ease";
+            pantalla.style.opacity = "0";
+            setTimeout(() => { pantalla.remove(); }, 300);
+            console.log("Pantalla de carga removida de la interfaz.");
         }
-    }, 500); // 500ms de gracia visual
+    }, 600);
 });
 
-// Levantar servicios meteorológicos
+// Inicialización de servicios al cargar la ventana
 window.addEventListener("load", () => {
     iniciarMapa();
     iniciarGraficos();
@@ -59,21 +62,20 @@ async function actualizarClima(){
             windspeed: datos.current.wind_speed_10m
         };
 
-        // Renderizar textos principales
+        // Renderizado de datos del Hero
         document.getElementById("ubicacion").textContent = `📍 ${estado.ciudad}`;
         document.getElementById("temperatura").textContent = Math.round(datos.current.temperature_2m) + "°";
         document.getElementById("descripcion").textContent = descripcionClima(datos.current.weather_code);
 
-        // Renderizar Tarjetas de detalles
+        // Renderizado de las Mini Tarjetas
         const probLluvia = datos.hourly.precipitation_probability[0] || 0;
         document.getElementById("tarjetas-detalles").innerHTML = `
             <div class="tarjeta-mini"><span style="color:#00d2ff">💧</span><div class="info-mini"><span class="titulo-mini">HUMEDAD</span><span class="valor-mini">${datos.current.relative_humidity_2m}%</span></div></div>
             <div class="tarjeta-mini"><span style="color:#00d2ff">💨</span><div class="info-mini"><span class="titulo-mini">VIENTO</span><span class="valor-mini">${Math.round(datos.current.wind_speed_10m)} km/h</span></div></div>
             <div class="tarjeta-mini"><span style="color:#00d2ff">🌧️</span><div class="info-mini"><span class="titulo-mini">LLUVIA</span><span class="valor-mini">${probLluvia}%</span></div></div>
-            <div class="tarjeta-mini"><span style="color:#ff4757">▲</span><div class="info-mini"><span class="titulo-mini">MAX/MIN</span><span class="valor-mini" style="font-size:0.8em;">${Math.round(datos.daily.temperature_2m_max[0])}° / ${Math.round(datos.daily.temperature_2m_min[0])}°</span></div></div>
+            <div class="tarjeta-mini"><span style="color:#ff4757">▲▼</span><div class="info-mini"><span class="titulo-mini">EXTREMAS</span><span class="valor-mini" style="font-size:0.8em; color:#ff4757;">Max: ${Math.round(datos.daily.temperature_2m_max[0])}°</span></div></div>
         `;
 
-        // Actualizar UI Extendida
         actualizarMapa();
         renderHoras(datos);
         render7Dias(datos);
@@ -82,12 +84,12 @@ async function actualizarClima(){
         verificarAlertas();
 
     } catch (e) {
-        console.error("Error en flujo de clima: ", e);
+        console.error("Error obteniendo telemetría climática: ", e);
     }
 }
 
 function descripcionClima(codigo){
-    const codigos = { 0:"☀️ Despejado", 1:"🌤️ Algo Nublado", 2:"⛅ Parcialmente Nublado", 3:"☁️ Nublado", 51:"轻🌧️ Llovizna", 61:"🌧️ Lluvia", 95:"⛈️ Tormenta" };
+    const codigos = { 0:"☀️ Despejado", 1:"🌤️ Algo Nublado", 2:"⛅ Parcialmente Nublado", 3:"☁️ Nublado", 51:"🌦️ Llovizna", 61:"🌧️ Lluvia", 95:"⛈️ Tormenta" };
     return codigos[codigo] || "🍃 Variable";
 }
 
@@ -111,7 +113,7 @@ function iniciarGraficos(){
     if(ctxT && typeof Chart !== "undefined") {
         graficoTemperatura = new Chart(ctxT, {
             type: "line",
-            data: { labels: [], datasets: [{ label: "Horas", data: [], borderColor: "#00d2ff", tension: 0.3, fill: false }] },
+            data: { labels: [], datasets: [{ label: "Temperatura (°C)", data: [], borderColor: "#00d2ff", tension: 0.3, fill: false }] },
             options: { responsive: true }
         });
     }
@@ -119,7 +121,7 @@ function iniciarGraficos(){
     if(ctxH && typeof Chart !== "undefined") {
         graficoHistorial = new Chart(ctxH, {
             type: "bar",
-            data: { labels: [], datasets: [{ label: "Historial de Tomas", data: [], backgroundColor: "#ff4757" }] },
+            data: { labels: [], datasets: [{ label: "Registro Térmico", data: [], backgroundColor: "#ff4757" }] },
             options: { responsive: true }
         });
     }
@@ -127,7 +129,7 @@ function iniciarGraficos(){
 
 function actualizarGraficosData(datos){
     if(!graficoTemperatura) return;
-    graficoTemperatura.data.labels = datos.hourly.time.slice(0, 8).map(t => t.substring(11, 16) + "hs");
+    graficoTemperatura.data.labels = datos.hourly.time.slice(0, 8).map(t => t.substring(11, 16) + " hs");
     graficoTemperatura.data.datasets[0].data = datos.hourly.temperature_2m.slice(0, 8);
     graficoTemperatura.update();
 }
@@ -150,10 +152,15 @@ function render7Dias(datos){
     const container = document.getElementById("pronostico7dias");
     if(!container) return;
     container.innerHTML = "";
+    const dias = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+    const hoy = new Date();
+    
     for(let i=0; i<7; i++){
+        const f = new Date(hoy);
+        f.setDate(hoy.getDate() + i);
         container.innerHTML += `
             <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.05); font-size:0.9em;">
-                <div>Día ${i+1}</div>
+                <div>${i === 0 ? 'Hoy' : dias[f.getDay()]}</div>
                 <div style="color:#ff4757; font-weight:bold;">${Math.round(datos.daily.temperature_2m_max[i])}° <span style="color:#00d2ff; font-weight:normal;">/ ${Math.round(datos.daily.temperature_2m_min[i])}°</span></div>
             </div>`;
     }
@@ -162,16 +169,18 @@ function render7Dias(datos){
 function guardarHistorial(){
     let hist = JSON.parse(localStorage.getItem("historialZap") || "[]");
     const hora = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-    hist.push({ hora, temp: datosActuales.temperature });
-    if(hist.length > 5) hist.shift();
-    localStorage.setItem("historialZap", JSON.stringify(hist));
+    
+    if(hist.length === 0 || hist[hist.length - 1].hora !== hora) {
+        hist.push({ hora, temp: datosActuales.temperature });
+        if(hist.length > 6) hist.shift();
+        localStorage.setItem("historialZap", JSON.stringify(hist));
+    }
 
-    // Listar en UI
     const lista = document.getElementById("historial");
     if(lista) {
         lista.innerHTML = "";
         hist.slice().reverse().forEach(item => {
-            lista.innerHTML += `<div style="font-size:0.8em; opacity:0.7; padding:4px 0;">⏱️ ${item.hora} -> 🌡️ ${item.temp}°C</div>`;
+            lista.innerHTML += `<div style="font-size:0.85em; opacity:0.7; padding:4px 0;">⏱️ ${item.hora} -> 🌡️ ${item.temp}°C</div>`;
         });
     }
 
@@ -186,8 +195,9 @@ function verificarAlertas(){
     const box = document.getElementById("alertaMeteorologica");
     if(!box) return;
     if(datosActuales.temperature > 35) {
-        box.textContent = "⚠️ Alerta: Ola de calor detectada";
+        box.textContent = "⚠️ Alerta: Ola de calor extrema en el sector agropecuario";
         box.style.background = "#ff4757";
+        box.style.color = "#ffffff";
     } else {
         box.textContent = "✅ Parámetros estables en el área del Anexo 3031";
         box.style.background = "#2ed573";
@@ -195,7 +205,6 @@ function verificarAlertas(){
     }
 }
 
-// Controladores de UI básicos
 function abrirBuscador() { document.getElementById("modalBusqueda").style.display = "flex"; }
 function cerrarBusqueda() { document.getElementById("modalBusqueda").style.display = "none"; }
 async function buscarCiudadTexto(txt){
@@ -217,15 +226,21 @@ async function buscarCiudadTexto(txt){
 }
 
 function preguntarIA(){
-    const p = prompt("🤖 Pronóstico-Zap AI\n¿Qué quieres consultar sobre las variables climáticas rurales?");
+    const p = prompt("🤖 Pronóstico-Zap AI\n¿Qué deseas consultar sobre el entorno climático rural?");
     if(!p) return;
-    let r = "🤖 Pronóstico-Zap AI: Este desarrollo interactivo pertenece a los alumnos del Anexo 3031 de la Escuela Secundaria N°3 de Zapiola, diseñado para monitorear el microclima de los entornos agropecuarios.";
+    let r = "🤖 Pronóstico-Zap AI: Sistema interactivo desarrollado por los alumnos del Anexo 3031 de la Escuela Secundaria N°3 de Zapiola para el monitoreo productivo y agro-meteorológico.";
     document.getElementById("respuestaIA").textContent = r;
-    if(window.speechSynthesis) speechSynthesis.speak(new SpeechSynthesisUtterance(r));
+    if(window.speechSynthesis) {
+        speechSynthesis.cancel();
+        speechSynthesis.speak(new SpeechSynthesisUtterance(r));
+    }
 }
 
 function leerClima(){
     if(!datosActuales.temperature) return;
-    const t = `Reporte de Pronóstico Zap. En la zona de la Escuela Secundaria Número Tres la temperatura actual es de ${datosActuales.temperature} grados.`;
-    if(window.speechSynthesis) speechSynthesis.speak(new SpeechSynthesisUtterance(t));
+    const t = `Reporte meteorológico oficial. En la zona de cobertura de la Escuela Secundaria Número Tres la temperatura actual es de ${datosActuales.temperature} grados.`;
+    if(window.speechSynthesis) {
+        speechSynthesis.cancel();
+        speechSynthesis.speak(new SpeechSynthesisUtterance(t));
+    }
 }
