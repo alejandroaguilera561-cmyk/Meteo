@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pronóstico-Zap AI - E.E.S N°3 Anexo 3031</title>
+    <meta name="theme-color" content="#0b1220">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0b1220;
+            color: #ffffff;
+            font-family: 'Poppins', sans-serif;
+            overflow-x: hidden;
+        }
+        .topbar {
+            background: #10192c;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid rgba(0, 210, 255, 0.2);
+        }
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 1em;
+        }
+        .actions button {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-left: 4px;
+        }
+        .hero {
+            background: linear-gradient(135deg, #131c2e 0%, #0b1220 100%);
+            padding: 25px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #ubicacion {
+            font-family: 'Orbitron', sans-serif;
+            color: #00d2ff;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+        #temperatura {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3.5em;
+            margin: 10px 0;
+            font-weight: 700;
+        }
+        .alerta {
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 0.9em;
+            font-weight: 500;
+            text-align: center;
+            margin: 15px;
+        }
+        .card {
+            background: #131c2e;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .card h3 {
+            margin-top: 0;
+            font-size: 0.95em;
+            color: rgba(255,255,255,0.7);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding-bottom: 8px;
+        }
+        .contenedor-scroll-horas {
+            display: flex;
+            overflow-x: auto;
+            gap: 12px;
+            padding: 10px 0;
+        }
+        .hour-card-fija {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 12px;
+            border-radius: 8px;
+            min-width: 85px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .grid-detalles-fijo {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .tarjeta-mini {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .info-mini { display: flex; flex-direction: column; }
+        .titulo-mini { font-size: 0.65em; color: #00d2ff; font-family: 'Orbitron'; }
+        .valor-mini { font-size: 0.95em; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div id="pantallaCarga" style="position: fixed; top:0; left:0; width:100%; height:100%; background:#0b1220; z-index:9999; display:flex; flex-direction:column; justify-content:center; align-items:center; color:white; font-family:'Orbitron', sans-serif;">
+        <h2>E.E.S N°3 - ANEXO 3031</h2>
+        <p style="color: #00d2ff; letter-spacing: 1px;">Iniciando Pronóstico-Zap...</p>
+    </div>
+
+    <header class="topbar">
+        <div class="logo">
+            Telemetría: <span style="color: #00d2ff;">PRONÓSTICO-ZAP AI</span>
+        </div>
+        <div class="actions">
+            <button onclick="abrirBuscador()">🔍</button>
+            <button onclick="preguntarIA()">🤖</button>
+            <button onclick="leerClima()">🔊</button>
+            <button onclick="actualizarClima()">↻</button>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div>
+            <div id="ubicacion">📍 Cargando localización rural...</div>
+            <h1 id="temperatura">--°</h1>
+            <div id="descripcion">Conectando con sensores...</div>
+            <div id="tarjetas-detalles" class="grid-detalles-fijo"></div>
+        </div>
+        <div id="iconoClima" style="font-size: 3.5em;">☀️</div>
+    </section>
+
+    <div id="alertaMeteorologica" class="alerta">Estabilizando telemetría local...</div>
+
+    <main style="padding: 15px; max-width: 1200px; margin: auto;">
+        <div class="card" style="border-left: 5px solid #00d2ff; background: rgba(20, 30, 55, 0.7);">
+            <h3 style="font-family: 'Orbitron'; color: #00d2ff;">🤖 Asistente Virtual IA</h3>
+            <div id="respuestaIA">Toca el botón del robot arriba para consultar variables agro-meteorológicas.</div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px;">
+            <div class="card">
+                <h3>🗺️ Satélite de Monitoreo</h3>
+                <div id="mapa" style="height: 250px; border-radius: 8px; background: #1a2235;"></div>
+            </div>
+            <div class="card">
+                <h3>📈 Evolución Térmica (Próximas Horas)</h3>
+                <canvas id="graficoTemperatura"></canvas>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top: 15px;">
+            <h3>📋 Pronóstico por Horas</h3>
+            <div id="pronosticoHoras" class="contenedor-scroll-horas"></div>
+        </div>
+
+        <div class="card">
+            <h3>📅 Tendencia 7 Días</h3>
+            <div id="pronostico7dias"></div>
+        </div>
+
+        <div class="card">
+            <h3>📊 Historial Acumulado</h3>
+            <canvas id="graficoHistorial" style="max-height: 180px;"></canvas>
+            <div id="historial" style="margin-top:10px; max-height: 120px; overflow-y:auto;"></div>
+        </div>
+    </main>
+
+    <div id="modalBusqueda" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); display:none; justify-content:center; align-items:center; z-index:10000;">
+        <div style="background:#131c2e; padding:20px; border-radius:10px; width:90%; max-width:400px;">
+            <h3>🔍 Buscar Localidad</h3>
+            <input type="text" placeholder="Escribe una ciudad..." oninput="buscarCiudadTexto(this.value)" style="width:100%; padding:10px; border-radius:5px; border:none; background: rgba(255,255,255,0.1); color: white; box-sizing: border-box;">
+            <div id="resultadosBusqueda" style="max-height:200px; overflow-y:auto; margin-top:10px;"></div>
+            <button onclick="cerrarBusqueda()" style="background:#ff4757; color:white; border:none; padding:10px; border-radius:5px; margin-top:10px; width:100%; cursor:pointer;">Cerrar</button>
+        </div>
+    </div>
+
+    <script src="app-v2.js?v=2026_v1"></script>
+</body>
+</html>
