@@ -1,6 +1,6 @@
 // =====================================================
-// PRONÓSTICO-ZAP AI V5.5 - PRODUCCIÓN OFICIAL COMPLETA
-// ARREGLO DE HORAS + REPARACIÓN DE MAPA + IDENTIDAD ZAP
+// PRONÓSTICO-ZAP AI V5.8 - EDICIÓN ANTIBLOQUEO
+// ARREGLO DE EVENTOS DE CARGA + PROTOCOLO DE SEGURIDAD
 // =====================================================
 
 const estado = {
@@ -18,19 +18,28 @@ let datosActuales = {};
 let graficoTemperatura = null;
 let graficoHistorial = null;
 
-// Ejecución principal segura al cargar la estructura de la página
-window.addEventListener("DOMContentLoaded", () => {
-    // Forzamos que la pantalla de carga se apague a los 3 segundos máximo por seguridad si algo falla
-    setTimeout(ocultarPantallaCarga, 3000);
+// CAMBIO CRÍTICO: Usamos "load" para esperar que Leaflet y Chart.js existan en el navegador
+window.addEventListener("load", () => {
+    // 1. PRIORIDAD ABSOLUTA: Apagar la pantalla de carga inmediatamente para no trabar la app
+    ocultarPantallaCarga();
+    
+    // Por seguridad extrema, un segundo intento de apagado a los 2 segundos
+    setTimeout(ocultarPantallaCarga, 2000);
 
+    // 2. Ejecutar módulos de forma aislada para que si uno falla, no arrastre al resto
     try {
         iniciarMapa();
-    } catch(e) { console.error("Error al iniciar mapa:", e); }
+    } catch(e) { 
+        console.error("Error al iniciar mapa:", e); 
+    }
 
     try {
         iniciarGraficos();
-    } catch(e) { console.error("Error al iniciar gráficos:", e); }
+    } catch(e) { 
+        console.error("Error al iniciar gráficos:", e); 
+    }
 
+    // 3. Cargar flujo de datos meteorológicos
     actualizarHistorial();
     obtenerUbicacion();
     solicitarNotificaciones();
@@ -40,7 +49,9 @@ function ocultarPantallaCarga(){
     const pantalla = document.getElementById("pantallaCarga");
     if(pantalla && pantalla.style.display !== "none") {
         pantalla.style.opacity = "0";
-        setTimeout(() => { pantalla.style.display = "none"; }, 500);
+        setTimeout(() => { 
+            pantalla.style.display = "none"; 
+        }, 400);
     }
 }
 
@@ -58,7 +69,7 @@ async function obtenerUbicacion(){
                 actualizarClima();
             },
             ()=>{
-                actualizarClima(); // Si rechaza o falla la geolocalización, usa Zapiola/Lobos por defecto
+                actualizarClima(); // Si el usuario rechaza la ubicación, usa Zapiola por defecto
             }
         );
     } else {
@@ -79,13 +90,9 @@ async function actualizarClima(){
         actualizarGraficoHoras(datos);
         guardarHistorialClima();
         mostrarHistorial();
-        
-        // Apagar carga al recibir datos exitosos de la API
-        ocultarPantallaCarga();
     }
     catch(error){
-        console.error("Error obteniendo clima:", error);
-        ocultarPantallaCarga(); // No dejar la pantalla trabada si falla internet o la API
+        console.error("Error obteniendo clima de Open-Meteo:", error);
     }
 }
 
@@ -169,7 +176,7 @@ function descripcionClima(codigo){
 
 function iniciarMapa(){
     const contenedor = document.getElementById("mapa");
-    if(!contenedor) return;
+    if(!contenedor || typeof L === "undefined") return; // Evita romper si Leaflet no bajó a tiempo
     
     estado.mapa = L.map("mapa", { zoomControl: true }).setView([estado.lat, estado.lon], 11);
     
@@ -177,7 +184,6 @@ function iniciarMapa(){
         attribution:"© OpenStreetMap"
     }).addTo(estado.mapa);
     
-    // Capas dinámicas meteorológicas (Viento y Nubes en vivo)
     estado.capaViento = L.tileLayer("https://tile.openweathermap.org/map/wind_new/{z}/{x}/{y}.png?appid=d22d5da5210a5dced575cc3971cdcbf2", {
         opacity: 0.5,
         zIndex: 10
@@ -193,11 +199,8 @@ function iniciarMapa(){
         .openPopup();
 }
 
-// CORRECCIÓN PARA QUE EL MAPA NO QUEDE OCULTO NI INVISIBLE EN MÓVILES
 function actualizarMapa(){
     if(!estado.mapa) return;
-    
-    // El desfasaje de tiempo le da respiro al navegador para pintar el mapa correctamente
     setTimeout(() => {
         estado.mapa.invalidateSize();
         estado.mapa.setView([estado.lat, estado.lon], 11);
@@ -223,13 +226,13 @@ function activarRadar(){
 
 function iniciarGraficos(){
     const canvasTemp = document.getElementById("graficoTemperatura");
-    if(canvasTemp){
-        graficoTemperatura = new Chart(canvasTemp, {
-            type:"line",
-            data:{ labels:[], datasets:[{ label:"Temperatura °C", data:[], borderColor:"#00d2ff", backgroundColor:"rgba(0,210,255,0.1)", borderWidth:3, tension:0.4, fill:true }] },
-            options: { responsive: true, scales: { y: { grid: { color: "rgba(255,255,255,0.1)" } } } }
-        });
-    }
+    if(!canvasTemp || typeof Chart === "undefined") return; // Evita romper si Chart.js no se cargó
+    
+    graficoTemperatura = new Chart(canvasTemp, {
+        type:"line",
+        data:{ labels:[], datasets:[{ label:"Temperatura °C", data:[], borderColor:"#00d2ff", backgroundColor:"rgba(0,210,255,0.1)", borderWidth:3, tension:0.4, fill:true }] },
+        options: { responsive: true, scales: { y: { grid: { color: "rgba(255,255,255,0.1)" } } } }
+    });
 
     const canvasHistorial = document.getElementById("graficoHistorial");
     if(canvasHistorial){
@@ -283,7 +286,6 @@ function mostrarHistorial(){
     });
 }
 
-// CORRECCIÓN ABSOLUTA PARA EL DISEÑO DESPLAZABLE SIN TEXTOS ENCIMADOS
 function renderHoras(datos){
     const contenedor = document.getElementById("pronosticoHoras");
     if(!contenedor) return;
@@ -385,7 +387,6 @@ function preguntarIA(){
     responderIA(pregunta.toLowerCase());
 }
 
-// IA DETALLADA CON CONTENIDO EXTENSO Y IDENTIDAD PRONÓSTICO-ZAP AI
 function responderIA(texto){
     let respuesta = "";
     
@@ -405,7 +406,7 @@ function responderIA(texto){
         respuesta = "🏫 Este software avanzado de telemetría agro-meteorológica interactiva llamado Pronóstico-Zap AI es un desarrollo genuino de los alumnos del Anexo 3031 de la Escuela Secundaria N°3. Nuestro fin es dotar a nuestro pueblo de herramientas predictivas eficientes.";
     }
     else {
-        respuesta = "🤖 Central integrada de Pronóstico-Zap AI. Estoy calibrado para darte respuestas bien extensas sobre el comportamiento atmosférico rural, humedades del suelo, ráfagas de viento o las marcadas diferencias productivas y climáticas con Buenos Aires.";
+        respuesta = "🤖 Central integrada de Pronóstico-Zap AI. Estoy calibrado para darte respuestas bien extensas sobre el comportamiento atmospheric rural, humedades del suelo, ráfagas de viento o las marcadas diferencias productivas y climáticas con Buenos Aires.";
     }
     
     mostrarRespuestaIA(respuesta);
@@ -452,4 +453,10 @@ function verificarAlertas(){
     } else {
         alertaBox.textContent = "✅ Pronóstico-Zap AI: Parámetros estables en el área del Anexo 3031";
         alertaBox.style.background = "#2ed573";
-        alertaBox.style.color = "
+        alertaBox.style.color = "#0b1220";
+    }
+}
+
+if("serviceWorker" in navigator){
+    window.addEventListener("load", ()=>{
+        navigator.serviceWorker.regist
