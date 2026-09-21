@@ -1,196 +1,771 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pronóstico-Zap AI - E.E.S N°3 Anexo 3031</title>
-    <meta name="theme-color" content="#0b1220">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<title>PRONÓSTICO-ZAP | Estación Meteorológica</title>
 
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #0b1220;
-            color: #ffffff;
-            font-family: 'Poppins', sans-serif;
-            overflow-x: hidden;
-        }
-        .topbar {
-            background: #10192c;
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid rgba(0, 210, 255, 0.2);
-        }
-        .logo {
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 700;
-            font-size: 1em;
-        }
-        .actions button {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: white;
-            padding: 8px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            margin-left: 4px;
-        }
-        .hero {
-            background: linear-gradient(135deg, #131c2e 0%, #0b1220 100%);
-            padding: 25px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        #ubicacion {
-            font-family: 'Orbitron', sans-serif;
-            color: #00d2ff;
-            font-weight: 600;
-            font-size: 0.9em;
-        }
-        #temperatura {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 3.5em;
-            margin: 10px 0;
-            font-weight: 700;
-        }
-        .alerta {
-            padding: 12px;
-            border-radius: 6px;
-            font-size: 0.9em;
-            font-weight: 500;
-            text-align: center;
-            margin: 15px;
-        }
-        .card {
-            background: #131c2e;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 15px;
-        }
-        .card h3 {
-            margin-top: 0;
-            font-size: 0.95em;
-            color: rgba(255,255,255,0.7);
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            padding-bottom: 8px;
-        }
-        .contenedor-scroll-horas {
-            display: flex;
-            overflow-x: auto;
-            gap: 12px;
-            padding: 10px 0;
-        }
-        .hour-card-fija {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 12px;
-            border-radius: 8px;
-            min-width: 85px;
-            text-align: center;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-        .grid-detalles-fijo {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-top: 15px;
-        }
-        .tarjeta-mini {
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            padding: 10px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .info-mini { display: flex; flex-direction: column; }
-        .titulo-mini { font-size: 0.65em; color: #00d2ff; font-family: 'Orbitron'; }
-        .valor-mini { font-size: 0.95em; font-weight: bold; }
-    </style>
+<meta name="theme-color" content="#07111f">
+
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+body{
+    font-family:Arial,Helvetica,sans-serif;
+    background:#07111f;
+    color:#eef7ff;
+    min-height:100vh;
+}
+
+header{
+    background:linear-gradient(135deg,#0b2440,#08758a);
+    padding:35px 20px;
+    text-align:center;
+}
+
+.logo{
+    font-size:45px;
+    margin-bottom:8px;
+}
+
+h1{
+    font-size:clamp(30px,7vw,52px);
+    letter-spacing:2px;
+}
+
+.subtitle{
+    margin-top:10px;
+    color:#ccefff;
+    font-size:17px;
+}
+
+.container{
+    width:100%;
+    max-width:1100px;
+    margin:auto;
+    padding:20px 15px 40px;
+}
+
+.top-status{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:18px;
+}
+
+.status{
+    display:inline-block;
+    padding:10px 15px;
+    border-radius:30px;
+    background:#103d30;
+    color:#8ff0c2;
+    font-size:14px;
+    font-weight:bold;
+}
+
+.clock{
+    padding:10px 15px;
+    background:#10263c;
+    border-radius:30px;
+    color:#b9d5e8;
+    font-size:14px;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+    gap:15px;
+}
+
+.card{
+    background:#0d1d30;
+    border:1px solid #1c3953;
+    border-radius:20px;
+    padding:22px;
+    box-shadow:0 8px 25px rgba(0,0,0,.20);
+}
+
+.card-icon{
+    font-size:35px;
+}
+
+.card-title{
+    margin-top:10px;
+    color:#9eb6c9;
+    font-size:15px;
+}
+
+.value{
+    font-size:34px;
+    font-weight:bold;
+    margin:8px 0;
+}
+
+.explanation{
+    color:#aec3d4;
+    font-size:14px;
+    line-height:1.5;
+}
+
+.panel{
+    margin-top:18px;
+    padding:22px;
+    background:#0d1d30;
+    border:1px solid #1c3953;
+    border-radius:20px;
+}
+
+.panel h2{
+    margin-bottom:14px;
+}
+
+.summary{
+    color:#dceeff;
+    font-size:18px;
+    line-height:1.6;
+}
+
+canvas{
+    display:block;
+    width:100%;
+    height:250px;
+    background:#091625;
+    border-radius:15px;
+    margin-top:10px;
+}
+
+.legend{
+    display:flex;
+    flex-wrap:wrap;
+    gap:15px;
+    margin-top:12px;
+    color:#a9bfd1;
+    font-size:13px;
+}
+
+.info-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:12px;
+}
+
+.info-box{
+    background:#10263b;
+    padding:17px;
+    border-radius:14px;
+    color:#c8dbea;
+    line-height:1.5;
+}
+
+.info-box strong{
+    color:white;
+}
+
+.footer{
+    text-align:center;
+    padding:30px 15px;
+    color:#7894aa;
+    font-size:13px;
+}
+
+.demo{
+    text-align:center;
+    margin-top:15px;
+    color:#7fa4bd;
+    font-size:12px;
+}
+
+@media(max-width:600px){
+
+    header{
+        padding:28px 15px;
+    }
+
+    .logo{
+        font-size:36px;
+    }
+
+    .card{
+        padding:18px;
+    }
+
+    .value{
+        font-size:30px;
+    }
+
+    .summary{
+        font-size:16px;
+    }
+}
+</style>
 </head>
+
 <body>
 
-    <div id="pantallaCarga" style="position: fixed; top:0; left:0; width:100%; height:100%; background:#0b1220; z-index:9999; display:flex; flex-direction:column; justify-content:center; align-items:center; color:white; font-family:'Orbitron', sans-serif;">
-        <h2>E.E.S N°3 - ANEXO 3031</h2>
-        <p style="color: #00d2ff; letter-spacing: 1px;">Iniciando Pronóstico-Zap...</p>
+<header>
+
+    <div class="logo">🌦️</div>
+
+    <h1>PRONÓSTICO-ZAP</h1>
+
+    <p class="subtitle">
+        Estación Meteorológica Escolar
+    </p>
+
+    <p class="subtitle">
+        E.E.S. N.º 3 - Anexo 3031
+    </p>
+
+</header>
+
+
+<div class="container">
+
+    <div class="top-status">
+
+        <div class="status">
+            🟢 ESTACIÓN ACTIVA
+        </div>
+
+        <div class="clock" id="clock">
+            --/--/---- --:--:--
+        </div>
+
     </div>
 
-    <header class="topbar">
-        <div class="logo">
-            Telemetría: <span style="color: #00d2ff;">PRONÓSTICO-ZAP AI</span>
-        </div>
-        <div class="actions">
-            <button onclick="abrirBuscador()">🔍</button>
-            <button onclick="preguntarIA()">🤖</button>
-            <button onclick="leerClima()">🔊</button>
-            <button onclick="actualizarClima()">↻</button>
-        </div>
-    </header>
 
-    <section class="hero">
-        <div>
-            <div id="ubicacion">📍 Conectando localización...</div>
-            <h1 id="temperatura">--°</h1>
-            <div id="descripcion">Obteniendo variables atmosféricas...</div>
-            <div id="tarjetas-detalles" class="grid-detalles-fijo"></div>
-        </div>
-        <div id="iconoClima" style="font-size: 3.5em;">☀️</div>
-    </section>
+    <!-- SENSORES -->
 
-    <div id="alertaMeteorologica" class="alerta">Sincronizando sensores locales...</div>
+    <div class="grid">
 
-    <main style="padding: 15px; max-width: 1200px; margin: auto;">
-        <div class="card" style="border-left: 5px solid #00d2ff; background: rgba(20, 30, 55, 0.7);">
-            <h3 style="font-family: 'Orbitron'; color: #00d2ff;">🤖 Asistente Virtual IA</h3>
-            <div id="respuestaIA">Toca el botón del robot para consultar el análisis agro-climático.</div>
-        </div>
-
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px;">
-            <div class="card">
-                <h3>🗺️ Satélite de Monitoreo</h3>
-                <div id="mapa" style="height: 250px; border-radius: 8px; background: #1a2235;"></div>
-            </div>
-            <div class="card">
-                <h3>📈 Evolución Térmica (Próximas Horas)</h3>
-                <canvas id="graficoTemperatura"></canvas>
-            </div>
-        </div>
-
-        <div class="card" style="margin-top: 15px;">
-            <h3>📋 Pronóstico por Horas</h3>
-            <div id="pronosticoHoras" class="contenedor-scroll-horas"></div>
-        </div>
 
         <div class="card">
-            <h3>📅 Tendencia 7 Días</h3>
-            <div id="pronostico7dias"></div>
+
+            <div class="card-icon">🌡️</div>
+
+            <div class="card-title">
+                TEMPERATURA
+            </div>
+
+            <div class="value" id="temperature">
+                22.6 °C
+            </div>
+
+            <div class="explanation">
+                Indica qué tan caliente o frío está el aire.
+            </div>
+
         </div>
+
 
         <div class="card">
-            <h3>📊 Historial Acumulado</h3>
-            <canvas id="graficoHistorial" style="max-height: 180px;"></canvas>
-            <div id="historial" style="margin-top:10px; max-height: 120px; overflow-y:auto;"></div>
-        </div>
-    </main>
 
-    <div id="modalBusqueda" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); display:none; justify-content:center; align-items:center; z-index:10000;">
-        <div style="background:#131c2e; padding:20px; border-radius:10px; width:90%; max-width:400px;">
-            <h3>🔍 Buscar Localidad</h3>
-            <input type="text" placeholder="Escribe una ciudad..." oninput="buscarCiudadTexto(this.value)" style="width:100%; padding:10px; border-radius:5px; border:none; background: rgba(255,255,255,0.1); color: white; box-sizing: border-box;">
-            <div id="resultadosBusqueda" style="max-height:200px; overflow-y:auto; margin-top:10px;"></div>
-            <button onclick="cerrarBusqueda()" style="background:#ff4757; color:white; border:none; padding:10px; border-radius:5px; margin-top:10px; width:100%; cursor:pointer;">Cerrar</button>
+            <div class="card-icon">💧</div>
+
+            <div class="card-title">
+                HUMEDAD
+            </div>
+
+            <div class="value" id="humidity">
+                63 %
+            </div>
+
+            <div class="explanation">
+                Representa la cantidad de vapor de agua presente en el aire.
+            </div>
+
         </div>
+
+
+        <div class="card">
+
+            <div class="card-icon">🧭</div>
+
+            <div class="card-title">
+                PRESIÓN ATMOSFÉRICA
+            </div>
+
+            <div class="value" id="pressure">
+                1018 hPa
+            </div>
+
+            <div class="explanation">
+                Permite observar cambios en las condiciones atmosféricas.
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="card-icon">🌧️</div>
+
+            <div class="card-title">
+                LLUVIA
+            </div>
+
+            <div class="value" id="rain">
+                SIN LLUVIA
+            </div>
+
+            <div class="explanation">
+                El sensor detecta la presencia de agua.
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="card-icon">🌬️</div>
+
+            <div class="card-title">
+                VIENTO
+            </div>
+
+            <div class="value" id="wind">
+                0.0 km/h
+            </div>
+
+            <div class="explanation">
+                Velocidad registrada por el anemómetro.
+            </div>
+
+        </div>
+
     </div>
 
-    <script src="app-v2.js"></script>
+
+    <!-- RESUMEN -->
+
+    <div class="panel">
+
+        <h2>☁️ Condiciones actuales</h2>
+
+        <p class="summary" id="summary">
+            Condiciones estables. Temperatura agradable y sin lluvia detectada.
+        </p>
+
+    </div>
+
+
+    <!-- GRÁFICO -->
+
+    <div class="panel">
+
+        <h2>📈 Evolución de las mediciones</h2>
+
+        <canvas id="chart" width="1000" height="250"></canvas>
+
+        <div class="legend">
+
+            <span>🌡️ Temperatura</span>
+
+            <span>💧 Humedad</span>
+
+            <span>🧭 Presión</span>
+
+        </div>
+
+        <div class="demo">
+            Datos de demostración mientras se completa la conexión con los sensores.
+        </div>
+
+    </div>
+
+
+    <!-- PROYECTO -->
+
+    <div class="panel">
+
+        <h2>🏫 Sobre PRONÓSTICO-ZAP</h2>
+
+        <div class="info-grid">
+
+
+            <div class="info-box">
+
+                <strong>🎯 Objetivo</strong>
+
+                <br>
+
+                Registrar variables meteorológicas y presentarlas de manera sencilla para que cualquier persona pueda comprenderlas.
+
+            </div>
+
+
+            <div class="info-box">
+
+                <strong>🔬 Sensores</strong>
+
+                <br>
+
+                DHT11 para temperatura y humedad, BMP280 para presión, sensor de lluvia y anemómetro para el viento.
+
+            </div>
+
+
+            <div class="info-box">
+
+                <strong>💻 Sistema</strong>
+
+                <br>
+
+                Los datos de los sensores serán integrados posteriormente al sistema de visualización.
+
+            </div>
+
+
+            <div class="info-box">
+
+                <strong>📱 Acceso</strong>
+
+                <br>
+
+                La página está preparada para utilizarse desde computadoras, celulares y tablets.
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<footer class="footer">
+
+    <p>
+        🌦️ PRONÓSTICO-ZAP
+    </p>
+
+    <p>
+        Proyecto de estación meteorológica escolar
+    </p>
+
+</footer>
+
+
+<script>
+
+let temperatura = 22.6;
+
+let humedad = 63;
+
+let presion = 1018;
+
+let viento = 0;
+
+let historial = [];
+
+
+/* RELOJ */
+
+function actualizarReloj(){
+
+    const ahora = new Date();
+
+    const fecha =
+        ahora.toLocaleDateString("es-AR");
+
+    const hora =
+        ahora.toLocaleTimeString("es-AR");
+
+    document.getElementById("clock").textContent =
+        fecha + " · " + hora;
+}
+
+
+/* DATOS DE DEMOSTRACIÓN */
+
+function actualizarDatos(){
+
+    temperatura += (Math.random() - 0.5) * 0.25;
+
+    humedad += (Math.random() - 0.5) * 1;
+
+    presion += (Math.random() - 0.5) * 0.5;
+
+    viento += (Math.random() - 0.5) * 2;
+
+
+    temperatura =
+        Math.max(10,Math.min(35,temperatura));
+
+    humedad =
+        Math.max(30,Math.min(90,humedad));
+
+    presion =
+        Math.max(990,Math.min(1035,presion));
+
+    viento =
+        Math.max(0,Math.min(40,viento));
+
+
+    document.getElementById("temperature").textContent =
+        temperatura.toFixed(1) + " °C";
+
+
+    document.getElementById("humidity").textContent =
+        Math.round(humedad) + " %";
+
+
+    document.getElementById("pressure").textContent =
+        Math.round(presion) + " hPa";
+
+
+    document.getElementById("wind").textContent =
+        viento.toFixed(1) + " km/h";
+
+
+    let lluvia =
+        Math.random() < 0.07;
+
+
+    document.getElementById("rain").textContent =
+        lluvia ? "LLUVIA DETECTADA" : "SIN LLUVIA";
+
+
+    let resumen;
+
+
+    if(lluvia){
+
+        resumen =
+            "🌧️ Se detecta presencia de agua. Conviene observar la evolución de las condiciones.";
+
+    }
+
+    else if(viento > 25){
+
+        resumen =
+            "🌬️ Se registra viento moderado. La velocidad del viento está aumentando.";
+
+    }
+
+    else if(humedad > 75){
+
+        resumen =
+            "💧 La humedad es elevada. Podrían producirse cambios en las condiciones.";
+
+    }
+
+    else{
+
+        resumen =
+            "☀️ Condiciones estables. Temperatura agradable y sin lluvia detectada.";
+
+    }
+
+
+    document.getElementById("summary").textContent =
+        resumen;
+
+
+    historial.push({
+
+        temperatura:
+            temperatura,
+
+        humedad:
+            humedad,
+
+        presion:
+            presion
+
+    });
+
+
+    if(historial.length > 50){
+
+        historial.shift();
+
+    }
+
+
+    dibujarGrafico();
+
+}
+
+
+/* GRÁFICO */
+
+function dibujarGrafico(){
+
+    const canvas =
+        document.getElementById("chart");
+
+    const ctx =
+        canvas.getContext("2d");
+
+
+    const w =
+        canvas.width;
+
+    const h =
+        canvas.height;
+
+
+    ctx.clearRect(0,0,w,h);
+
+
+    /* líneas de fondo */
+
+    ctx.strokeStyle =
+        "#20384f";
+
+    ctx.lineWidth =
+        1;
+
+
+    for(let i=1;i<5;i++){
+
+        const y =
+            i*h/5;
+
+        ctx.beginPath();
+
+        ctx.moveTo(0,y);
+
+        ctx.lineTo(w,y);
+
+        ctx.stroke();
+
+    }
+
+
+    if(historial.length < 2){
+
+        return;
+
+    }
+
+
+    dibujarLinea(
+        ctx,
+        historial.map(x => x.temperatura),
+        10,
+        35
+    );
+
+
+    dibujarLinea(
+        ctx,
+        historial.map(x => x.humedad),
+        30,
+        90
+    );
+
+
+    dibujarLinea(
+        ctx,
+        historial.map(x => x.presion),
+        990,
+        1035
+    );
+
+}
+
+
+function dibujarLinea(
+    ctx,
+    datos,
+    minimo,
+    maximo
+){
+
+    ctx.beginPath();
+
+    datos.forEach((valor,i)=>{
+
+        const x =
+            i * (
+                1000 /
+                Math.max(49,datos.length-1)
+            );
+
+
+        const porcentaje =
+            (valor-minimo) /
+            (maximo-minimo);
+
+
+        const y =
+            230 -
+            porcentaje * 210;
+
+
+        if(i===0){
+
+            ctx.moveTo(x,y);
+
+        }else{
+
+            ctx.lineTo(x,y);
+
+        }
+
+    });
+
+
+    ctx.strokeStyle =
+        "#58c7ff";
+
+    ctx.lineWidth =
+        3;
+
+    ctx.stroke();
+
+}
+
+
+/* INICIO */
+
+actualizarReloj();
+
+setInterval(
+    actualizarReloj,
+    1000
+);
+
+
+for(let i=0;i<20;i++){
+
+    historial.push({
+
+        temperatura:
+            22 + (Math.random()-0.5)*2,
+
+        humedad:
+            63 + (Math.random()-0.5)*6,
+
+        presion:
+            1018 + (Math.random()-0.5)*4
+
+    });
+
+}
+
+
+dibujarGrafico();
+
+
+actualizarDatos();
+
+
+setInterval(
+    actualizarDatos,
+    3000
+);
+
+</script>
+
 </body>
 </html>
