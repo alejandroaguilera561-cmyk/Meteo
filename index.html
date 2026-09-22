@@ -4,12 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>PRONÓSTICO-ZAP</title>
+<title>PRONÓSTICO-ZAP | Estación Meteorológica</title>
 
-<meta name="theme-color" content="#071525">
+<meta name="theme-color" content="#07111f">
 
 <style>
-
 *{
     box-sizing:border-box;
     margin:0;
@@ -18,157 +17,150 @@
 
 body{
     font-family:Arial,Helvetica,sans-serif;
-    background:#071525;
+    background:#07111f;
     color:#eef7ff;
+    min-height:100vh;
 }
 
 header{
-    background:linear-gradient(135deg,#0b2948,#08788b);
+    background:linear-gradient(135deg,#0b2440,#08758a);
+    padding:35px 20px;
     text-align:center;
-    padding:32px 18px;
 }
 
 .logo{
-    font-size:48px;
+    font-size:45px;
     margin-bottom:8px;
 }
 
 h1{
-    font-size:clamp(32px,8vw,54px);
+    font-size:clamp(30px,7vw,52px);
     letter-spacing:2px;
 }
 
 .subtitle{
-    margin-top:8px;
-    color:#d1f3ff;
-    font-size:16px;
+    margin-top:10px;
+    color:#ccefff;
+    font-size:17px;
 }
 
-.location{
-    display:inline-block;
-    margin-top:15px;
-    padding:8px 15px;
-    border-radius:30px;
-    background:#ffffff18;
-    color:#fff;
-}
-
-main{
+.container{
+    width:100%;
     max-width:1100px;
     margin:auto;
     padding:20px 15px 40px;
 }
 
-.top{
+.top-status{
     display:flex;
     justify-content:space-between;
     align-items:center;
-    flex-wrap:wrap;
     gap:10px;
+    flex-wrap:wrap;
     margin-bottom:18px;
 }
 
 .status{
+    display:inline-block;
     padding:10px 15px;
     border-radius:30px;
     background:#103d30;
     color:#8ff0c2;
-    font-weight:bold;
     font-size:14px;
+    font-weight:bold;
 }
 
 .clock{
     padding:10px 15px;
+    background:#10263c;
     border-radius:30px;
-    background:#10263b;
-    color:#c8dbea;
+    color:#b9d5e8;
     font-size:14px;
 }
 
 .grid{
     display:grid;
-    grid-template-columns:
-        repeat(auto-fit,minmax(230px,1fr));
-    gap:16px;
+    grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+    gap:15px;
 }
 
 .card{
-    background:#0d1e31;
-    border:1px solid #1d3b55;
+    background:#0d1d30;
+    border:1px solid #1c3953;
     border-radius:20px;
     padding:22px;
-    box-shadow:0 8px 25px #0003;
+    box-shadow:0 8px 25px rgba(0,0,0,.20);
 }
 
-.icon{
-    font-size:38px;
+.card-icon{
+    font-size:35px;
 }
 
-.title{
-    color:#9db6ca;
+.card-title{
     margin-top:10px;
+    color:#9eb6c9;
     font-size:15px;
-    font-weight:bold;
 }
 
 .value{
-    font-size:36px;
+    font-size:34px;
     font-weight:bold;
     margin:8px 0;
 }
 
-.condition{
-    font-size:17px;
-    font-weight:bold;
-    margin:7px 0;
-}
-
 .explanation{
-    color:#b9ccdb;
-    line-height:1.5;
+    color:#aec3d4;
     font-size:14px;
-}
-
-.change{
-    margin-top:14px;
-    padding:12px;
-    background:#102a40;
-    border-radius:12px;
-    color:#d5e9f6;
     line-height:1.5;
-    font-size:14px;
 }
 
 .panel{
     margin-top:18px;
-    background:#0d1e31;
-    border:1px solid #1d3b55;
-    border-radius:20px;
     padding:22px;
+    background:#0d1d30;
+    border:1px solid #1c3953;
+    border-radius:20px;
 }
 
 .panel h2{
-    margin-bottom:15px;
+    margin-bottom:14px;
 }
 
 .summary{
+    color:#dceeff;
     font-size:18px;
-    color:#d9edfa;
     line-height:1.6;
 }
 
-.info{
+canvas{
+    display:block;
+    width:100%;
+    height:250px;
+    background:#091625;
+    border-radius:15px;
+    margin-top:10px;
+}
+
+.legend{
+    display:flex;
+    flex-wrap:wrap;
+    gap:15px;
+    margin-top:12px;
+    color:#a9bfd1;
+    font-size:13px;
+}
+
+.info-grid{
     display:grid;
-    grid-template-columns:
-        repeat(auto-fit,minmax(220px,1fr));
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
     gap:12px;
 }
 
 .info-box{
-    background:#10283e;
-    border-radius:14px;
+    background:#10263b;
     padding:17px;
-    color:#c9dcea;
+    border-radius:14px;
+    color:#c8dbea;
     line-height:1.5;
 }
 
@@ -176,38 +168,44 @@ main{
     color:white;
 }
 
-.update{
-    margin-top:12px;
-    color:#7fa0b8;
-    font-size:12px;
-}
-
-footer{
+.footer{
     text-align:center;
     padding:30px 15px;
     color:#7894aa;
     font-size:13px;
 }
 
+.demo{
+    text-align:center;
+    margin-top:15px;
+    color:#7fa4bd;
+    font-size:12px;
+}
+
 @media(max-width:600px){
 
     header{
-        padding:27px 15px;
+        padding:28px 15px;
+    }
+
+    .logo{
+        font-size:36px;
     }
 
     .card{
-        padding:19px;
+        padding:18px;
     }
 
     .value{
-        font-size:32px;
+        font-size:30px;
     }
 
+    .summary{
+        font-size:16px;
+    }
 }
-
 </style>
 </head>
-
 
 <body>
 
@@ -225,687 +223,546 @@ footer{
         E.E.S. N.º 3 - Anexo 3031
     </p>
 
-    <div class="location">
-        📍 Zapiola · Lobos · Buenos Aires
-    </div>
-
 </header>
 
 
-<main>
+<div class="container">
 
+    <div class="top-status">
 
-<div class="top">
+        <div class="status">
+            🟢 ESTACIÓN ACTIVA
+        </div>
 
-    <div class="status" id="status">
-        🟢 DATOS ACTUALIZADOS
+        <div class="clock" id="clock">
+            --/--/---- --:--:--
+        </div>
+
     </div>
 
-    <div class="clock" id="clock">
-        --/--/---- · --:--:--
+
+    <!-- SENSORES -->
+
+    <div class="grid">
+
+
+        <div class="card">
+
+            <div class="card-icon">🌡️</div>
+
+            <div class="card-title">
+                TEMPERATURA
+            </div>
+
+            <div class="value" id="temperature">
+                22.6 °C
+            </div>
+
+            <div class="explanation">
+                Indica qué tan caliente o frío está el aire.
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="card-icon">💧</div>
+
+            <div class="card-title">
+                HUMEDAD
+            </div>
+
+            <div class="value" id="humidity">
+                63 %
+            </div>
+
+            <div class="explanation">
+                Representa la cantidad de vapor de agua presente en el aire.
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="card-icon">🧭</div>
+
+            <div class="card-title">
+                PRESIÓN ATMOSFÉRICA
+            </div>
+
+            <div class="value" id="pressure">
+                1018 hPa
+            </div>
+
+            <div class="explanation">
+                Permite observar cambios en las condiciones atmosféricas.
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="card-icon">🌧️</div>
+
+            <div class="card-title">
+                LLUVIA
+            </div>
+
+            <div class="value" id="rain">
+                SIN LLUVIA
+            </div>
+
+            <div class="explanation">
+                El sensor detecta la presencia de agua.
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="card-icon">🌬️</div>
+
+            <div class="card-title">
+                VIENTO
+            </div>
+
+            <div class="value" id="wind">
+                0.0 km/h
+            </div>
+
+            <div class="explanation">
+                Velocidad registrada por el anemómetro.
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- RESUMEN -->
+
+    <div class="panel">
+
+        <h2>☁️ Condiciones actuales</h2>
+
+        <p class="summary" id="summary">
+            Condiciones estables. Temperatura agradable y sin lluvia detectada.
+        </p>
+
+    </div>
+
+
+    <!-- GRÁFICO -->
+
+    <div class="panel">
+
+        <h2>📈 Evolución de las mediciones</h2>
+
+        <canvas id="chart" width="1000" height="250"></canvas>
+
+        <div class="legend">
+
+            <span>🌡️ Temperatura</span>
+
+            <span>💧 Humedad</span>
+
+            <span>🧭 Presión</span>
+
+        </div>
+
+        <div class="demo">
+            Datos de demostración mientras se completa la conexión con los sensores.
+        </div>
+
+    </div>
+
+
+    <!-- PROYECTO -->
+
+    <div class="panel">
+
+        <h2>🏫 Sobre PRONÓSTICO-ZAP</h2>
+
+        <div class="info-grid">
+
+
+            <div class="info-box">
+
+                <strong>🎯 Objetivo</strong>
+
+                <br>
+
+                Registrar variables meteorológicas y presentarlas de manera sencilla para que cualquier persona pueda comprenderlas.
+
+            </div>
+
+
+            <div class="info-box">
+
+                <strong>🔬 Sensores</strong>
+
+                <br>
+
+                DHT11 para temperatura y humedad, BMP280 para presión, sensor de lluvia y anemómetro para el viento.
+
+            </div>
+
+
+            <div class="info-box">
+
+                <strong>💻 Sistema</strong>
+
+                <br>
+
+                Los datos de los sensores serán integrados posteriormente al sistema de visualización.
+
+            </div>
+
+
+            <div class="info-box">
+
+                <strong>📱 Acceso</strong>
+
+                <br>
+
+                La página está preparada para utilizarse desde computadoras, celulares y tablets.
+
+            </div>
+
+        </div>
+
     </div>
 
 </div>
 
 
-<!-- ================= TEMPERATURA ================= -->
+<footer class="footer">
 
-<div class="grid">
-
-
-<div class="card">
-
-    <div class="icon">🌡️</div>
-
-    <div class="title">
-        TEMPERATURA
-    </div>
-
-    <div class="value" id="temperature">
-        -- °C
-    </div>
-
-    <div class="condition" id="temperatureCondition">
-        Calculando...
-    </div>
-
-    <div class="explanation">
-        Indica qué tan frío o caliente está el ambiente.
-    </div>
-
-    <div class="change">
-
-        <b>¿Qué pasa si cambia?</b>
-
-        <br>
-
-        Si baja mucho → ambiente más frío.
-
-        <br>
-
-        Si sube mucho → ambiente más caluroso.
-
-    </div>
-
-</div>
-
-
-<!-- ================= HUMEDAD ================= -->
-
-<div class="card">
-
-    <div class="icon">💧</div>
-
-    <div class="title">
-        HUMEDAD
-    </div>
-
-    <div class="value" id="humidity">
-        -- %
-    </div>
-
-    <div class="condition" id="humidityCondition">
-        Calculando...
-    </div>
-
-    <div class="explanation">
-        Indica cuánta humedad contiene el aire.
-    </div>
-
-    <div class="change">
-
-        <b>¿Qué pasa si cambia?</b>
-
-        <br>
-
-        Humedad baja → aire más seco.
-
-        <br>
-
-        Humedad alta → aire más húmedo.
-
-    </div>
-
-</div>
-
-
-<!-- ================= PRESION ================= -->
-
-<div class="card">
-
-    <div class="icon">🧭</div>
-
-    <div class="title">
-        PRESIÓN ATMOSFÉRICA
-    </div>
-
-    <div class="value" id="pressure">
-        -- hPa
-    </div>
-
-    <div class="condition" id="pressureCondition">
-        Calculando...
-    </div>
-
-    <div class="explanation">
-
-        La presión nos ayuda a observar
-        cambios en las condiciones de la atmósfera.
-
-    </div>
-
-    <div class="change">
-
-        <b>📈 Si sube mucho:</b>
-
-        suele asociarse con una atmósfera
-        más estable.
-
-        <br><br>
-
-        <b>📉 Si baja mucho:</b>
-
-        puede acompañar cambios de tiempo
-        e inestabilidad.
-
-        <br><br>
-
-        <b>⚠️ Si cambia rápidamente:</b>
-
-        conviene observar la evolución
-        de las condiciones meteorológicas.
-
-    </div>
-
-</div>
-
-
-<!-- ================= LLUVIA ================= -->
-
-<div class="card">
-
-    <div class="icon">🌧️</div>
-
-    <div class="title">
-        LLUVIA
-    </div>
-
-    <div class="value" id="rain">
-        --
-    </div>
-
-    <div class="condition" id="rainCondition">
-        Calculando...
-    </div>
-
-    <div class="explanation">
-
-        El sensor de lluvia de PRONÓSTICO-ZAP
-        detectará la presencia de agua sobre
-        su superficie.
-
-    </div>
-
-    <div class="change">
-
-        <b>¿Qué significa?</b>
-
-        <br>
-
-        🟢 Sin lluvia → no se detecta agua.
-
-        <br>
-
-        🌧️ Lluvia detectada → se detecta
-        presencia de agua.
-
-    </div>
-
-</div>
-
-
-</div>
-
-
-<!-- ================= RESUMEN ================= -->
-
-<div class="panel">
-
-    <h2>
-        🌦️ ¿Qué nos dicen los datos?
-    </h2>
-
-    <p class="summary" id="summary">
-        Obteniendo información meteorológica...
+    <p>
+        🌦️ PRONÓSTICO-ZAP
     </p>
 
-    <div class="update" id="update">
-        Última actualización: --
-    </div>
-
-</div>
-
-
-<!-- ================= COMO LEER ================= -->
-
-<div class="panel">
-
-    <h2>
-        📖 ¿Cómo leer PRONÓSTICO-ZAP?
-    </h2>
-
-    <div class="info">
-
-        <div class="info-box">
-
-            <strong>🌡️ Temperatura</strong>
-
-            <br>
-
-            Nos indica qué tan frío o caliente
-            está el ambiente.
-
-        </div>
-
-
-        <div class="info-box">
-
-            <strong>💧 Humedad</strong>
-
-            <br>
-
-            Nos indica cuánta humedad hay
-            en el aire.
-
-        </div>
-
-
-        <div class="info-box">
-
-            <strong>🧭 Presión</strong>
-
-            <br>
-
-            Nos ayuda a observar cambios
-            en las condiciones atmosféricas.
-
-        </div>
-
-
-        <div class="info-box">
-
-            <strong>🌧️ Lluvia</strong>
-
-            <br>
-
-            Nos indica si se detecta presencia
-            de agua.
-
-        </div>
-
-    </div>
-
-</div>
-
-
-<!-- ================= PROYECTO ================= -->
-
-<div class="panel">
-
-    <h2>
-        🏫 Sobre PRONÓSTICO-ZAP
-    </h2>
-
-    <p class="summary">
-
-        PRONÓSTICO-ZAP es un proyecto de
-        estación meteorológica escolar pensado
-        para registrar y mostrar información
-        del ambiente de una manera sencilla
-        para toda la comunidad.
-
+    <p>
+        Proyecto de estación meteorológica escolar
     </p>
-
-</div>
-
-
-</main>
-
-
-<footer>
-
-    🌦️ PRONÓSTICO-ZAP
-
-    <br>
-
-    Proyecto de estación meteorológica escolar
 
 </footer>
 
 
 <script>
 
+let temperatura = 22.6;
 
-/* ==================================================
-   UBICACIÓN: ZAPIOLA
-   ================================================== */
+let humedad = 63;
 
-const LAT = -35.05893;
+let presion = 1018;
 
-const LON = -59.04056;
+let viento = 0;
 
-
-/* ==================================================
-   DATOS METEOROLÓGICOS
-   ================================================== */
-
-const API =
-`https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current=temperature_2m,relative_humidity_2m,precipitation,rain,showers,pressure_msl,surface_pressure&timezone=America%2FArgentina%2FBuenos_Aires`;
+let historial = [];
 
 
-/* ==================================================
-   RELOJ
-   ================================================== */
+/* RELOJ */
 
-function updateClock(){
+function actualizarReloj(){
 
-    const now =
-        new Date();
+    const ahora = new Date();
 
-    const date =
-        now.toLocaleDateString(
-            "es-AR"
-        );
+    const fecha =
+        ahora.toLocaleDateString("es-AR");
 
-    const time =
-        now.toLocaleTimeString(
-            "es-AR"
-        );
+    const hora =
+        ahora.toLocaleTimeString("es-AR");
 
-    document.getElementById(
-        "clock"
-    ).textContent =
-        date + " · " + time;
+    document.getElementById("clock").textContent =
+        fecha + " · " + hora;
 }
 
+
+/* DATOS DE DEMOSTRACIÓN */
+
+function actualizarDatos(){
+
+    temperatura += (Math.random() - 0.5) * 0.25;
+
+    humedad += (Math.random() - 0.5) * 1;
+
+    presion += (Math.random() - 0.5) * 0.5;
+
+    viento += (Math.random() - 0.5) * 2;
+
+
+    temperatura =
+        Math.max(10,Math.min(35,temperatura));
+
+    humedad =
+        Math.max(30,Math.min(90,humedad));
+
+    presion =
+        Math.max(990,Math.min(1035,presion));
+
+    viento =
+        Math.max(0,Math.min(40,viento));
+
+
+    document.getElementById("temperature").textContent =
+        temperatura.toFixed(1) + " °C";
+
+
+    document.getElementById("humidity").textContent =
+        Math.round(humedad) + " %";
+
+
+    document.getElementById("pressure").textContent =
+        Math.round(presion) + " hPa";
+
+
+    document.getElementById("wind").textContent =
+        viento.toFixed(1) + " km/h";
+
+
+    let lluvia =
+        Math.random() < 0.07;
+
+
+    document.getElementById("rain").textContent =
+        lluvia ? "LLUVIA DETECTADA" : "SIN LLUVIA";
+
+
+    let resumen;
+
+
+    if(lluvia){
+
+        resumen =
+            "🌧️ Se detecta presencia de agua. Conviene observar la evolución de las condiciones.";
+
+    }
+
+    else if(viento > 25){
+
+        resumen =
+            "🌬️ Se registra viento moderado. La velocidad del viento está aumentando.";
+
+    }
+
+    else if(humedad > 75){
+
+        resumen =
+            "💧 La humedad es elevada. Podrían producirse cambios en las condiciones.";
+
+    }
+
+    else{
+
+        resumen =
+            "☀️ Condiciones estables. Temperatura agradable y sin lluvia detectada.";
+
+    }
+
+
+    document.getElementById("summary").textContent =
+        resumen;
+
+
+    historial.push({
+
+        temperatura:
+            temperatura,
+
+        humedad:
+            humedad,
+
+        presion:
+            presion
+
+    });
+
+
+    if(historial.length > 50){
+
+        historial.shift();
+
+    }
+
+
+    dibujarGrafico();
+
+}
+
+
+/* GRÁFICO */
+
+function dibujarGrafico(){
+
+    const canvas =
+        document.getElementById("chart");
+
+    const ctx =
+        canvas.getContext("2d");
+
+
+    const w =
+        canvas.width;
+
+    const h =
+        canvas.height;
+
+
+    ctx.clearRect(0,0,w,h);
+
+
+    /* líneas de fondo */
+
+    ctx.strokeStyle =
+        "#20384f";
+
+    ctx.lineWidth =
+        1;
+
+
+    for(let i=1;i<5;i++){
+
+        const y =
+            i*h/5;
+
+        ctx.beginPath();
+
+        ctx.moveTo(0,y);
+
+        ctx.lineTo(w,y);
+
+        ctx.stroke();
+
+    }
+
+
+    if(historial.length < 2){
+
+        return;
+
+    }
+
+
+    dibujarLinea(
+        ctx,
+        historial.map(x => x.temperatura),
+        10,
+        35
+    );
+
+
+    dibujarLinea(
+        ctx,
+        historial.map(x => x.humedad),
+        30,
+        90
+    );
+
+
+    dibujarLinea(
+        ctx,
+        historial.map(x => x.presion),
+        990,
+        1035
+    );
+
+}
+
+
+function dibujarLinea(
+    ctx,
+    datos,
+    minimo,
+    maximo
+){
+
+    ctx.beginPath();
+
+    datos.forEach((valor,i)=>{
+
+        const x =
+            i * (
+                1000 /
+                Math.max(49,datos.length-1)
+            );
+
+
+        const porcentaje =
+            (valor-minimo) /
+            (maximo-minimo);
+
+
+        const y =
+            230 -
+            porcentaje * 210;
+
+
+        if(i===0){
+
+            ctx.moveTo(x,y);
+
+        }else{
+
+            ctx.lineTo(x,y);
+
+        }
+
+    });
+
+
+    ctx.strokeStyle =
+        "#58c7ff";
+
+    ctx.lineWidth =
+        3;
+
+    ctx.stroke();
+
+}
+
+
+/* INICIO */
+
+actualizarReloj();
+
 setInterval(
-    updateClock,
+    actualizarReloj,
     1000
 );
 
-updateClock();
 
+for(let i=0;i<20;i++){
 
-/* ==================================================
-   INTERPRETAR TEMPERATURA
-   ================================================== */
+    historial.push({
 
-function temperatureText(t){
+        temperatura:
+            22 + (Math.random()-0.5)*2,
 
-    if(t < 5){
+        humedad:
+            63 + (Math.random()-0.5)*6,
 
-        return "🔵 Muy fría";
+        presion:
+            1018 + (Math.random()-0.5)*4
 
-    }
-
-    if(t < 15){
-
-        return "🔵 Fría";
-
-    }
-
-    if(t < 25){
-
-        return "🟢 Temperatura agradable";
-
-    }
-
-    if(t < 32){
-
-        return "🟠 Temperatura cálida";
-
-    }
-
-    return "🔴 Temperatura muy alta";
+    });
 
 }
 
 
-/* ==================================================
-   INTERPRETAR HUMEDAD
-   ================================================== */
+dibujarGrafico();
 
-function humidityText(h){
 
-    if(h < 30){
-
-        return "🔵 Humedad baja";
-
-    }
-
-    if(h < 70){
-
-        return "🟢 Humedad moderada";
-
-    }
-
-    if(h < 85){
-
-        return "🟠 Humedad alta";
-
-    }
-
-    return "🔴 Humedad muy alta";
-
-}
-
-
-/* ==================================================
-   INTERPRETAR PRESIÓN
-   ================================================== */
-
-function pressureText(p){
-
-    if(p < 1000){
-
-        return "🟠 Presión baja";
-
-    }
-
-    if(p <= 1020){
-
-        return "🟢 Presión en nivel habitual";
-
-    }
-
-    if(p <= 1030){
-
-        return "🔵 Presión alta";
-
-    }
-
-    return "🔵 Presión muy alta";
-
-}
-
-
-/* ==================================================
-   OBTENER DATOS
-   ================================================== */
-
-async function loadWeather(){
-
-    try{
-
-        const response =
-            await fetch(
-                API,
-                {
-                    cache:"no-store"
-                }
-            );
-
-        if(!response.ok){
-
-            throw new Error(
-                "Error meteorológico"
-            );
-
-        }
-
-
-        const data =
-            await response.json();
-
-        const current =
-            data.current;
-
-
-        const temperature =
-            current.temperature_2m;
-
-        const humidity =
-            current.relative_humidity_2m;
-
-        const pressure =
-            current.pressure_msl;
-
-        const precipitation =
-            current.precipitation;
-
-        const rain =
-            current.rain;
-
-        const showers =
-            current.showers;
-
-
-        /* TEMPERATURA */
-
-        document.getElementById(
-            "temperature"
-        ).textContent =
-            temperature.toFixed(1)
-            + " °C";
-
-
-        document.getElementById(
-            "temperatureCondition"
-        ).textContent =
-            temperatureText(
-                temperature
-            );
-
-
-        /* HUMEDAD */
-
-        document.getElementById(
-            "humidity"
-        ).textContent =
-            Math.round(humidity)
-            + " %";
-
-
-        document.getElementById(
-            "humidityCondition"
-        ).textContent =
-            humidityText(
-                humidity
-            );
-
-
-        /* PRESIÓN */
-
-        document.getElementById(
-            "pressure"
-        ).textContent =
-            Math.round(pressure)
-            + " hPa";
-
-
-        document.getElementById(
-            "pressureCondition"
-        ).textContent =
-            pressureText(
-                pressure
-            );
-
-
-        /* LLUVIA */
-
-        const raining =
-            rain > 0 ||
-            showers > 0 ||
-            precipitation > 0;
-
-
-        if(raining){
-
-            document.getElementById(
-                "rain"
-            ).textContent =
-                "LLUVIA DETECTADA";
-
-
-            document.getElementById(
-                "rainCondition"
-            ).textContent =
-                "🌧️ Se registra precipitación";
-
-
-        }else{
-
-            document.getElementById(
-                "rain"
-            ).textContent =
-                "SIN LLUVIA";
-
-
-            document.getElementById(
-                "rainCondition"
-            ).textContent =
-                "🟢 No se registra lluvia";
-
-        }
-
-
-        /* RESUMEN */
-
-        let summary =
-            "Temperatura de "
-            + temperature.toFixed(1)
-            + " °C, humedad de "
-            + Math.round(humidity)
-            + "% y presión de "
-            + Math.round(pressure)
-            + " hPa.";
-
-
-        if(raining){
-
-            summary +=
-                " Actualmente se registra lluvia.";
-
-        }else{
-
-            summary +=
-                " Actualmente no se registra lluvia.";
-
-        }
-
-
-        document.getElementById(
-            "summary"
-        ).textContent =
-            summary;
-
-
-        /* ESTADO */
-
-        document.getElementById(
-            "status"
-        ).textContent =
-            "🟢 DATOS ACTUALIZADOS";
-
-
-        document.getElementById(
-            "update"
-        ).textContent =
-            "Última actualización: "
-            + new Date()
-                .toLocaleTimeString(
-                    "es-AR"
-                );
-
-
-    }catch(error){
-
-        document.getElementById(
-            "status"
-        ).textContent =
-            "🔴 NO SE PUDIERON ACTUALIZAR LOS DATOS";
-
-
-        document.getElementById(
-            "summary"
-        ).textContent =
-            "No se pudo obtener la información meteorológica en este momento.";
-
-    }
-
-}
-
-
-/* ==================================================
-   ACTUALIZACIÓN
-   ================================================== */
-
-loadWeather();
+actualizarDatos();
 
 
 setInterval(
-    loadWeather,
-    600000
+    actualizarDatos,
+    3000
 );
 
 </script>
