@@ -5,17 +5,16 @@
 
 <meta charset="UTF-8">
 
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Estación Meteorológica Escolar</title>
 
 
 <style>
 
-/* ------------------------------
-   CONFIGURACIÓN GENERAL
------------------------------- */
+/* =========================
+   ESTILO GENERAL
+========================= */
 
 * {
     box-sizing: border-box;
@@ -30,12 +29,13 @@ body {
     background: #0b2535;
 
     color: white;
+
 }
 
 
-/* ------------------------------
+/* =========================
    ENCABEZADO
------------------------------- */
+========================= */
 
 header {
 
@@ -66,9 +66,9 @@ header p {
 }
 
 
-/* ------------------------------
+/* =========================
    CONTENEDOR
------------------------------- */
+========================= */
 
 .contenedor {
 
@@ -81,9 +81,9 @@ header p {
 }
 
 
-/* ------------------------------
-   AVISO
------------------------------- */
+/* =========================
+   AVISO METEOROLÓGICO
+========================= */
 
 .aviso {
 
@@ -126,9 +126,9 @@ header p {
 }
 
 
-/* ------------------------------
-   DATOS
------------------------------- */
+/* =========================
+   TARJETAS
+========================= */
 
 .datos {
 
@@ -152,14 +152,12 @@ header p {
 
     padding: 22px;
 
-    min-height: 150px;
+    min-height: 155px;
 
     transition: transform 0.2s;
 
 }
 
-
-/* pequeño efecto */
 
 .tarjeta:hover {
 
@@ -176,6 +174,7 @@ header p {
 
 }
 
+
 .nombre {
 
     color: #a9bdc9;
@@ -186,6 +185,7 @@ header p {
 
 }
 
+
 .valor {
 
     font-size: 29px;
@@ -193,6 +193,7 @@ header p {
     font-weight: bold;
 
 }
+
 
 .unidad {
 
@@ -203,6 +204,7 @@ header p {
     font-weight: normal;
 
 }
+
 
 .descripcion {
 
@@ -215,9 +217,9 @@ header p {
 }
 
 
-/* ------------------------------
-   PRESIÓN
------------------------------- */
+/* =========================
+   ESTADO DE PRESIÓN
+========================= */
 
 .presionEstado {
 
@@ -238,9 +240,9 @@ header p {
 }
 
 
-/* ------------------------------
+/* =========================
    ACTUALIZACIÓN
------------------------------- */
+========================= */
 
 .actualizacion {
 
@@ -255,9 +257,9 @@ header p {
 }
 
 
-/* ------------------------------
-   PIE DE PÁGINA
------------------------------- */
+/* =========================
+   PIE
+========================= */
 
 footer {
 
@@ -272,9 +274,9 @@ footer {
 }
 
 
-/* ------------------------------
+/* =========================
    CELULAR
------------------------------- */
+========================= */
 
 @media(max-width:600px) {
 
@@ -287,12 +289,6 @@ footer {
     .datos {
 
         grid-template-columns: 1fr;
-
-    }
-
-    .tarjeta {
-
-        min-height: 145px;
 
     }
 
@@ -322,14 +318,18 @@ footer {
 <div class="contenedor">
 
 
-    <!-- AVISO METEOROLÓGICO -->
+    <!-- =========================
+         AVISO
+    ========================== -->
 
     <div class="aviso">
 
         <div
             class="avisoIcono"
             id="estadoIcono">
+
             🌤️
+
         </div>
 
         <div
@@ -351,7 +351,9 @@ footer {
     </div>
 
 
-    <!-- DATOS -->
+    <!-- =========================
+         DATOS METEOROLÓGICOS
+    ========================== -->
 
     <div class="datos">
 
@@ -370,7 +372,9 @@ footer {
 
             <div class="valor">
 
-                <span id="temperatura">--</span>
+                <span id="temperatura">
+                    --
+                </span>
 
                 <span class="unidad">
                     °C
@@ -399,7 +403,9 @@ footer {
 
             <div class="valor">
 
-                <span id="humedad">--</span>
+                <span id="humedad">
+                    --
+                </span>
 
                 <span class="unidad">
                     %
@@ -428,7 +434,9 @@ footer {
 
             <div class="valor">
 
-                <span id="presion">--</span>
+                <span id="presion">
+                    --
+                </span>
 
                 <span class="unidad">
                     hPa
@@ -451,36 +459,7 @@ footer {
         </div>
 
 
-        <!-- VIENTO -->
-
-        <div class="tarjeta">
-
-            <div class="icono">
-                🌬️
-            </div>
-
-            <div class="nombre">
-                Velocidad del viento
-            </div>
-
-            <div class="valor">
-
-                <span id="viento">--</span>
-
-                <span class="unidad">
-                    km/h
-                </span>
-
-            </div>
-
-            <div class="descripcion">
-                Velocidad actual del viento
-            </div>
-
-        </div>
-
-
-        <!-- LLUVIA -->
+        <!-- PROBABILIDAD DE LLUVIA -->
 
         <div class="tarjeta">
 
@@ -494,7 +473,9 @@ footer {
 
             <div class="valor">
 
-                <span id="lluvia">--</span>
+                <span id="lluvia">
+                    --
+                </span>
 
                 <span class="unidad">
                     %
@@ -512,10 +493,14 @@ footer {
     </div>
 
 
+    <!-- ACTUALIZACIÓN -->
+
     <div class="actualizacion">
 
         Última actualización:
-        <span id="hora">--</span>
+        <span id="hora">
+            --
+        </span>
 
     </div>
 
@@ -534,23 +519,23 @@ footer {
 
 <script>
 
-
-/* =================================================
+/* ================================================
    UBICACIÓN
-================================================= */
+================================================ */
 
 const LATITUD = -35.21;
 
 const LONGITUD = -59.07;
 
 
-/* =================================================
-   DIRECCIÓN DE LA PRESIÓN
-================================================= */
+/* ================================================
+   INTERPRETAR PRESIÓN
+================================================ */
 
 function mostrarPresion(presion) {
 
     let texto;
+
 
     if (presion < 1005) {
 
@@ -570,6 +555,7 @@ function mostrarPresion(presion) {
 
     }
 
+
     document.getElementById(
         "presionEstado"
     ).textContent = texto;
@@ -577,9 +563,9 @@ function mostrarPresion(presion) {
 }
 
 
-/* =================================================
-   AVISO DE LLUVIA
-================================================= */
+/* ================================================
+   AVISO METEOROLÓGICO
+================================================ */
 
 function mostrarAviso(probabilidad) {
 
@@ -659,19 +645,14 @@ function mostrarAviso(probabilidad) {
 }
 
 
-/* =================================================
-   OBTENER DATOS
-================================================= */
+/* ================================================
+   CARGAR DATOS METEOROLÓGICOS
+================================================ */
 
 async function cargarDatos() {
 
-
     try {
 
-
-        /*
-        API METEOROLÓGICA
-        */
 
         const url =
         "https://api.open-meteo.com/v1/forecast" +
@@ -686,11 +667,7 @@ async function cargarDatos() {
 
         "relative_humidity_2m," +
 
-        "pressure_msl," +
-
-        "wind_speed_10m," +
-
-        "precipitation" +
+        "pressure_msl" +
 
         "&hourly=" +
 
@@ -708,7 +685,7 @@ async function cargarDatos() {
         if (!respuesta.ok) {
 
             throw new Error(
-                "Error en la conexión"
+                "No se pudieron obtener los datos"
             );
 
         }
@@ -718,42 +695,46 @@ async function cargarDatos() {
             await respuesta.json();
 
 
-        /*
-        -----------------------------------------
-        DATOS ACTUALES
-        -----------------------------------------
-        */
-
-        const actual =
-            datos.current;
-
+        /* ========================================
+           TEMPERATURA
+        ======================================== */
 
         document.getElementById(
             "temperatura"
         ).textContent =
+
             Math.round(
-                actual.temperature_2m
+                datos.current.temperature_2m
             );
 
+
+        /* ========================================
+           HUMEDAD
+        ======================================== */
 
         document.getElementById(
             "humedad"
         ).textContent =
+
             Math.round(
-                actual.relative_humidity_2m
+                datos.current.relative_humidity_2m
             );
 
 
+        /* ========================================
+           PRESIÓN
+        ======================================== */
+
         const presion =
+
             Math.round(
-                actual.pressure_msl
+                datos.current.pressure_msl
             );
 
 
         document.getElementById(
             "presion"
-        ).textContent =
-            presion;
+        ).textContent = presion;
 
 
         mostrarPresion(
@@ -761,40 +742,29 @@ async function cargarDatos() {
         );
 
 
-        document.getElementById(
-            "viento"
-        ).textContent =
-            Math.round(
-                actual.wind_speed_10m
-            );
+        /* ========================================
+           PROBABILIDAD DE LLUVIA
+        ======================================== */
 
+        const ahora =
+            new Date();
 
-        /*
-        -----------------------------------------
-        PROBABILIDAD DE LLUVIA
-        -----------------------------------------
-
-        Buscamos la hora actual directamente
-        dentro de los horarios que devuelve la API.
-        */
 
         const horaActual =
-            new Date().toLocaleString(
-                "es-AR",
-                {
-                    timeZone:
-                    "America/Argentina/Buenos_Aires",
-
-                    hour: "2-digit",
-
-                    hour12: false
-                }
-            );
-
-
-        const horaNumero =
             parseInt(
-                horaActual
+
+                ahora.toLocaleTimeString(
+                    "es-AR",
+                    {
+                        timeZone:
+                        "America/Argentina/Buenos_Aires",
+
+                        hour: "2-digit",
+
+                        hour12: false
+                    }
+                )
+
             );
 
 
@@ -807,15 +777,19 @@ async function cargarDatos() {
             i++
         ) {
 
+
             const horaAPI =
+
                 parseInt(
+
                     datos.hourly.time[i]
                     .split("T")[1]
+
                 );
 
 
             if (
-                horaAPI === horaNumero
+                horaAPI === horaActual
             ) {
 
                 indiceHora = i;
@@ -828,36 +802,36 @@ async function cargarDatos() {
 
 
         const probabilidad =
+
             datos.hourly
             .precipitation_probability[
                 indiceHora
-            ];
+            ] || 0;
 
 
         document.getElementById(
             "lluvia"
         ).textContent =
+
             Math.round(
-                probabilidad || 0
+                probabilidad
             );
 
 
         mostrarAviso(
-            probabilidad || 0
+            probabilidad
         );
 
 
-        /*
-        -----------------------------------------
-        HORA DE ACTUALIZACIÓN
-        -----------------------------------------
-        */
+        /* ========================================
+           HORA
+        ======================================== */
 
         document.getElementById(
             "hora"
         ).textContent =
 
-            new Date().toLocaleTimeString(
+            ahora.toLocaleTimeString(
                 "es-AR",
                 {
                     timeZone:
@@ -868,7 +842,6 @@ async function cargarDatos() {
                     minute: "2-digit"
                 }
             );
-
 
     }
 
@@ -884,7 +857,8 @@ async function cargarDatos() {
 
         document.getElementById(
             "estadoIcono"
-        ).textContent = "⚠️";
+        ).textContent =
+            "⚠️";
 
 
         document.getElementById(
@@ -903,24 +877,24 @@ async function cargarDatos() {
 }
 
 
-/* =================================================
+/* ================================================
    CARGAR AL ABRIR
-================================================= */
+================================================ */
 
 cargarDatos();
 
 
-/* =================================================
+/* ================================================
    ACTUALIZAR CADA 5 MINUTOS
-================================================= */
+================================================ */
 
 setInterval(
     cargarDatos,
-    300000
+    5 * 60 * 1000
 );
 
-
 </script>
+
 
 </body>
 
