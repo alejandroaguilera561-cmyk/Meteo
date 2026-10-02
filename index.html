@@ -235,7 +235,7 @@ footer {
     </div>
   </div>
 
-  <!-- PRESIÓN ATMOSFÉRICA -->
+  <!-- PRESIÓN -->
   <div class="card">
     <div class="icono">🌬️</div>
     <h2>Presión atmosférica</h2>
@@ -245,6 +245,22 @@ footer {
     </div>
     <div class="descripcion" id="estadoPresion">
       Esperando datos...
+    </div>
+  </div>
+
+  <!-- VIENTO -->
+  <div class="card">
+    <div class="icono">🍃</div>
+    <h2>Viento actual</h2>
+    <div class="valor">
+      <span id="viento">--</span>
+      <span class="unidad">km/h</span>
+    </div>
+    <div class="descripcion" id="direccionViento">
+      Dirección: --
+    </div>
+    <div class="descripcion" id="rafagas">
+      Ráfagas: -- km/h
     </div>
   </div>
 
@@ -271,7 +287,7 @@ footer {
 const LATITUD = -35.21;
 const LONGITUD = -59.07;
 
-// Descripción de los códigos meteorológicos
+// Descripción del tiempo
 function descripcionClima(codigo) {
   if (codigo === 0) return ["Despejado", "☀️"];
   if (codigo === 1) return ["Mayormente despejado", "🌤️"];
@@ -315,6 +331,24 @@ function interpretarPresion(valor) {
   return "Presión alta: suele asociarse con tiempo más estable.";
 }
 
+// Convertir grados a dirección del viento
+function obtenerDireccion(grados) {
+  const direcciones = [
+    "Norte",
+    "Noreste",
+    "Este",
+    "Sudeste",
+    "Sur",
+    "Sudoeste",
+    "Oeste",
+    "Noroeste"
+  ];
+
+  return direcciones[
+    Math.round(grados / 45) % 8
+  ];
+}
+
 // Consultar datos meteorológicos
 async function obtenerClima() {
   const estado = document.getElementById("estado");
@@ -327,8 +361,9 @@ async function obtenerClima() {
   const url =
     `https://api.open-meteo.com/v1/forecast?latitude=${LATITUD}` +
     `&longitude=${LONGITUD}` +
-    `&current=temperature_2m,relative_humidity_2m,pressure_msl,weather_code` +
+    `&current=temperature_2m,relative_humidity_2m,pressure_msl,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m` +
     `&daily=precipitation_probability_max` +
+    `&wind_speed_unit=kmh` +
     `&timezone=America%2FArgentina%2FBuenos_Aires` +
     `&forecast_days=1`;
 
@@ -382,14 +417,29 @@ async function obtenerClima() {
     document.getElementById("detalleProbabilidad").textContent =
       "Probabilidad máxima prevista para hoy";
 
+    // Velocidad del viento
+    document.getElementById("viento").textContent =
+      Math.round(actual.wind_speed_10m);
+
+    // Dirección del viento
+    document.getElementById("direccionViento").textContent =
+      "Dirección: " +
+      obtenerDireccion(actual.wind_direction_10m);
+
+    // Ráfagas
+    document.getElementById("rafagas").textContent =
+      "Ráfagas: " +
+      Math.round(actual.wind_gusts_10m) +
+      " km/h";
+
     // Estado de conexión
     estado.textContent = "Datos actualizados";
     punto.style.background = "#39d98a";
 
     mensaje.textContent =
       "Datos meteorológicos actualizados correctamente. " +
-      "La presión se expresa en hectopascales (hPa). " +
-      "Su interpretación es orientativa.";
+      "La presión se expresa en hPa y el viento en km/h. " +
+      "La probabilidad de lluvia corresponde al valor máximo previsto para hoy.";
 
     // Hora de actualización
     document.getElementById("hora").textContent =
