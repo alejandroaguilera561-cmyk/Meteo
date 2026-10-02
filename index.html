@@ -45,6 +45,7 @@ header p {
   color: #a9c6dd;
   text-align: center;
   margin: 5px 0 20px;
+  text-transform: capitalize;
 }
 
 .estado {
@@ -158,28 +159,21 @@ header p {
 }
 
 .error {
-  color: #ffb5a8;
-}
-
-button {
-  border: 0;
-  border-radius: 10px;
-  padding: 12px 18px;
-  background: #087caa;
-  color: white;
-  font-size: 14px;
-  cursor: pointer;
-  margin-top: 14px;
-}
-
-button:hover {
-  background: #0b9ccc;
+  color: #ffb5a8 !important;
 }
 
 @media(max-width: 500px) {
-  header h1 { font-size: 22px; }
-  .estado h2 { font-size: 21px; }
-  .card .valor { font-size: 26px; }
+  header h1 {
+    font-size: 22px;
+  }
+
+  .estado h2 {
+    font-size: 21px;
+  }
+
+  .card .valor {
+    font-size: 26px;
+  }
 }
 </style>
 </head>
@@ -194,18 +188,19 @@ button:hover {
 <main class="container">
 
   <div class="fecha" id="fecha">
-    Consultando fecha...
+    Cargando fecha...
   </div>
 
   <section class="estado">
     <div class="icono" id="icono">🌤️</div>
     <h2 id="estado">Cargando condiciones...</h2>
     <p id="descripcion">
-      Consultando información meteorológica actualizada.
+      Consultando las condiciones actuales del tiempo.
     </p>
   </section>
 
   <section class="grid">
+
     <div class="card">
       <div class="label">🌡️ Temperatura actual</div>
       <div class="valor" id="temperatura">-- °C</div>
@@ -227,32 +222,38 @@ button:hover {
     <div class="card">
       <div class="label">🌧️ Precipitación actual</div>
       <div class="valor" id="lluviaActual">-- mm</div>
-      <div class="detalle">Precipitación registrada en el intervalo actual</div>
+      <div class="detalle">Precipitación registrada actualmente</div>
     </div>
+
   </section>
 
   <section class="seccion">
     <h2>🌦️ Pronóstico meteorológico de hoy</h2>
+
     <div class="pronostico">
-      <h3 id="pronosticoTitulo">Analizando el pronóstico...</h3>
-      <div class="probabilidad" id="probabilidad">--%</div>
+      <h3 id="pronosticoTitulo">
+        Analizando el pronóstico...
+      </h3>
+
+      <div class="probabilidad" id="probabilidad">
+        --%
+      </div>
+
       <div class="barra">
         <div id="barraProbabilidad"></div>
       </div>
+
       <p id="detallePronostico">
         Esperando los datos meteorológicos.
       </p>
-      <p id="lluviaDia">Precipitación prevista: -- mm</p>
-      <p id="temperaturasDia">Temperaturas: --</p>
-    </div>
-  </section>
 
-  <section class="seccion">
-    <h2>📡 Información del sistema</h2>
-    <div class="pronostico">
-      <p id="actualizacion">Conectando con el servicio meteorológico...</p>
-      <p id="fuente">Fuente: Open-Meteo</p>
-      <button onclick="cargarDatos()">Actualizar datos</button>
+      <p id="lluviaDia">
+        Precipitación prevista: -- mm
+      </p>
+
+      <p id="temperaturasDia">
+        Temperaturas: --
+      </p>
     </div>
   </section>
 
@@ -264,9 +265,12 @@ button:hover {
 </footer>
 
 <script>
+
+// Coordenadas aproximadas de Zapiola
 const LATITUD = -35.21;
 const LONGITUD = -59.07;
 
+// Consulta meteorológica
 const URL_API =
   "https://api.open-meteo.com/v1/forecast" +
   "?latitude=" + LATITUD +
@@ -276,58 +280,92 @@ const URL_API =
   "&timezone=America%2FArgentina%2FBuenos_Aires" +
   "&forecast_days=1";
 
+// Formato de números
 function formatoNumero(valor, decimales = 1) {
-  if (valor === null || valor === undefined ||
-      !Number.isFinite(Number(valor))) {
+  if (
+    valor === null ||
+    valor === undefined ||
+    !Number.isFinite(Number(valor))
+  ) {
     return "--";
   }
+
   return Number(valor).toFixed(decimales);
 }
 
+// Interpretación de condiciones meteorológicas
 function interpretarCodigo(codigo) {
+
   if (codigo === 0) {
     return { texto: "Despejado", icono: "☀️" };
   }
+
   if (codigo === 1) {
-    return { texto: "Mayormente despejado", icono: "🌤️" };
+    return {
+      texto: "Mayormente despejado",
+      icono: "🌤️"
+    };
   }
+
   if (codigo === 2) {
-    return { texto: "Parcialmente nublado", icono: "⛅" };
+    return {
+      texto: "Parcialmente nublado",
+      icono: "⛅"
+    };
   }
+
   if (codigo === 3) {
-    return { texto: "Nublado", icono: "☁️" };
+    return {
+      texto: "Nublado",
+      icono: "☁️"
+    };
   }
+
   if ([45, 48].includes(codigo)) {
     return { texto: "Niebla", icono: "🌫️" };
   }
+
   if ([51, 53, 55, 56, 57].includes(codigo)) {
     return { texto: "Llovizna", icono: "🌦️" };
   }
+
   if ([61, 63, 65, 66, 67].includes(codigo)) {
     return { texto: "Lluvia", icono: "🌧️" };
   }
+
   if ([71, 73, 75, 77].includes(codigo)) {
     return { texto: "Nieve", icono: "🌨️" };
   }
+
   if ([80, 81, 82].includes(codigo)) {
     return { texto: "Chaparrones", icono: "🌧️" };
   }
+
   if ([85, 86].includes(codigo)) {
-    return { texto: "Chaparrones de nieve", icono: "🌨️" };
+    return {
+      texto: "Chaparrones de nieve",
+      icono: "🌨️"
+    };
   }
+
   if ([95, 96, 99].includes(codigo)) {
     return { texto: "Tormentas", icono: "⛈️" };
   }
-  return { texto: "Condiciones variables", icono: "🌤️" };
+
+  return {
+    texto: "Condiciones variables",
+    icono: "🌤️"
+  };
 }
 
+// Pronóstico del día
 function interpretarPronostico(probabilidad, codigo, mm) {
-  const condicion = interpretarCodigo(codigo);
 
   if ([95, 96, 99].includes(codigo)) {
     return {
       titulo: "Posibles tormentas",
-      detalle: "El pronóstico señala condiciones compatibles con tormentas. La evolución puede cambiar.",
+      detalle:
+        "El pronóstico señala condiciones compatibles con tormentas. La evolución puede cambiar.",
       icono: "⛈️"
     };
   }
@@ -335,7 +373,8 @@ function interpretarPronostico(probabilidad, codigo, mm) {
   if (probabilidad >= 70) {
     return {
       titulo: "Alta probabilidad de lluvia",
-      detalle: "Los datos indican una probabilidad elevada de precipitación para hoy.",
+      detalle:
+        "Los datos indican una probabilidad elevada de precipitación para hoy.",
       icono: "🌧️"
     };
   }
@@ -343,7 +382,8 @@ function interpretarPronostico(probabilidad, codigo, mm) {
   if (probabilidad >= 40) {
     return {
       titulo: "Posibilidad de lluvia",
-      detalle: "Existe una posibilidad moderada de precipitaciones durante el día.",
+      detalle:
+        "Existe una posibilidad moderada de precipitaciones durante el día.",
       icono: "🌦️"
     };
   }
@@ -351,7 +391,8 @@ function interpretarPronostico(probabilidad, codigo, mm) {
   if (mm > 0.1) {
     return {
       titulo: "Se prevén precipitaciones",
-      detalle: "El pronóstico contempla lluvia, aunque la probabilidad máxima indicada es baja.",
+      detalle:
+        "El pronóstico contempla lluvia, aunque la probabilidad máxima indicada es baja.",
       icono: "🌧️"
     };
   }
@@ -359,7 +400,8 @@ function interpretarPronostico(probabilidad, codigo, mm) {
   if (probabilidad >= 20) {
     return {
       titulo: "Baja posibilidad de lluvia",
-      detalle: "La probabilidad de precipitación es baja, pero no se descarta que llueva.",
+      detalle:
+        "La probabilidad de precipitación es baja, pero no se descarta que llueva.",
       icono: "🌤️"
     };
   }
@@ -367,44 +409,55 @@ function interpretarPronostico(probabilidad, codigo, mm) {
   if ([61, 63, 65, 80, 81, 82].includes(codigo)) {
     return {
       titulo: "Lluvia prevista",
-      detalle: "El código meteorológico diario indica condiciones lluviosas.",
+      detalle:
+        "El pronóstico diario indica condiciones lluviosas.",
       icono: "🌧️"
     };
   }
 
   return {
     titulo: "Condiciones mayormente estables",
-    detalle: "El pronóstico no señala una probabilidad elevada de lluvia para hoy.",
-    icono: condicion.icono
+    detalle:
+      "El pronóstico no señala una probabilidad elevada de lluvia para hoy.",
+    icono: "☀️"
   };
 }
 
+// Mostrar fecha
 function mostrarFecha() {
   const ahora = new Date();
+
   document.getElementById("fecha").textContent =
     ahora.toLocaleDateString("es-AR", {
       weekday: "long",
       day: "numeric",
       month: "long",
-      year: "numeric"
+      year: "numeric",
+      timeZone: "America/Argentina/Buenos_Aires"
     });
 }
 
+// Cargar los datos
 async function cargarDatos() {
-  const actualizacion = document.getElementById("actualizacion");
-  actualizacion.textContent = "Actualizando información...";
+
+  const descripcion =
+    document.getElementById("descripcion");
+
+  descripcion.textContent =
+    "Actualizando las condiciones del tiempo...";
 
   try {
+
     const respuesta = await fetch(URL_API);
 
     if (!respuesta.ok) {
-      throw new Error("No se pudo consultar el servicio.");
+      throw new Error("No se pudieron cargar los datos.");
     }
 
     const datos = await respuesta.json();
 
     if (!datos.current || !datos.daily) {
-      throw new Error("La respuesta no contiene datos completos.");
+      throw new Error("Datos incompletos.");
     }
 
     const actual = datos.current;
@@ -416,6 +469,7 @@ async function cargarDatos() {
     const precipitacion = actual.precipitation;
     const codigoActual = actual.weather_code;
 
+    // Mostrar mediciones actuales
     document.getElementById("temperatura").textContent =
       formatoNumero(temp) + " °C";
 
@@ -428,38 +482,58 @@ async function cargarDatos() {
     document.getElementById("lluviaActual").textContent =
       formatoNumero(precipitacion) + " mm";
 
-    const condicionActual = interpretarCodigo(codigoActual);
+    // Estado actual
+    const condicionActual =
+      interpretarCodigo(codigoActual);
 
     let estadoActual = condicionActual.texto;
     let iconoActual = condicionActual.icono;
     let descripcionActual =
-      "Condiciones actuales según el servicio meteorológico.";
+      "Estado actual de las condiciones del tiempo.";
 
     if ([95, 96, 99].includes(codigoActual)) {
+
       estadoActual = "Tormenta en curso";
       descripcionActual =
-        "Los datos actuales indican condiciones de tormenta.";
+        "Las condiciones actuales indican tormentas.";
       iconoActual = "⛈️";
+
     } else if (
       precipitacion > 0 ||
-      [51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82].includes(codigoActual)
+      [51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82]
+        .includes(codigoActual)
     ) {
+
       estadoActual = "Lloviendo";
       descripcionActual =
-        "Los datos actuales indican precipitaciones.";
+        "Las condiciones actuales indican precipitaciones.";
       iconoActual = "🌧️";
     }
 
-    document.getElementById("estado").textContent = estadoActual;
-    document.getElementById("icono").textContent = iconoActual;
+    document.getElementById("estado").textContent =
+      estadoActual;
+
+    document.getElementById("icono").textContent =
+      iconoActual;
+
     document.getElementById("descripcion").textContent =
       descripcionActual;
 
-    const prob = diario.precipitation_probability_max?.[0];
-    const mm = diario.precipitation_sum?.[0];
-    const codigoDia = diario.weather_code?.[0];
-    const max = diario.temperature_2m_max?.[0];
-    const min = diario.temperature_2m_min?.[0];
+    // Pronóstico diario
+    const prob =
+      diario.precipitation_probability_max?.[0];
+
+    const mm =
+      diario.precipitation_sum?.[0];
+
+    const codigoDia =
+      diario.weather_code?.[0];
+
+    const max =
+      diario.temperature_2m_max?.[0];
+
+    const min =
+      diario.temperature_2m_min?.[0];
 
     const pronostico = interpretarPronostico(
       Number(prob ?? 0),
@@ -481,33 +555,44 @@ async function cargarDatos() {
 
     document.getElementById("lluviaDia").textContent =
       "Precipitación prevista para hoy: " +
-      (mm == null ? "--" : formatoNumero(mm) + " mm");
+      (mm == null
+        ? "--"
+        : formatoNumero(mm) + " mm");
 
     document.getElementById("temperaturasDia").textContent =
       "Temperatura mínima: " +
-      formatoNumero(min) + " °C | Máxima: " +
-      formatoNumero(max) + " °C";
+      formatoNumero(min) +
+      " °C | Máxima: " +
+      formatoNumero(max) +
+      " °C";
 
-    actualizacion.textContent =
-      "Datos consultados: " +
-      new Date().toLocaleTimeString("es-AR", {
-        hour: "2-digit",
-        minute: "2-digit"
-      }) +
-      ". La actualización depende de la frecuencia del servicio.";
   } catch (error) {
-    actualizacion.textContent =
-      "No se pudieron cargar los datos. Revisá la conexión a internet e intentá nuevamente.";
-    actualizacion.classList.add("error");
+
+    descripcion.textContent =
+      "No se pudieron actualizar los datos. Revisá tu conexión a internet e intentá nuevamente.";
+
+    document.getElementById("estado").textContent =
+      "Datos no disponibles";
+
+    document.getElementById("icono").textContent = "⚠️";
+
+    document.getElementById("pronosticoTitulo").textContent =
+      "Pronóstico no disponible";
+
+    document.getElementById("detallePronostico").textContent =
+      "No fue posible consultar el pronóstico.";
+
     console.error(error);
   }
 }
 
+// Inicio
 mostrarFecha();
 cargarDatos();
 
-// Actualización automática cada 15 minutos
+// Actualizar automáticamente cada 15 minutos
 setInterval(cargarDatos, 15 * 60 * 1000);
+
 </script>
 
 </body>
