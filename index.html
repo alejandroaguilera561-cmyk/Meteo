@@ -5,8 +5,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Estación Meteorológica Escolar</title>
+
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
 body {
   font-family: Arial, sans-serif;
@@ -16,7 +21,10 @@ body {
   padding: 18px;
 }
 
-.container { max-width: 1100px; margin: auto; }
+.container {
+  max-width: 1100px;
+  margin: auto;
+}
 
 header {
   text-align: center;
@@ -29,8 +37,14 @@ header h1 {
   margin-bottom: 10px;
 }
 
-header p, .fecha { color: #b8c9dc; }
-.fecha { margin-top: 14px; font-size: 14px; }
+header p, .fecha {
+  color: #b8c9dc;
+}
+
+.fecha {
+  margin-top: 14px;
+  font-size: 14px;
+}
 
 .estado {
   background: #102944;
@@ -66,6 +80,7 @@ header p, .fecha { color: #b8c9dc; }
   border-radius: 16px;
   padding: 22px;
   min-height: 160px;
+  box-shadow: 0 8px 20px #00000022;
 }
 
 .card h2 {
@@ -75,7 +90,9 @@ header p, .fecha { color: #b8c9dc; }
   margin: 12px 0 18px;
 }
 
-.icono { font-size: 27px; }
+.icono {
+  font-size: 27px;
+}
 
 .valor {
   font-size: 32px;
@@ -91,6 +108,7 @@ header p, .fecha { color: #b8c9dc; }
   color: #c5d9ec;
   font-size: 14px;
   margin-top: 10px;
+  line-height: 1.5;
 }
 
 .lluvia {
@@ -128,7 +146,9 @@ button {
   font-size: 14px;
 }
 
-button:hover { background: #0a96d8; }
+button:hover {
+  background: #0a96d8;
+}
 
 footer {
   text-align: center;
@@ -138,9 +158,17 @@ footer {
 }
 
 @media (max-width: 500px) {
-  body { padding: 12px; }
-  header h1 { font-size: 24px; }
-  .valor { font-size: 28px; }
+  body {
+    padding: 12px;
+  }
+
+  header h1 {
+    font-size: 24px;
+  }
+
+  .valor {
+    font-size: 28px;
+  }
 }
 </style>
 </head>
@@ -164,6 +192,7 @@ footer {
 
 <div class="grid">
 
+  <!-- TEMPERATURA -->
   <div class="card">
     <div class="icono">🌡️</div>
     <h2>Temperatura actual</h2>
@@ -173,6 +202,7 @@ footer {
     </div>
   </div>
 
+  <!-- ESTADO DEL TIEMPO -->
   <div class="card">
     <div class="icono" id="iconoTiempo">🌤️</div>
     <h2>Estado del tiempo</h2>
@@ -182,6 +212,7 @@ footer {
     </div>
   </div>
 
+  <!-- PROBABILIDAD DE LLUVIA -->
   <div class="card lluvia">
     <div class="icono">☔</div>
     <h2>Probabilidad de lluvia hoy</h2>
@@ -194,6 +225,7 @@ footer {
     </div>
   </div>
 
+  <!-- HUMEDAD -->
   <div class="card">
     <div class="icono">💧</div>
     <h2>Humedad actual</h2>
@@ -203,6 +235,7 @@ footer {
     </div>
   </div>
 
+  <!-- PRESIÓN ATMOSFÉRICA -->
   <div class="card">
     <div class="icono">🌬️</div>
     <h2>Presión atmosférica</h2>
@@ -210,10 +243,14 @@ footer {
       <span id="presion">--</span>
       <span class="unidad">hPa</span>
     </div>
+    <div class="descripcion" id="estadoPresion">
+      Esperando datos...
+    </div>
   </div>
 
 </div>
 
+<!-- INFORMACIÓN -->
 <div class="seccion">
   <h2>Información meteorológica</h2>
   <p id="mensaje">
@@ -225,34 +262,60 @@ footer {
 <footer>
   Proyecto escolar de estación meteorológica · Zapiola
 </footer>
+
 </div>
 
 <script>
+
 // Coordenadas aproximadas de Zapiola, Buenos Aires
 const LATITUD = -35.21;
 const LONGITUD = -59.07;
 
+// Descripción de los códigos meteorológicos
 function descripcionClima(codigo) {
   if (codigo === 0) return ["Despejado", "☀️"];
   if (codigo === 1) return ["Mayormente despejado", "🌤️"];
   if (codigo === 2) return ["Parcialmente nublado", "⛅"];
   if (codigo === 3) return ["Nublado", "☁️"];
-  if ([45, 48].includes(codigo)) return ["Niebla", "🌫️"];
+
+  if ([45, 48].includes(codigo))
+    return ["Niebla", "🌫️"];
+
   if ([51, 53, 55, 56, 57].includes(codigo))
     return ["Llovizna", "🌦️"];
+
   if ([61, 63, 65, 66, 67].includes(codigo))
     return ["Lluvia", "🌧️"];
+
   if ([71, 73, 75, 77].includes(codigo))
     return ["Nieve", "❄️"];
+
   if ([80, 81, 82].includes(codigo))
     return ["Chaparrones", "🌧️"];
+
   if ([85, 86].includes(codigo))
     return ["Nevadas", "🌨️"];
+
   if ([95, 96, 99].includes(codigo))
     return ["Tormenta", "⛈️"];
+
   return ["Condiciones variables", "🌤️"];
 }
 
+// Interpretación orientativa de la presión
+function interpretarPresion(valor) {
+  if (valor < 1000) {
+    return "Presión baja: puede asociarse con tiempo inestable.";
+  }
+
+  if (valor <= 1020) {
+    return "Presión intermedia: no indica por sí sola lluvia o buen tiempo.";
+  }
+
+  return "Presión alta: suele asociarse con tiempo más estable.";
+}
+
+// Consultar datos meteorológicos
 async function obtenerClima() {
   const estado = document.getElementById("estado");
   const punto = document.getElementById("punto");
@@ -271,27 +334,46 @@ async function obtenerClima() {
 
   try {
     const respuesta = await fetch(url);
-    if (!respuesta.ok) throw new Error("Error de conexión");
+
+    if (!respuesta.ok) {
+      throw new Error("Error de conexión");
+    }
 
     const datos = await respuesta.json();
     const actual = datos.current;
     const hoy = datos.daily;
 
+    // Temperatura
     document.getElementById("temperatura").textContent =
       Math.round(actual.temperature_2m * 10) / 10;
 
+    // Humedad
     document.getElementById("humedad").textContent =
       actual.relative_humidity_2m;
 
-    document.getElementById("presion").textContent =
-      Math.round(actual.pressure_msl);
+    // Presión
+    const valorPresion = actual.pressure_msl;
 
+    document.getElementById("presion").textContent =
+      Math.round(valorPresion);
+
+    document.getElementById("estadoPresion").textContent =
+      interpretarPresion(valorPresion);
+
+    // Estado actual del tiempo
     const [descripcion, emoji] =
       descripcionClima(actual.weather_code);
 
-    document.getElementById("tiempo").textContent = descripcion;
-    document.getElementById("iconoTiempo").textContent = emoji;
+    document.getElementById("tiempo").textContent =
+      descripcion;
 
+    document.getElementById("iconoTiempo").textContent =
+      emoji;
+
+    document.getElementById("detalleTiempo").textContent =
+      "Condiciones meteorológicas actuales";
+
+    // Probabilidad máxima de lluvia de hoy
     const prob = hoy.precipitation_probability_max[0];
 
     document.getElementById("probabilidad").textContent =
@@ -300,16 +382,16 @@ async function obtenerClima() {
     document.getElementById("detalleProbabilidad").textContent =
       "Probabilidad máxima prevista para hoy";
 
-    document.getElementById("detalleTiempo").textContent =
-      "Condiciones meteorológicas actuales";
-
+    // Estado de conexión
     estado.textContent = "Datos actualizados";
     punto.style.background = "#39d98a";
 
     mensaje.textContent =
       "Datos meteorológicos actualizados correctamente. " +
-      "La probabilidad corresponde al valor máximo previsto para hoy.";
+      "La presión se expresa en hectopascales (hPa). " +
+      "Su interpretación es orientativa.";
 
+    // Hora de actualización
     document.getElementById("hora").textContent =
       "Actualizado: " +
       new Date().toLocaleTimeString("es-AR", {
@@ -320,11 +402,14 @@ async function obtenerClima() {
   } catch (error) {
     estado.textContent = "Sin conexión";
     punto.style.background = "#f05252";
+
     mensaje.textContent =
-      "No se pudieron cargar los datos. Revisá la conexión a internet e intentá nuevamente.";
+      "No se pudieron cargar los datos. " +
+      "Revisá la conexión a internet e intentá nuevamente.";
   }
 }
 
+// Fecha actual
 function actualizarFecha() {
   document.getElementById("fecha").textContent =
     new Date().toLocaleDateString("es-AR", {
@@ -337,7 +422,10 @@ function actualizarFecha() {
 
 actualizarFecha();
 obtenerClima();
+
+// Actualización automática cada 15 minutos
 setInterval(obtenerClima, 15 * 60 * 1000);
+
 </script>
 </body>
 </html>
