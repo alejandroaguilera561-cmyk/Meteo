@@ -70,18 +70,18 @@ header p {
     background: #16384b;
     border: 1px solid #28566c;
     border-radius: 18px;
-    padding: 24px;
+    padding: 25px;
     margin-bottom: 20px;
     text-align: center;
 }
 
 .avisoIcono {
-    font-size: 42px;
-    margin-bottom: 9px;
+    font-size: 44px;
+    margin-bottom: 10px;
 }
 
 .avisoTitulo {
-    font-size: 23px;
+    font-size: 24px;
     margin-bottom: 7px;
 }
 
@@ -93,7 +93,7 @@ header p {
 
 
 /* =========================================
-   TARJETAS
+   DATOS
 ========================================= */
 
 .datos {
@@ -102,6 +102,7 @@ header p {
         repeat(auto-fit, minmax(210px, 1fr));
     gap: 15px;
 }
+
 
 .tarjeta {
     background: #16384b;
@@ -112,14 +113,17 @@ header p {
     transition: transform 0.2s;
 }
 
+
 .tarjeta:hover {
     transform: translateY(-3px);
 }
+
 
 .icono {
     font-size: 30px;
     margin-bottom: 12px;
 }
+
 
 .nombre {
     color: #a9bdc9;
@@ -127,16 +131,19 @@ header p {
     margin-bottom: 8px;
 }
 
+
 .valor {
     font-size: 29px;
     font-weight: bold;
 }
+
 
 .unidad {
     font-size: 15px;
     color: #a9bdc9;
     font-weight: normal;
 }
+
 
 .descripcion {
     color: #7893a2;
@@ -214,10 +221,6 @@ footer {
 <body>
 
 
-<!-- =========================================
-     ENCABEZADO
-========================================= -->
-
 <header>
 
     <h1>
@@ -271,7 +274,7 @@ footer {
 
 
     <!-- =========================================
-         DATOS
+         DATOS METEOROLÓGICOS
     ========================================== -->
 
     <div class="datos">
@@ -291,7 +294,9 @@ footer {
 
             <div class="valor">
 
-                <span id="temperatura">--</span>
+                <span id="temperatura">
+                    --
+                </span>
 
                 <span class="unidad">
                     °C
@@ -300,7 +305,7 @@ footer {
             </div>
 
             <div class="descripcion">
-                Temperatura del aire
+                Temperatura actual del aire
             </div>
 
         </div>
@@ -317,11 +322,14 @@ footer {
 
             <div class="nombre">
                 Humedad
+
             </div>
 
             <div class="valor">
 
-                <span id="humedad">--</span>
+                <span id="humedad">
+                    --
+                </span>
 
                 <span class="unidad">
                     %
@@ -330,7 +338,7 @@ footer {
             </div>
 
             <div class="descripcion">
-                Humedad del aire
+                Humedad actual del aire
             </div>
 
         </div>
@@ -351,7 +359,9 @@ footer {
 
             <div class="valor">
 
-                <span id="presion">--</span>
+                <span id="presion">
+                    --
+                </span>
 
                 <span class="unidad">
                     hPa
@@ -375,37 +385,7 @@ footer {
 
 
 
-        <!-- VIENTO -->
-
-        <div class="tarjeta">
-
-            <div class="icono">
-                🌬️
-            </div>
-
-            <div class="nombre">
-                Velocidad del viento
-            </div>
-
-            <div class="valor">
-
-                <span id="viento">--</span>
-
-                <span class="unidad">
-                    km/h
-                </span>
-
-            </div>
-
-            <div class="descripcion">
-                Velocidad actual del viento
-            </div>
-
-        </div>
-
-
-
-        <!-- LLUVIA -->
+        <!-- PROBABILIDAD DE LLUVIA -->
 
         <div class="tarjeta">
 
@@ -419,7 +399,9 @@ footer {
 
             <div class="valor">
 
-                <span id="lluvia">--</span>
+                <span id="lluvia">
+                    --
+                </span>
 
                 <span class="unidad">
                     %
@@ -473,9 +455,6 @@ footer {
 
 /*
    Coordenadas de la zona de Zapiola.
-   Si después conseguimos las coordenadas exactas
-   de la escuela, solamente hay que cambiar estos
-   dos números.
 */
 
 const LATITUD = -35.21;
@@ -485,7 +464,7 @@ const LONGITUD = -59.07;
 
 
 /* ================================================
-   PRESIÓN DEL AIRE
+   PRESIÓN
 ================================================ */
 
 function mostrarPresion(presion) {
@@ -524,45 +503,108 @@ function mostrarPresion(presion) {
    AVISO METEOROLÓGICO
 ================================================ */
 
-function mostrarAviso(probabilidad) {
+function mostrarAviso(
+    probabilidad,
+    lluviaActual,
+    precipitacionProxima,
+    codigo
+) {
+
 
     let icono;
     let titulo;
     let texto;
 
 
-    if (probabilidad >= 80) {
+    /*
+    -----------------------------------------------
+    CÓDIGOS METEOROLÓGICOS
+    -----------------------------------------------
 
-        icono = "🔴";
+    51-67  = lluvia / llovizna
+    80-82  = chaparrones
+    95-99  = tormentas
+    */
 
-        titulo =
-            "Alta probabilidad de lluvia";
 
-        texto =
-            "Hay una alta posibilidad de precipitaciones.";
+    /*
+    LLUVIA ACTUAL
+    */
+
+    if (
+        lluviaActual > 0 ||
+        precipitacionProxima > 0.5 ||
+        (codigo >= 51 && codigo <= 99)
+    ) {
+
+
+        /*
+        Lluvia fuerte
+        */
+
+        if (
+            lluviaActual >= 4 ||
+            precipitacionProxima >= 4 ||
+            codigo >= 95
+        ) {
+
+            icono = "🔴";
+
+            titulo = "Lluvia intensa";
+
+            texto =
+                "Se registran condiciones de precipitación intensa.";
+
+        }
+
+
+        /*
+        Lluvia normal
+        */
+
+        else {
+
+            icono = "🔵";
+
+            titulo = "Lloviendo";
+
+            texto =
+                "Los datos meteorológicos indican precipitaciones en este momento.";
+
+        }
 
     }
 
 
-    else if (probabilidad >= 60) {
+    /*
+    SE APROXIMA LLUVIA
+    */
+
+    else if (
+        probabilidad >= 70
+    ) {
 
         icono = "🟠";
 
-        titulo =
-            "Se aproxima lluvia";
+        titulo = "Se aproxima lluvia";
 
         texto =
-            "Las condiciones indican una posibilidad importante de lluvia.";
+            "Existe una alta posibilidad de precipitaciones en las próximas horas.";
 
     }
 
 
-    else if (probabilidad >= 35) {
+    /*
+    POSIBILIDAD DE LLUVIA
+    */
+
+    else if (
+        probabilidad >= 35
+    ) {
 
         icono = "🟡";
 
-        titulo =
-            "Probabilidad de lluvia";
+        titulo = "Probabilidad de lluvia";
 
         texto =
             "Existe una posibilidad de precipitaciones.";
@@ -570,15 +612,18 @@ function mostrarAviso(probabilidad) {
     }
 
 
+    /*
+    CONDICIONES ESTABLES
+    */
+
     else {
 
         icono = "🟢";
 
-        titulo =
-            "Condiciones estables";
+        titulo = "Condiciones estables";
 
         texto =
-            "No hay una probabilidad elevada de lluvia.";
+            "No se observa una probabilidad elevada de precipitaciones.";
 
     }
 
@@ -607,6 +652,7 @@ function mostrarAviso(probabilidad) {
 
 async function cargarDatos() {
 
+
     try {
 
 
@@ -614,6 +660,8 @@ async function cargarDatos() {
         --------------------------------------------
         CONSULTA METEOROLÓGICA
         --------------------------------------------
+
+        No incluimos viento.
         */
 
         const url =
@@ -632,17 +680,27 @@ async function cargarDatos() {
 
         "pressure_msl," +
 
-        "wind_speed_10m" +
+        "precipitation," +
+
+        "rain," +
+
+        "weather_code" +
 
         "&hourly=" +
 
-        "precipitation_probability" +
+        "precipitation_probability," +
 
-        "&forecast_days=1" +
+        "precipitation," +
 
-        "&wind_speed_unit=kmh" +
+        "rain," +
+
+        "weather_code" +
+
+        "&forecast_hours=24" +
 
         "&temperature_unit=celsius" +
+
+        "&precipitation_unit=mm" +
 
         "&timezone=America%2FArgentina%2FBuenos_Aires";
 
@@ -722,38 +780,28 @@ async function cargarDatos() {
 
 
         /* ========================================
-           VIENTO REAL
+           HORA LOCAL
         ======================================== */
 
-        document.getElementById(
-            "viento"
-        ).textContent =
+        const ahora =
+            new Date();
 
-            Math.round(
-                datos.current.wind_speed_10m
-            );
-
-
-
-        /* ========================================
-           PROBABILIDAD DE LLUVIA
-        ======================================== */
-
-        /*
-           Open-Meteo devuelve las horas en la zona
-           horaria solicitada.
-        */
 
         const horaActual =
 
-            new Date().toLocaleString(
+            ahora.toLocaleString(
                 "sv-SE",
                 {
                     timeZone:
                     "America/Argentina/Buenos_Aires"
                 }
-            ).slice(0, 13);
+            ).slice(0,13);
 
+
+
+        /* ========================================
+           BUSCAR HORA
+        ======================================== */
 
         let indiceHora =
 
@@ -768,17 +816,17 @@ async function cargarDatos() {
             );
 
 
-        /*
-           Si no encuentra la hora exacta,
-           usamos la primera disponible.
-        */
-
         if (indiceHora < 0) {
 
             indiceHora = 0;
 
         }
 
+
+
+        /* ========================================
+           PROBABILIDAD
+        ======================================== */
 
         const probabilidad =
 
@@ -787,6 +835,74 @@ async function cargarDatos() {
                 indiceHora
             ] ?? 0;
 
+
+
+        /* ========================================
+           LLUVIA ACTUAL
+        ======================================== */
+
+        const lluviaActual =
+
+            Number(
+                datos.current.rain || 0
+            );
+
+
+
+        const precipitacionActual =
+
+            Number(
+                datos.current.precipitation || 0
+            );
+
+
+
+        /* ========================================
+           PRÓXIMA PRECIPITACIÓN
+        ======================================== */
+
+        let precipitacionProxima = 0;
+
+
+        /*
+        Miramos las próximas 3 horas.
+        */
+
+        for (
+            let i = indiceHora;
+            i < Math.min(
+                indiceHora + 3,
+                datos.hourly.precipitation.length
+            );
+            i++
+        ) {
+
+            precipitacionProxima +=
+
+                Number(
+                    datos.hourly
+                    .precipitation[i] || 0
+                );
+
+        }
+
+
+
+        /* ========================================
+           CÓDIGO METEOROLÓGICO
+        ======================================== */
+
+        const codigo =
+
+            Number(
+                datos.current.weather_code || 0
+            );
+
+
+
+        /* ========================================
+           MOSTRAR PROBABILIDAD
+        ======================================== */
 
         document.getElementById(
             "lluvia"
@@ -797,8 +913,21 @@ async function cargarDatos() {
             );
 
 
+
+        /* ========================================
+           AVISO
+        ======================================== */
+
         mostrarAviso(
-            probabilidad
+
+            probabilidad,
+
+            lluviaActual,
+
+            precipitacionProxima,
+
+            codigo
+
         );
 
 
@@ -811,7 +940,7 @@ async function cargarDatos() {
             "hora"
         ).textContent =
 
-            new Date().toLocaleTimeString(
+            ahora.toLocaleTimeString(
                 "es-AR",
                 {
                     timeZone:
@@ -882,7 +1011,3 @@ setInterval(
 </body>
 
 </html>
-
-Ahora sí: no hay ningún valor meteorológico fijo en el código. Temperatura, humedad, presión, viento y probabilidad de lluvia se solicitan a la API. La única parte que es una interpretación nuestra es el texto del aviso (“Condiciones estables”, “Probabilidad de lluvia”, etc.), que se genera según la probabilidad obtenida.
-
-Una precisión importante: “real” acá significa datos actuales del modelo meteorológico para esas coordenadas, no una medición física tomada dentro de la escuela. Open-Meteo indica que sus condiciones actuales se basan en datos/modelos meteorológicos y que el viento estándar se expresa a 10 m de altura.
