@@ -65,7 +65,6 @@
       padding: 25px 15px;
       text-align: center;
       min-height: 190px;
-
       box-shadow: 0 6px 20px rgba(0,0,0,0.20);
     }
 
@@ -153,17 +152,24 @@
       .estado {
         font-size: 25px;
       }
+
     }
 
   </style>
 
 </head>
 
+
 <body>
+
+
+  <!-- ENCABEZADO -->
 
   <header>
 
-    <h1>🌤️ Estación Meteorológica Escolar</h1>
+    <h1>
+      🌤️ Estación Meteorológica Escolar
+    </h1>
 
     <p>
       Escuela Secundaria de Zapiola – Anexo 3031
@@ -172,11 +178,18 @@
   </header>
 
 
+
   <main class="contenedor">
 
+
+    <!-- UBICACIÓN -->
+
     <div class="ubicacion">
+
       📍 Zapiola, Buenos Aires, Argentina
+
     </div>
+
 
 
     <section class="panel">
@@ -246,7 +259,7 @@
 
 
 
-      <!-- PRESION -->
+      <!-- PRESIÓN -->
 
       <div class="card">
 
@@ -273,7 +286,9 @@
         <div
           class="descripcion"
           id="estadoPresion">
+
           Esperando datos...
+
         </div>
 
       </div>
@@ -319,7 +334,9 @@
         <div
           class="icono"
           id="iconoTiempo">
+
           🌤️
+
         </div>
 
         <h2>
@@ -329,17 +346,23 @@
         <div
           class="estado"
           id="estadoTiempo">
+
           --
+
         </div>
 
         <div
           class="horaEstado"
           id="momentoTiempo">
+
           --
+
         </div>
 
         <div class="descripcion">
+
           Condición meteorológica actual
+
         </div>
 
       </div>
@@ -373,7 +396,9 @@
         <div
           class="descripcion"
           id="descripcionLluvia">
+
           Probabilidad en las próximas horas
+
         </div>
 
       </div>
@@ -382,15 +407,22 @@
     </section>
 
 
+
+    <!-- ACTUALIZACIÓN -->
+
     <div class="actualizacion">
 
       Última actualización:
+
       <span id="hora">
         --
       </span>
 
     </div>
 
+
+
+    <!-- CONEXIÓN -->
 
     <div
       class="conexion"
@@ -404,6 +436,7 @@
   </main>
 
 
+
   <footer>
 
     Estación Meteorológica Escolar · Datos meteorológicos en línea
@@ -412,34 +445,75 @@
 
 
 
+
 <script>
 
 
-/* =====================================================
-   UBICACIÓN
-   ===================================================== */
+/* =========================================================
+   UBICACIÓN EXACTA DE LA ESTACIÓN
+   ========================================================= */
 
-const LAT = -35.21;
-const LON = -59.07;
+const LAT = -35.0609;
+
+const LON = -59.0428;
 
 
 
-/* =====================================================
+/* =========================================================
    API METEOROLÓGICA
-   ===================================================== */
+   ========================================================= */
 
 const URL =
+
 `https://api.open-meteo.com/v1/forecast?` +
 
 `latitude=${LAT}` +
 
 `&longitude=${LON}` +
 
-`&current=temperature_2m,relative_humidity_2m,pressure_msl,wind_speed_10m,weather_code,is_day` +
+`&current=` +
 
-`&hourly=temperature_2m,relative_humidity_2m,pressure_msl,wind_speed_10m,precipitation_probability,precipitation,rain,showers,weather_code,is_day` +
+`temperature_2m,` +
 
-`&daily=precipitation_probability_max,sunrise,sunset` +
+`relative_humidity_2m,` +
+
+`pressure_msl,` +
+
+`wind_speed_10m,` +
+
+`weather_code,` +
+
+`is_day` +
+
+`&hourly=` +
+
+`temperature_2m,` +
+
+`relative_humidity_2m,` +
+
+`pressure_msl,` +
+
+`wind_speed_10m,` +
+
+`precipitation_probability,` +
+
+`precipitation,` +
+
+`rain,` +
+
+`showers,` +
+
+`weather_code,` +
+
+`is_day` +
+
+`&daily=` +
+
+`precipitation_probability_max,` +
+
+`sunrise,` +
+
+`sunset` +
 
 `&forecast_days=2` +
 
@@ -447,21 +521,26 @@ const URL =
 
 
 
-/* =====================================================
-   DESCRIPCIÓN DEL TIEMPO
-   ===================================================== */
+/* =========================================================
+   DESCRIPCIÓN DEL ESTADO DEL TIEMPO
+   ========================================================= */
 
 function describirTiempo(codigo, esDeDia) {
 
   const estados = {
 
-    0: esDeDia ? "Despejado" : "Despejado",
+    0:
+      esDeDia
+      ? "Despejado"
+      : "Noche despejada",
 
-    1: esDeDia
+    1:
+      esDeDia
       ? "Mayormente despejado"
       : "Noche despejada",
 
-    2: esDeDia
+    2:
+      esDeDia
       ? "Parcialmente nublado"
       : "Noche parcialmente nublada",
 
@@ -543,17 +622,19 @@ function describirTiempo(codigo, esDeDia) {
   };
 
 
-  return estados[codigo] || "Sin información";
+  return estados[codigo]
+    || "Sin información";
 
 }
 
 
 
-/* =====================================================
+/* =========================================================
    ICONO DEL TIEMPO
-   ===================================================== */
+   ========================================================= */
 
 function obtenerIcono(codigo, esDeDia) {
+
 
   if (codigo === 0) {
 
@@ -646,9 +727,9 @@ function obtenerIcono(codigo, esDeDia) {
 
 
 
-/* =====================================================
-   PRESIÓN
-   ===================================================== */
+/* =========================================================
+   INTERPRETACIÓN DE LA PRESIÓN
+   ========================================================= */
 
 function interpretarPresion(valor) {
 
@@ -658,25 +739,23 @@ function interpretarPresion(valor) {
 
   }
 
-  else if (valor <= 1020) {
+
+  if (valor <= 1020) {
 
     return "Presión dentro de un rango habitual";
 
   }
 
-  else {
 
-    return "Presión alta";
-
-  }
+  return "Presión alta";
 
 }
 
 
 
-/* =====================================================
+/* =========================================================
    MOMENTO DEL DÍA
-   ===================================================== */
+   ========================================================= */
 
 function momentoDelDia(esDeDia) {
 
@@ -711,24 +790,20 @@ function momentoDelDia(esDeDia) {
 
 
 
-/* =====================================================
-   BUSCAR LA HORA ACTUAL EN EL PRONÓSTICO
-   ===================================================== */
+/* =========================================================
+   ENCONTRAR LA HORA MÁS CERCANA
+   ========================================================= */
 
 function obtenerHoraActual(horas) {
 
-  const ahora = new Date();
-
-  const horaActual =
-    ahora.getHours();
-
-  const minutos =
-    ahora.getMinutes();
+  const ahora =
+    new Date();
 
 
   let mejorIndice = 0;
 
-  let menorDiferencia = Infinity;
+  let menorDiferencia =
+    Infinity;
 
 
   for (
@@ -745,13 +820,9 @@ function obtenerHoraActual(horas) {
 
     const diferencia =
       Math.abs(
-        fecha.getHours() -
-        horaActual
-      ) * 60
-      +
-      Math.abs(
-        fecha.getMinutes() -
-        minutos
+        fecha.getTime()
+        -
+        ahora.getTime()
       );
 
 
@@ -777,11 +848,11 @@ function obtenerHoraActual(horas) {
 
 
 
-/* =====================================================
-   CALCULAR LLUVIA PRÓXIMAS 24 HORAS
-   ===================================================== */
+/* =========================================================
+   PROBABILIDAD DE LLUVIA PRÓXIMAS 24 HORAS
+   ========================================================= */
 
-function calcularProbabilidadProximas24Horas(
+function calcularProbabilidad24Horas(
   horas,
   probabilidades
 ) {
@@ -810,7 +881,9 @@ function calcularProbabilidadProximas24Horas(
 
     const diferencia =
       Math.abs(
-        fecha - ahora
+        fecha.getTime()
+        -
+        ahora.getTime()
       );
 
 
@@ -843,16 +916,17 @@ function calcularProbabilidadProximas24Horas(
     i++
   ) {
 
-    const prob =
+    const valor =
       probabilidades[i];
 
 
     if (
-      typeof prob === "number" &&
-      prob > maximo
+      typeof valor === "number"
+      &&
+      valor > maximo
     ) {
 
-      maximo = prob;
+      maximo = valor;
 
     }
 
@@ -865,11 +939,12 @@ function calcularProbabilidadProximas24Horas(
 
 
 
-/* =====================================================
+/* =========================================================
    ACTUALIZAR DATOS
-   ===================================================== */
+   ========================================================= */
 
 async function actualizarDatos() {
+
 
   const conexion =
     document.getElementById(
@@ -879,6 +954,7 @@ async function actualizarDatos() {
 
   try {
 
+
     const respuesta =
       await fetch(URL);
 
@@ -886,7 +962,7 @@ async function actualizarDatos() {
     if (!respuesta.ok) {
 
       throw new Error(
-        "No se pudieron obtener los datos"
+        "Error al obtener datos"
       );
 
     }
@@ -905,7 +981,9 @@ async function actualizarDatos() {
 
 
 
-    /* TEMPERATURA */
+    /* ==============================================
+       TEMPERATURA
+       ============================================== */
 
     document.getElementById(
       "temperatura"
@@ -916,7 +994,9 @@ async function actualizarDatos() {
 
 
 
-    /* HUMEDAD */
+    /* ==============================================
+       HUMEDAD
+       ============================================== */
 
     document.getElementById(
       "humedad"
@@ -927,7 +1007,9 @@ async function actualizarDatos() {
 
 
 
-    /* PRESIÓN */
+    /* ==============================================
+       PRESIÓN
+       ============================================== */
 
     document.getElementById(
       "presion"
@@ -946,7 +1028,9 @@ async function actualizarDatos() {
 
 
 
-    /* VIENTO */
+    /* ==============================================
+       VIENTO
+       ============================================== */
 
     document.getElementById(
       "viento"
@@ -957,9 +1041,9 @@ async function actualizarDatos() {
 
 
 
-    /* =================================================
-       ESTADO METEOROLÓGICO ACTUAL
-       ================================================= */
+    /* ==============================================
+       ESTADO DEL TIEMPO
+       ============================================== */
 
     const indice =
       obtenerHoraActual(
@@ -968,12 +1052,16 @@ async function actualizarDatos() {
 
 
     const codigo =
-      horario.weather_code[indice];
+      horario.weather_code[
+        indice
+      ];
 
 
     const esDeDia =
       Boolean(
-        horario.is_day[indice]
+        horario.is_day[
+          indice
+        ]
       );
 
 
@@ -1004,12 +1092,12 @@ async function actualizarDatos() {
 
 
 
-    /* =================================================
+    /* ==============================================
        PROBABILIDAD DE LLUVIA
-       ================================================= */
+       ============================================== */
 
     const probabilidad =
-      calcularProbabilidadProximas24Horas(
+      calcularProbabilidad24Horas(
         horario.time,
         horario.precipitation_probability
       );
@@ -1030,9 +1118,9 @@ async function actualizarDatos() {
 
 
 
-    /* =================================================
+    /* ==============================================
        HORA DE ACTUALIZACIÓN
-       ================================================= */
+       ============================================== */
 
     const ahora =
       new Date();
@@ -1050,6 +1138,11 @@ async function actualizarDatos() {
       );
 
 
+
+    /* ==============================================
+       CONEXIÓN CORRECTA
+       ============================================== */
+
     conexion.textContent =
       "● Datos actualizados correctamente";
 
@@ -1057,10 +1150,12 @@ async function actualizarDatos() {
     conexion.style.color =
       "#80d6a3";
 
+
   }
 
 
   catch (error) {
+
 
     console.error(error);
 
@@ -1078,22 +1173,26 @@ async function actualizarDatos() {
 
 
 
-/* =====================================================
-   INICIAR
-   ===================================================== */
+/* =========================================================
+   PRIMERA ACTUALIZACIÓN
+   ========================================================= */
 
 actualizarDatos();
 
 
 
-/* Actualización cada 15 minutos */
+/* =========================================================
+   ACTUALIZAR CADA 15 MINUTOS
+   ========================================================= */
 
 setInterval(
   actualizarDatos,
   15 * 60 * 1000
 );
 
+
 </script>
+
 
 </body>
 
