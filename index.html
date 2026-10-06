@@ -2,16 +2,20 @@
 <html lang="es">
 
 <head>
+
   <meta charset="UTF-8">
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>Estación Meteorológica Escolar</title>
+
 
   <style>
 
     * {
       box-sizing: border-box;
     }
+
 
     body {
       margin: 0;
@@ -20,12 +24,20 @@
       color: white;
     }
 
+
     header {
       text-align: center;
       padding: 30px 15px 25px;
-      background: linear-gradient(135deg, #12345a, #0a1c31);
+
+      background: linear-gradient(
+        135deg,
+        #12345a,
+        #0a1c31
+      );
+
       border-bottom: 1px solid #284a6b;
     }
+
 
     header h1 {
       margin: 0;
@@ -33,17 +45,20 @@
       font-weight: bold;
     }
 
+
     header p {
       margin: 10px 0 0;
       color: #b8cde0;
       font-size: 16px;
     }
 
+
     .contenedor {
       max-width: 1100px;
       margin: auto;
       padding: 25px 15px;
     }
+
 
     .ubicacion {
       text-align: center;
@@ -52,88 +67,141 @@
       font-size: 16px;
     }
 
+
     .panel {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+
+      grid-template-columns:
+        repeat(
+          auto-fit,
+          minmax(220px, 1fr)
+        );
+
       gap: 18px;
     }
 
+
     .card {
       background: #112942;
+
       border: 1px solid #244766;
+
       border-radius: 22px;
+
       padding: 25px 15px;
+
       text-align: center;
+
       min-height: 190px;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.20);
+
+      box-shadow:
+        0 6px 20px
+        rgba(0,0,0,0.20);
     }
+
 
     .icono {
       font-size: 42px;
       margin-bottom: 10px;
     }
 
+
     .card h2 {
       margin: 5px 0 15px;
+
       font-size: 20px;
+
       color: #c9d9e9;
+
       font-weight: 600;
     }
 
+
     .valor {
       font-size: 37px;
+
       font-weight: bold;
+
       color: white;
     }
+
 
     .unidad {
       font-size: 17px;
+
       color: #b5c9dd;
+
       margin-left: 5px;
     }
 
+
     .descripcion {
       margin-top: 13px;
+
       font-size: 15px;
+
       color: #a9bfd5;
+
       line-height: 1.4;
     }
 
+
     .estado {
       font-size: 27px;
+
       font-weight: bold;
+
       color: white;
+
       margin-top: 5px;
     }
 
+
     .horaEstado {
       margin-top: 8px;
+
       color: #a9bfd5;
+
       font-size: 14px;
     }
+
 
     .actualizacion {
       text-align: center;
+
       color: #a9bfd5;
+
       font-size: 14px;
+
       margin-top: 28px;
     }
 
+
     .conexion {
       text-align: center;
+
       margin-top: 12px;
+
       font-size: 14px;
+
       color: #80d6a3;
     }
 
+
     footer {
       text-align: center;
+
       padding: 22px 10px;
+
       color: #829bb5;
+
       font-size: 13px;
+
       border-top: 1px solid #244565;
+
       margin-top: 25px;
     }
+
 
     @media (max-width: 500px) {
 
@@ -141,13 +209,16 @@
         font-size: 24px;
       }
 
+
       header p {
         font-size: 15px;
       }
 
+
       .valor {
         font-size: 34px;
       }
+
 
       .estado {
         font-size: 25px;
@@ -397,7 +468,8 @@
           class="descripcion"
           id="descripcionLluvia">
 
-          Probabilidad en las próximas horas
+          Máxima probabilidad
+          en las próximas 24 horas
 
         </div>
 
@@ -439,7 +511,8 @@
 
   <footer>
 
-    Estación Meteorológica Escolar · Datos meteorológicos en línea
+    Estación Meteorológica Escolar ·
+    Datos meteorológicos en línea
 
   </footer>
 
@@ -450,7 +523,7 @@
 
 
 /* =========================================================
-   UBICACIÓN EXACTA DE LA ESTACIÓN
+   UBICACIÓN DE LA ESTACIÓN
    ========================================================= */
 
 const LAT = -35.0609;
@@ -522,99 +595,131 @@ const URL =
 
 
 /* =========================================================
-   DESCRIPCIÓN DEL ESTADO DEL TIEMPO
+   ESTADO DEL TIEMPO
    ========================================================= */
 
-function describirTiempo(codigo, esDeDia) {
+function describirTiempo(
+  codigo,
+  esDeDia
+) {
+
 
   const estados = {
+
 
     0:
       esDeDia
       ? "Despejado"
       : "Noche despejada",
 
+
     1:
       esDeDia
       ? "Mayormente despejado"
       : "Noche despejada",
+
 
     2:
       esDeDia
       ? "Parcialmente nublado"
       : "Noche parcialmente nublada",
 
+
     3:
       "Nublado",
+
 
     45:
       "Niebla",
 
+
     48:
       "Niebla",
+
 
     51:
       "Llovizna ligera",
 
+
     53:
       "Llovizna",
+
 
     55:
       "Llovizna intensa",
 
+
     56:
       "Llovizna helada",
+
 
     57:
       "Llovizna helada intensa",
 
+
     61:
       "Lluvia ligera",
+
 
     63:
       "Lluvia moderada",
 
+
     65:
       "Lluvia intensa",
+
 
     66:
       "Lluvia helada",
 
+
     67:
       "Lluvia helada intensa",
+
 
     71:
       "Nieve ligera",
 
+
     73:
       "Nieve moderada",
+
 
     75:
       "Nieve intensa",
 
+
     77:
       "Granizo",
+
 
     80:
       "Chaparrones ligeros",
 
+
     81:
       "Chaparrones moderados",
+
 
     82:
       "Chaparrones intensos",
 
+
     85:
       "Nevadas ligeras",
+
 
     86:
       "Nevadas intensas",
 
+
     95:
       "Tormenta",
 
+
     96:
       "Tormenta con granizo",
+
 
     99:
       "Tormenta fuerte"
@@ -630,10 +735,13 @@ function describirTiempo(codigo, esDeDia) {
 
 
 /* =========================================================
-   ICONO DEL TIEMPO
+   ICONOS
    ========================================================= */
 
-function obtenerIcono(codigo, esDeDia) {
+function obtenerIcono(
+  codigo,
+  esDeDia
+) {
 
 
   if (codigo === 0) {
@@ -728,26 +836,27 @@ function obtenerIcono(codigo, esDeDia) {
 
 
 /* =========================================================
-   INTERPRETACIÓN DE LA PRESIÓN
+   PRESIÓN — EXPLICACIÓN SIMPLE
    ========================================================= */
 
 function interpretarPresion(valor) {
 
+
   if (valor < 1000) {
 
-    return "Presión baja";
+    return "🔵 Baja · Puede favorecer tiempo inestable";
 
   }
 
 
   if (valor <= 1020) {
 
-    return "Presión dentro de un rango habitual";
+    return "🟢 Normal · Condiciones relativamente estables";
 
   }
 
 
-  return "Presión alta";
+  return "🟠 Alta · Suele asociarse con tiempo más estable";
 
 }
 
@@ -757,7 +866,10 @@ function interpretarPresion(valor) {
    MOMENTO DEL DÍA
    ========================================================= */
 
-function momentoDelDia(esDeDia) {
+function momentoDelDia(
+  esDeDia
+) {
+
 
   const hora =
     new Date().getHours();
@@ -770,14 +882,20 @@ function momentoDelDia(esDeDia) {
   }
 
 
-  if (hora >= 6 && hora < 12) {
+  if (
+    hora >= 6 &&
+    hora < 12
+  ) {
 
     return "🌅 Mañana";
 
   }
 
 
-  if (hora >= 12 && hora < 19) {
+  if (
+    hora >= 12 &&
+    hora < 19
+  ) {
 
     return "☀️ Tarde";
 
@@ -791,10 +909,13 @@ function momentoDelDia(esDeDia) {
 
 
 /* =========================================================
-   ENCONTRAR LA HORA MÁS CERCANA
+   ENCONTRAR HORA ACTUAL
    ========================================================= */
 
-function obtenerHoraActual(horas) {
+function obtenerHoraActual(
+  horas
+) {
+
 
   const ahora =
     new Date();
@@ -812,6 +933,7 @@ function obtenerHoraActual(horas) {
     i++
   ) {
 
+
     const fecha =
       new Date(
         horas[i]
@@ -831,8 +953,10 @@ function obtenerHoraActual(horas) {
       menorDiferencia
     ) {
 
+
       menorDiferencia =
         diferencia;
+
 
       mejorIndice =
         i;
@@ -849,13 +973,14 @@ function obtenerHoraActual(horas) {
 
 
 /* =========================================================
-   PROBABILIDAD DE LLUVIA PRÓXIMAS 24 HORAS
+   LLUVIA — PRÓXIMAS 24 HORAS
    ========================================================= */
 
 function calcularProbabilidad24Horas(
   horas,
   probabilidades
 ) {
+
 
   const ahora =
     new Date();
@@ -873,6 +998,7 @@ function calcularProbabilidad24Horas(
     i++
   ) {
 
+
     const fecha =
       new Date(
         horas[i]
@@ -892,8 +1018,10 @@ function calcularProbabilidad24Horas(
       menorDiferencia
     ) {
 
+
       menorDiferencia =
         diferencia;
+
 
       indiceActual =
         i;
@@ -908,13 +1036,16 @@ function calcularProbabilidad24Horas(
 
   for (
     let i = indiceActual;
+
     i <
     Math.min(
       indiceActual + 24,
       probabilidades.length
     );
+
     i++
   ) {
+
 
     const valor =
       probabilidades[i];
@@ -962,7 +1093,7 @@ async function actualizarDatos() {
     if (!respuesta.ok) {
 
       throw new Error(
-        "Error al obtener datos"
+        "No se pudieron obtener los datos"
       );
 
     }
@@ -981,9 +1112,7 @@ async function actualizarDatos() {
 
 
 
-    /* ==============================================
-       TEMPERATURA
-       ============================================== */
+    /* TEMPERATURA */
 
     document.getElementById(
       "temperatura"
@@ -994,9 +1123,7 @@ async function actualizarDatos() {
 
 
 
-    /* ==============================================
-       HUMEDAD
-       ============================================== */
+    /* HUMEDAD */
 
     document.getElementById(
       "humedad"
@@ -1007,9 +1134,7 @@ async function actualizarDatos() {
 
 
 
-    /* ==============================================
-       PRESIÓN
-       ============================================== */
+    /* PRESIÓN */
 
     document.getElementById(
       "presion"
@@ -1028,9 +1153,7 @@ async function actualizarDatos() {
 
 
 
-    /* ==============================================
-       VIENTO
-       ============================================== */
+    /* VIENTO */
 
     document.getElementById(
       "viento"
@@ -1041,9 +1164,7 @@ async function actualizarDatos() {
 
 
 
-    /* ==============================================
-       ESTADO DEL TIEMPO
-       ============================================== */
+    /* ESTADO DEL TIEMPO */
 
     const indice =
       obtenerHoraActual(
@@ -1092,9 +1213,7 @@ async function actualizarDatos() {
 
 
 
-    /* ==============================================
-       PROBABILIDAD DE LLUVIA
-       ============================================== */
+    /* PROBABILIDAD DE LLUVIA */
 
     const probabilidad =
       calcularProbabilidad24Horas(
@@ -1118,9 +1237,7 @@ async function actualizarDatos() {
 
 
 
-    /* ==============================================
-       HORA DE ACTUALIZACIÓN
-       ============================================== */
+    /* HORA */
 
     const ahora =
       new Date();
@@ -1139,9 +1256,7 @@ async function actualizarDatos() {
 
 
 
-    /* ==============================================
-       CONEXIÓN CORRECTA
-       ============================================== */
+    /* CONEXIÓN */
 
     conexion.textContent =
       "● Datos actualizados correctamente";
@@ -1174,7 +1289,7 @@ async function actualizarDatos() {
 
 
 /* =========================================================
-   PRIMERA ACTUALIZACIÓN
+   INICIAR
    ========================================================= */
 
 actualizarDatos();
@@ -1182,7 +1297,7 @@ actualizarDatos();
 
 
 /* =========================================================
-   ACTUALIZAR CADA 15 MINUTOS
+   ACTUALIZACIÓN CADA 15 MINUTOS
    ========================================================= */
 
 setInterval(
