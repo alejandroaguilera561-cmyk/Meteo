@@ -177,7 +177,7 @@
     }
 
 
-    .conexion {
+    .estado-conexion {
       text-align: center;
 
       margin-top: 12px;
@@ -280,8 +280,8 @@
 
         <div class="valor">
 
-          <span id="temperatura">
-            --
+          <span>
+            21.2
           </span>
 
           <span class="unidad">
@@ -312,8 +312,8 @@
 
         <div class="valor">
 
-          <span id="humedad">
-            --
+          <span>
+            53
           </span>
 
           <span class="unidad">
@@ -344,8 +344,8 @@
 
         <div class="valor">
 
-          <span id="presion">
-            --
+          <span>
+            1016
           </span>
 
           <span class="unidad">
@@ -354,11 +354,10 @@
 
         </div>
 
-        <div
-          class="descripcion"
-          id="estadoPresion">
+        <div class="descripcion">
 
-          Esperando datos...
+          🟢 Normal ·
+          Condiciones relativamente estables
 
         </div>
 
@@ -380,8 +379,8 @@
 
         <div class="valor">
 
-          <span id="viento">
-            --
+          <span>
+            10
           </span>
 
           <span class="unidad">
@@ -402,38 +401,24 @@
 
       <div class="card">
 
-        <div
-          class="icono"
-          id="iconoTiempo">
-
-          🌤️
-
+        <div class="icono">
+          ☁️
         </div>
 
         <h2>
           Estado del tiempo
         </h2>
 
-        <div
-          class="estado"
-          id="estadoTiempo">
-
-          --
-
+        <div class="estado">
+          Nublado
         </div>
 
-        <div
-          class="horaEstado"
-          id="momentoTiempo">
-
-          --
-
+        <div class="horaEstado">
+          ☀️ Tarde
         </div>
 
         <div class="descripcion">
-
           Condición meteorológica actual
-
         </div>
 
       </div>
@@ -454,8 +439,8 @@
 
         <div class="valor">
 
-          <span id="lluvia">
-            --
+          <span>
+            92
           </span>
 
           <span class="unidad">
@@ -464,13 +449,9 @@
 
         </div>
 
-        <div
-          class="descripcion"
-          id="descripcionLluvia">
-
+        <div class="descripcion">
           Máxima probabilidad
           en las próximas 24 horas
-
         </div>
 
       </div>
@@ -480,27 +461,24 @@
 
 
 
-    <!-- ACTUALIZACIÓN -->
+    <!-- ÚLTIMA ACTUALIZACIÓN -->
 
     <div class="actualizacion">
 
       Última actualización:
-
-      <span id="hora">
-        --
+      <span>
+        12:51 p. m.
       </span>
 
     </div>
 
 
 
-    <!-- CONEXIÓN -->
+    <!-- ESTADO -->
 
-    <div
-      class="conexion"
-      id="conexion">
+    <div class="estado-conexion">
 
-      Conectando con los datos meteorológicos...
+      ● Datos congelados manualmente
 
     </div>
 
@@ -512,801 +490,9 @@
   <footer>
 
     Estación Meteorológica Escolar ·
-    Datos meteorológicos en línea
+    Datos meteorológicos registrados
 
   </footer>
-
-
-
-
-<script>
-
-
-/* =========================================================
-   UBICACIÓN DE LA ESTACIÓN
-   ========================================================= */
-
-const LAT = -35.0609;
-
-const LON = -59.0428;
-
-
-
-/* =========================================================
-   API METEOROLÓGICA
-   ========================================================= */
-
-const URL =
-
-`https://api.open-meteo.com/v1/forecast?` +
-
-`latitude=${LAT}` +
-
-`&longitude=${LON}` +
-
-`&current=` +
-
-`temperature_2m,` +
-
-`relative_humidity_2m,` +
-
-`pressure_msl,` +
-
-`wind_speed_10m,` +
-
-`weather_code,` +
-
-`is_day` +
-
-`&hourly=` +
-
-`temperature_2m,` +
-
-`relative_humidity_2m,` +
-
-`pressure_msl,` +
-
-`wind_speed_10m,` +
-
-`precipitation_probability,` +
-
-`precipitation,` +
-
-`rain,` +
-
-`showers,` +
-
-`weather_code,` +
-
-`is_day` +
-
-`&daily=` +
-
-`precipitation_probability_max,` +
-
-`sunrise,` +
-
-`sunset` +
-
-`&forecast_days=2` +
-
-`&timezone=America%2FArgentina%2FBuenos_Aires`;
-
-
-
-/* =========================================================
-   ESTADO DEL TIEMPO
-   ========================================================= */
-
-function describirTiempo(
-  codigo,
-  esDeDia
-) {
-
-
-  const estados = {
-
-
-    0:
-      esDeDia
-      ? "Despejado"
-      : "Noche despejada",
-
-
-    1:
-      esDeDia
-      ? "Mayormente despejado"
-      : "Noche despejada",
-
-
-    2:
-      esDeDia
-      ? "Parcialmente nublado"
-      : "Noche parcialmente nublada",
-
-
-    3:
-      "Nublado",
-
-
-    45:
-      "Niebla",
-
-
-    48:
-      "Niebla",
-
-
-    51:
-      "Llovizna ligera",
-
-
-    53:
-      "Llovizna",
-
-
-    55:
-      "Llovizna intensa",
-
-
-    56:
-      "Llovizna helada",
-
-
-    57:
-      "Llovizna helada intensa",
-
-
-    61:
-      "Lluvia ligera",
-
-
-    63:
-      "Lluvia moderada",
-
-
-    65:
-      "Lluvia intensa",
-
-
-    66:
-      "Lluvia helada",
-
-
-    67:
-      "Lluvia helada intensa",
-
-
-    71:
-      "Nieve ligera",
-
-
-    73:
-      "Nieve moderada",
-
-
-    75:
-      "Nieve intensa",
-
-
-    77:
-      "Granizo",
-
-
-    80:
-      "Chaparrones ligeros",
-
-
-    81:
-      "Chaparrones moderados",
-
-
-    82:
-      "Chaparrones intensos",
-
-
-    85:
-      "Nevadas ligeras",
-
-
-    86:
-      "Nevadas intensas",
-
-
-    95:
-      "Tormenta",
-
-
-    96:
-      "Tormenta con granizo",
-
-
-    99:
-      "Tormenta fuerte"
-
-  };
-
-
-  return estados[codigo]
-    || "Sin información";
-
-}
-
-
-
-/* =========================================================
-   ICONOS
-   ========================================================= */
-
-function obtenerIcono(
-  codigo,
-  esDeDia
-) {
-
-
-  if (codigo === 0) {
-
-    return esDeDia
-      ? "☀️"
-      : "🌙";
-
-  }
-
-
-  if (codigo === 1) {
-
-    return esDeDia
-      ? "🌤️"
-      : "🌙";
-
-  }
-
-
-  if (codigo === 2) {
-
-    return esDeDia
-      ? "⛅"
-      : "☁️🌙";
-
-  }
-
-
-  if (codigo === 3) {
-
-    return "☁️";
-
-  }
-
-
-  if (
-    codigo >= 51 &&
-    codigo <= 67
-  ) {
-
-    return "🌧️";
-
-  }
-
-
-  if (
-    codigo >= 80 &&
-    codigo <= 82
-  ) {
-
-    return "🌦️";
-
-  }
-
-
-  if (
-    codigo >= 95
-  ) {
-
-    return "⛈️";
-
-  }
-
-
-  if (
-    codigo >= 71 &&
-    codigo <= 86
-  ) {
-
-    return "❄️";
-
-  }
-
-
-  if (
-    codigo === 45 ||
-    codigo === 48
-  ) {
-
-    return "🌫️";
-
-  }
-
-
-  return esDeDia
-    ? "🌤️"
-    : "🌙";
-
-}
-
-
-
-/* =========================================================
-   PRESIÓN — EXPLICACIÓN SIMPLE
-   ========================================================= */
-
-function interpretarPresion(valor) {
-
-
-  if (valor < 1000) {
-
-    return "🔵 Baja · Puede favorecer tiempo inestable";
-
-  }
-
-
-  if (valor <= 1020) {
-
-    return "🟢 Normal · Condiciones relativamente estables";
-
-  }
-
-
-  return "🟠 Alta · Suele asociarse con tiempo más estable";
-
-}
-
-
-
-/* =========================================================
-   MOMENTO DEL DÍA
-   ========================================================= */
-
-function momentoDelDia(
-  esDeDia
-) {
-
-
-  const hora =
-    new Date().getHours();
-
-
-  if (!esDeDia) {
-
-    return "🌙 Noche";
-
-  }
-
-
-  if (
-    hora >= 6 &&
-    hora < 12
-  ) {
-
-    return "🌅 Mañana";
-
-  }
-
-
-  if (
-    hora >= 12 &&
-    hora < 19
-  ) {
-
-    return "☀️ Tarde";
-
-  }
-
-
-  return "🌆 Atardecer";
-
-}
-
-
-
-/* =========================================================
-   ENCONTRAR HORA ACTUAL
-   ========================================================= */
-
-function obtenerHoraActual(
-  horas
-) {
-
-
-  const ahora =
-    new Date();
-
-
-  let mejorIndice = 0;
-
-  let menorDiferencia =
-    Infinity;
-
-
-  for (
-    let i = 0;
-    i < horas.length;
-    i++
-  ) {
-
-
-    const fecha =
-      new Date(
-        horas[i]
-      );
-
-
-    const diferencia =
-      Math.abs(
-        fecha.getTime()
-        -
-        ahora.getTime()
-      );
-
-
-    if (
-      diferencia <
-      menorDiferencia
-    ) {
-
-
-      menorDiferencia =
-        diferencia;
-
-
-      mejorIndice =
-        i;
-
-    }
-
-  }
-
-
-  return mejorIndice;
-
-}
-
-
-
-/* =========================================================
-   LLUVIA — PRÓXIMAS 24 HORAS
-   ========================================================= */
-
-function calcularProbabilidad24Horas(
-  horas,
-  probabilidades
-) {
-
-
-  const ahora =
-    new Date();
-
-
-  let indiceActual = 0;
-
-  let menorDiferencia =
-    Infinity;
-
-
-  for (
-    let i = 0;
-    i < horas.length;
-    i++
-  ) {
-
-
-    const fecha =
-      new Date(
-        horas[i]
-      );
-
-
-    const diferencia =
-      Math.abs(
-        fecha.getTime()
-        -
-        ahora.getTime()
-      );
-
-
-    if (
-      diferencia <
-      menorDiferencia
-    ) {
-
-
-      menorDiferencia =
-        diferencia;
-
-
-      indiceActual =
-        i;
-
-    }
-
-  }
-
-
-  let maximo = 0;
-
-
-  for (
-    let i = indiceActual;
-
-    i <
-    Math.min(
-      indiceActual + 24,
-      probabilidades.length
-    );
-
-    i++
-  ) {
-
-
-    const valor =
-      probabilidades[i];
-
-
-    if (
-      typeof valor === "number"
-      &&
-      valor > maximo
-    ) {
-
-      maximo = valor;
-
-    }
-
-  }
-
-
-  return maximo;
-
-}
-
-
-
-/* =========================================================
-   ACTUALIZAR DATOS
-   ========================================================= */
-
-async function actualizarDatos() {
-
-
-  const conexion =
-    document.getElementById(
-      "conexion"
-    );
-
-
-  try {
-
-
-    const respuesta =
-      await fetch(URL);
-
-
-    if (!respuesta.ok) {
-
-      throw new Error(
-        "No se pudieron obtener los datos"
-      );
-
-    }
-
-
-    const datos =
-      await respuesta.json();
-
-
-    const actual =
-      datos.current;
-
-
-    const horario =
-      datos.hourly;
-
-
-
-    /* TEMPERATURA */
-
-    document.getElementById(
-      "temperatura"
-    ).textContent =
-      Number(
-        actual.temperature_2m
-      ).toFixed(1);
-
-
-
-    /* HUMEDAD */
-
-    document.getElementById(
-      "humedad"
-    ).textContent =
-      Math.round(
-        actual.relative_humidity_2m
-      );
-
-
-
-    /* PRESIÓN */
-
-    document.getElementById(
-      "presion"
-    ).textContent =
-      Math.round(
-        actual.pressure_msl
-      );
-
-
-    document.getElementById(
-      "estadoPresion"
-    ).textContent =
-      interpretarPresion(
-        actual.pressure_msl
-      );
-
-
-
-    /* VIENTO */
-
-    document.getElementById(
-      "viento"
-    ).textContent =
-      Math.round(
-        actual.wind_speed_10m
-      );
-
-
-
-    /* ESTADO DEL TIEMPO */
-
-    const indice =
-      obtenerHoraActual(
-        horario.time
-      );
-
-
-    const codigo =
-      horario.weather_code[
-        indice
-      ];
-
-
-    const esDeDia =
-      Boolean(
-        horario.is_day[
-          indice
-        ]
-      );
-
-
-    document.getElementById(
-      "iconoTiempo"
-    ).textContent =
-      obtenerIcono(
-        codigo,
-        esDeDia
-      );
-
-
-    document.getElementById(
-      "estadoTiempo"
-    ).textContent =
-      describirTiempo(
-        codigo,
-        esDeDia
-      );
-
-
-    document.getElementById(
-      "momentoTiempo"
-    ).textContent =
-      momentoDelDia(
-        esDeDia
-      );
-
-
-
-    /* PROBABILIDAD DE LLUVIA */
-
-    const probabilidad =
-      calcularProbabilidad24Horas(
-        horario.time,
-        horario.precipitation_probability
-      );
-
-
-    document.getElementById(
-      "lluvia"
-    ).textContent =
-      Math.round(
-        probabilidad
-      );
-
-
-    document.getElementById(
-      "descripcionLluvia"
-    ).textContent =
-      "Máxima probabilidad en las próximas 24 horas";
-
-
-
-    /* HORA */
-
-    const ahora =
-      new Date();
-
-
-    document.getElementById(
-      "hora"
-    ).textContent =
-      ahora.toLocaleTimeString(
-        "es-AR",
-        {
-          hour: "2-digit",
-          minute: "2-digit"
-        }
-      );
-
-
-
-    /* CONEXIÓN */
-
-    conexion.textContent =
-      "● Datos actualizados correctamente";
-
-
-    conexion.style.color =
-      "#80d6a3";
-
-
-  }
-
-
-  catch (error) {
-
-
-    console.error(error);
-
-
-    conexion.textContent =
-      "⚠️ No se pudieron actualizar los datos. Revisá la conexión a Internet.";
-
-
-    conexion.style.color =
-      "#ff9b9b";
-
-  }
-
-}
-
-
-
-/* =========================================================
-   INICIAR
-   ========================================================= */
-
-actualizarDatos();
-
-
-
-/* =========================================================
-   ACTUALIZACIÓN CADA 15 MINUTOS
-   ========================================================= */
-
-setInterval(
-  actualizarDatos,
-  15 * 60 * 1000
-);
-
-
-</script>
 
 
 </body>
