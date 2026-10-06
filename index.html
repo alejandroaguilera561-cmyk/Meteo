@@ -1,12 +1,14 @@
-
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>Estación Meteorológica Escolar</title>
 
   <style>
+
     * {
       box-sizing: border-box;
     }
@@ -15,26 +17,26 @@
       margin: 0;
       font-family: Arial, sans-serif;
       background: #071426;
-      color: #ffffff;
+      color: white;
     }
 
     header {
       text-align: center;
-      padding: 30px 15px 20px;
-      background: linear-gradient(135deg, #102e50, #071426);
-      border-bottom: 1px solid #244565;
+      padding: 30px 15px 25px;
+      background: linear-gradient(135deg, #12345a, #0a1c31);
+      border-bottom: 1px solid #284a6b;
     }
 
     header h1 {
       margin: 0;
       font-size: 28px;
-      color: #ffffff;
+      font-weight: bold;
     }
 
     header p {
       margin: 10px 0 0;
       color: #b8cde0;
-      font-size: 15px;
+      font-size: 16px;
     }
 
     .contenedor {
@@ -45,9 +47,9 @@
 
     .ubicacion {
       text-align: center;
-      margin-bottom: 25px;
+      margin-bottom: 28px;
       color: #b8cde0;
-      font-size: 15px;
+      font-size: 16px;
     }
 
     .panel {
@@ -57,94 +59,118 @@
     }
 
     .card {
-      background: #10243b;
-      border: 1px solid #244565;
-      border-radius: 16px;
-      padding: 22px 15px;
+      background: #112942;
+      border: 1px solid #244766;
+      border-radius: 22px;
+      padding: 25px 15px;
       text-align: center;
       min-height: 190px;
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+
+      box-shadow: 0 6px 20px rgba(0,0,0,0.20);
     }
 
     .icono {
-      font-size: 35px;
+      font-size: 42px;
       margin-bottom: 10px;
     }
 
     .card h2 {
       margin: 5px 0 15px;
-      font-size: 18px;
-      color: #c8d9eb;
-      font-weight: 500;
+      font-size: 20px;
+      color: #c9d9e9;
+      font-weight: 600;
     }
 
     .valor {
-      font-size: 35px;
+      font-size: 37px;
       font-weight: bold;
-      color: #ffffff;
+      color: white;
     }
 
     .unidad {
       font-size: 17px;
-      color: #a9c3dc;
-      margin-left: 4px;
+      color: #b5c9dd;
+      margin-left: 5px;
     }
 
     .descripcion {
-      margin-top: 12px;
-      font-size: 14px;
-      color: #a9c3dc;
+      margin-top: 13px;
+      font-size: 15px;
+      color: #a9bfd5;
       line-height: 1.4;
     }
 
     .estado {
-      font-size: 23px;
+      font-size: 27px;
       font-weight: bold;
-      color: #ffffff;
+      color: white;
+      margin-top: 5px;
+    }
+
+    .horaEstado {
       margin-top: 8px;
+      color: #a9bfd5;
+      font-size: 14px;
     }
 
     .actualizacion {
       text-align: center;
-      color: #a9c3dc;
-      font-size: 13px;
-      margin-top: 25px;
+      color: #a9bfd5;
+      font-size: 14px;
+      margin-top: 28px;
     }
 
-    .estado-conexion {
+    .conexion {
       text-align: center;
       margin-top: 12px;
-      font-size: 13px;
+      font-size: 14px;
       color: #80d6a3;
     }
 
     footer {
       text-align: center;
-      padding: 20px 10px;
+      padding: 22px 10px;
       color: #829bb5;
-      font-size: 12px;
+      font-size: 13px;
       border-top: 1px solid #244565;
-      margin-top: 20px;
+      margin-top: 25px;
     }
 
     @media (max-width: 500px) {
+
       header h1 {
-        font-size: 23px;
+        font-size: 24px;
+      }
+
+      header p {
+        font-size: 15px;
       }
 
       .valor {
-        font-size: 30px;
+        font-size: 34px;
+      }
+
+      .estado {
+        font-size: 25px;
       }
     }
+
   </style>
+
 </head>
 
 <body>
 
   <header>
+
     <h1>🌤️ Estación Meteorológica Escolar</h1>
-    <p>Escuela Secundaria de Zapiola – Anexo 3031</p>
+
+    <p>
+      Escuela Secundaria de Zapiola – Anexo 3031
+    </p>
+
   </header>
+
 
   <main class="contenedor">
 
@@ -152,198 +178,923 @@
       📍 Zapiola, Buenos Aires, Argentina
     </div>
 
+
     <section class="panel">
 
-      <!-- Temperatura -->
+
+      <!-- TEMPERATURA -->
+
       <div class="card">
-        <div class="icono">🌡️</div>
-        <h2>Temperatura</h2>
-        <div class="valor">
-          <span id="temperatura">--</span><span class="unidad">°C</span>
+
+        <div class="icono">
+          🌡️
         </div>
-        <div class="descripcion">Temperatura actual</div>
+
+        <h2>
+          Temperatura
+        </h2>
+
+        <div class="valor">
+
+          <span id="temperatura">
+            --
+          </span>
+
+          <span class="unidad">
+            °C
+          </span>
+
+        </div>
+
+        <div class="descripcion">
+          Temperatura actual
+        </div>
+
       </div>
 
-      <!-- Humedad -->
+
+
+      <!-- HUMEDAD -->
+
       <div class="card">
-        <div class="icono">💧</div>
-        <h2>Humedad</h2>
-        <div class="valor">
-          <span id="humedad">--</span><span class="unidad">%</span>
+
+        <div class="icono">
+          💧
         </div>
-        <div class="descripcion">Humedad relativa del aire</div>
+
+        <h2>
+          Humedad
+        </h2>
+
+        <div class="valor">
+
+          <span id="humedad">
+            --
+          </span>
+
+          <span class="unidad">
+            %
+          </span>
+
+        </div>
+
+        <div class="descripcion">
+          Humedad relativa del aire
+        </div>
+
       </div>
 
-      <!-- Presión -->
+
+
+      <!-- PRESION -->
+
       <div class="card">
-        <div class="icono">🌡️</div>
-        <h2>Presión atmosférica</h2>
-        <div class="valor">
-          <span id="presion">--</span>
-          <span class="unidad">hPa</span>
+
+        <div class="icono">
+          🌡️
         </div>
-        <div class="descripcion" id="estadoPresion">
+
+        <h2>
+          Presión atmosférica
+        </h2>
+
+        <div class="valor">
+
+          <span id="presion">
+            --
+          </span>
+
+          <span class="unidad">
+            hPa
+          </span>
+
+        </div>
+
+        <div
+          class="descripcion"
+          id="estadoPresion">
           Esperando datos...
         </div>
+
       </div>
 
-      <!-- Viento -->
+
+
+      <!-- VIENTO -->
+
       <div class="card">
-        <div class="icono">🌬️</div>
-        <h2>Viento</h2>
-        <div class="valor">
-          <span id="viento">--</span><span class="unidad">km/h</span>
+
+        <div class="icono">
+          🌬️
         </div>
-        <div class="descripcion">Velocidad del viento</div>
-      </div>
 
-      <!-- Estado del tiempo -->
-      <div class="card">
-        <div class="icono">🌤️</div>
-        <h2>Estado del tiempo</h2>
-        <div class="estado" id="estadoTiempo">--</div>
-        <div class="descripcion">Condición meteorológica actual</div>
-      </div>
+        <h2>
+          Viento
+        </h2>
 
-      <!-- Probabilidad de lluvia -->
-      <div class="card">
-        <div class="icono">🌧️</div>
-        <h2>Probabilidad de lluvia</h2>
         <div class="valor">
-          <span id="lluvia">--</span><span class="unidad">%</span>
+
+          <span id="viento">
+            --
+          </span>
+
+          <span class="unidad">
+            km/h
+          </span>
+
         </div>
-        <div class="descripcion">Probabilidad máxima para hoy</div>
+
+        <div class="descripcion">
+          Velocidad del viento
+        </div>
+
       </div>
+
+
+
+      <!-- ESTADO DEL TIEMPO -->
+
+      <div class="card">
+
+        <div
+          class="icono"
+          id="iconoTiempo">
+          🌤️
+        </div>
+
+        <h2>
+          Estado del tiempo
+        </h2>
+
+        <div
+          class="estado"
+          id="estadoTiempo">
+          --
+        </div>
+
+        <div
+          class="horaEstado"
+          id="momentoTiempo">
+          --
+        </div>
+
+        <div class="descripcion">
+          Condición meteorológica actual
+        </div>
+
+      </div>
+
+
+
+      <!-- PROBABILIDAD DE LLUVIA -->
+
+      <div class="card">
+
+        <div class="icono">
+          🌧️
+        </div>
+
+        <h2>
+          Probabilidad de lluvia
+        </h2>
+
+        <div class="valor">
+
+          <span id="lluvia">
+            --
+          </span>
+
+          <span class="unidad">
+            %
+          </span>
+
+        </div>
+
+        <div
+          class="descripcion"
+          id="descripcionLluvia">
+          Probabilidad en las próximas horas
+        </div>
+
+      </div>
+
 
     </section>
 
+
     <div class="actualizacion">
-      Última actualización: <span id="hora">--</span>
+
+      Última actualización:
+      <span id="hora">
+        --
+      </span>
+
     </div>
 
-    <div class="estado-conexion" id="conexion">
+
+    <div
+      class="conexion"
+      id="conexion">
+
       Conectando con los datos meteorológicos...
+
     </div>
+
 
   </main>
 
+
   <footer>
+
     Estación Meteorológica Escolar · Datos meteorológicos en línea
+
   </footer>
 
-  <script>
-    // Coordenadas aproximadas de Zapiola, Buenos Aires
-    const LAT = -35.21;
-    const LON = -59.07;
 
-    const URL =
-      `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}` +
-      `&current=temperature_2m,relative_humidity_2m,pressure_msl,wind_speed_10m,weather_code` +
-      `&daily=precipitation_probability_max` +
-      `&timezone=America%2FArgentina%2FBuenos_Aires`;
 
-    function describirTiempo(codigo) {
-      const estados = {
-        0: "Despejado",
-        1: "Mayormente despejado",
-        2: "Parcialmente nublado",
-        3: "Nublado",
-        45: "Niebla",
-        48: "Niebla",
-        51: "Llovizna ligera",
-        53: "Llovizna moderada",
-        55: "Llovizna intensa",
-        56: "Llovizna helada",
-        57: "Llovizna helada intensa",
-        61: "Lluvia ligera",
-        63: "Lluvia moderada",
-        65: "Lluvia intensa",
-        66: "Lluvia helada",
-        67: "Lluvia helada intensa",
-        71: "Nieve ligera",
-        73: "Nieve moderada",
-        75: "Nieve intensa",
-        77: "Granizo pequeño",
-        80: "Chaparrones ligeros",
-        81: "Chaparrones moderados",
-        82: "Chaparrones intensos",
-        85: "Nevadas ligeras",
-        86: "Nevadas intensas",
-        95: "Tormenta",
-        96: "Tormenta con granizo",
-        99: "Tormenta fuerte con granizo"
-      };
+<script>
 
-      return estados[codigo] || "Sin información";
+
+/* =====================================================
+   UBICACIÓN
+   ===================================================== */
+
+const LAT = -35.21;
+const LON = -59.07;
+
+
+
+/* =====================================================
+   API METEOROLÓGICA
+   ===================================================== */
+
+const URL =
+`https://api.open-meteo.com/v1/forecast?` +
+
+`latitude=${LAT}` +
+
+`&longitude=${LON}` +
+
+`&current=temperature_2m,relative_humidity_2m,pressure_msl,wind_speed_10m,weather_code,is_day` +
+
+`&hourly=temperature_2m,relative_humidity_2m,pressure_msl,wind_speed_10m,precipitation_probability,precipitation,rain,showers,weather_code,is_day` +
+
+`&daily=precipitation_probability_max,sunrise,sunset` +
+
+`&forecast_days=2` +
+
+`&timezone=America%2FArgentina%2FBuenos_Aires`;
+
+
+
+/* =====================================================
+   DESCRIPCIÓN DEL TIEMPO
+   ===================================================== */
+
+function describirTiempo(codigo, esDeDia) {
+
+  const estados = {
+
+    0: esDeDia ? "Despejado" : "Despejado",
+
+    1: esDeDia
+      ? "Mayormente despejado"
+      : "Noche despejada",
+
+    2: esDeDia
+      ? "Parcialmente nublado"
+      : "Noche parcialmente nublada",
+
+    3:
+      "Nublado",
+
+    45:
+      "Niebla",
+
+    48:
+      "Niebla",
+
+    51:
+      "Llovizna ligera",
+
+    53:
+      "Llovizna",
+
+    55:
+      "Llovizna intensa",
+
+    56:
+      "Llovizna helada",
+
+    57:
+      "Llovizna helada intensa",
+
+    61:
+      "Lluvia ligera",
+
+    63:
+      "Lluvia moderada",
+
+    65:
+      "Lluvia intensa",
+
+    66:
+      "Lluvia helada",
+
+    67:
+      "Lluvia helada intensa",
+
+    71:
+      "Nieve ligera",
+
+    73:
+      "Nieve moderada",
+
+    75:
+      "Nieve intensa",
+
+    77:
+      "Granizo",
+
+    80:
+      "Chaparrones ligeros",
+
+    81:
+      "Chaparrones moderados",
+
+    82:
+      "Chaparrones intensos",
+
+    85:
+      "Nevadas ligeras",
+
+    86:
+      "Nevadas intensas",
+
+    95:
+      "Tormenta",
+
+    96:
+      "Tormenta con granizo",
+
+    99:
+      "Tormenta fuerte"
+
+  };
+
+
+  return estados[codigo] || "Sin información";
+
+}
+
+
+
+/* =====================================================
+   ICONO DEL TIEMPO
+   ===================================================== */
+
+function obtenerIcono(codigo, esDeDia) {
+
+  if (codigo === 0) {
+
+    return esDeDia
+      ? "☀️"
+      : "🌙";
+
+  }
+
+
+  if (codigo === 1) {
+
+    return esDeDia
+      ? "🌤️"
+      : "🌙";
+
+  }
+
+
+  if (codigo === 2) {
+
+    return esDeDia
+      ? "⛅"
+      : "☁️🌙";
+
+  }
+
+
+  if (codigo === 3) {
+
+    return "☁️";
+
+  }
+
+
+  if (
+    codigo >= 51 &&
+    codigo <= 67
+  ) {
+
+    return "🌧️";
+
+  }
+
+
+  if (
+    codigo >= 80 &&
+    codigo <= 82
+  ) {
+
+    return "🌦️";
+
+  }
+
+
+  if (
+    codigo >= 95
+  ) {
+
+    return "⛈️";
+
+  }
+
+
+  if (
+    codigo >= 71 &&
+    codigo <= 86
+  ) {
+
+    return "❄️";
+
+  }
+
+
+  if (
+    codigo === 45 ||
+    codigo === 48
+  ) {
+
+    return "🌫️";
+
+  }
+
+
+  return esDeDia
+    ? "🌤️"
+    : "🌙";
+
+}
+
+
+
+/* =====================================================
+   PRESIÓN
+   ===================================================== */
+
+function interpretarPresion(valor) {
+
+  if (valor < 1000) {
+
+    return "Presión baja";
+
+  }
+
+  else if (valor <= 1020) {
+
+    return "Presión dentro de un rango habitual";
+
+  }
+
+  else {
+
+    return "Presión alta";
+
+  }
+
+}
+
+
+
+/* =====================================================
+   MOMENTO DEL DÍA
+   ===================================================== */
+
+function momentoDelDia(esDeDia) {
+
+  const hora =
+    new Date().getHours();
+
+
+  if (!esDeDia) {
+
+    return "🌙 Noche";
+
+  }
+
+
+  if (hora >= 6 && hora < 12) {
+
+    return "🌅 Mañana";
+
+  }
+
+
+  if (hora >= 12 && hora < 19) {
+
+    return "☀️ Tarde";
+
+  }
+
+
+  return "🌆 Atardecer";
+
+}
+
+
+
+/* =====================================================
+   BUSCAR LA HORA ACTUAL EN EL PRONÓSTICO
+   ===================================================== */
+
+function obtenerHoraActual(horas) {
+
+  const ahora = new Date();
+
+  const horaActual =
+    ahora.getHours();
+
+  const minutos =
+    ahora.getMinutes();
+
+
+  let mejorIndice = 0;
+
+  let menorDiferencia = Infinity;
+
+
+  for (
+    let i = 0;
+    i < horas.length;
+    i++
+  ) {
+
+    const fecha =
+      new Date(
+        horas[i]
+      );
+
+
+    const diferencia =
+      Math.abs(
+        fecha.getHours() -
+        horaActual
+      ) * 60
+      +
+      Math.abs(
+        fecha.getMinutes() -
+        minutos
+      );
+
+
+    if (
+      diferencia <
+      menorDiferencia
+    ) {
+
+      menorDiferencia =
+        diferencia;
+
+      mejorIndice =
+        i;
+
     }
 
-    function interpretarPresion(valor) {
-      if (valor < 1000) {
-        return "Presión baja";
-      } else if (valor <= 1020) {
-        return "Presión dentro de un rango habitual";
-      } else {
-        return "Presión alta";
-      }
+  }
+
+
+  return mejorIndice;
+
+}
+
+
+
+/* =====================================================
+   CALCULAR LLUVIA PRÓXIMAS 24 HORAS
+   ===================================================== */
+
+function calcularProbabilidadProximas24Horas(
+  horas,
+  probabilidades
+) {
+
+  const ahora =
+    new Date();
+
+
+  let indiceActual = 0;
+
+  let menorDiferencia =
+    Infinity;
+
+
+  for (
+    let i = 0;
+    i < horas.length;
+    i++
+  ) {
+
+    const fecha =
+      new Date(
+        horas[i]
+      );
+
+
+    const diferencia =
+      Math.abs(
+        fecha - ahora
+      );
+
+
+    if (
+      diferencia <
+      menorDiferencia
+    ) {
+
+      menorDiferencia =
+        diferencia;
+
+      indiceActual =
+        i;
+
     }
 
-    async function actualizarDatos() {
-      const conexion = document.getElementById("conexion");
+  }
 
-      try {
-        const respuesta = await fetch(URL);
 
-        if (!respuesta.ok) {
-          throw new Error("No se pudieron obtener los datos");
+  let maximo = 0;
+
+
+  for (
+    let i = indiceActual;
+    i <
+    Math.min(
+      indiceActual + 24,
+      probabilidades.length
+    );
+    i++
+  ) {
+
+    const prob =
+      probabilidades[i];
+
+
+    if (
+      typeof prob === "number" &&
+      prob > maximo
+    ) {
+
+      maximo = prob;
+
+    }
+
+  }
+
+
+  return maximo;
+
+}
+
+
+
+/* =====================================================
+   ACTUALIZAR DATOS
+   ===================================================== */
+
+async function actualizarDatos() {
+
+  const conexion =
+    document.getElementById(
+      "conexion"
+    );
+
+
+  try {
+
+    const respuesta =
+      await fetch(URL);
+
+
+    if (!respuesta.ok) {
+
+      throw new Error(
+        "No se pudieron obtener los datos"
+      );
+
+    }
+
+
+    const datos =
+      await respuesta.json();
+
+
+    const actual =
+      datos.current;
+
+
+    const horario =
+      datos.hourly;
+
+
+
+    /* TEMPERATURA */
+
+    document.getElementById(
+      "temperatura"
+    ).textContent =
+      Number(
+        actual.temperature_2m
+      ).toFixed(1);
+
+
+
+    /* HUMEDAD */
+
+    document.getElementById(
+      "humedad"
+    ).textContent =
+      Math.round(
+        actual.relative_humidity_2m
+      );
+
+
+
+    /* PRESIÓN */
+
+    document.getElementById(
+      "presion"
+    ).textContent =
+      Math.round(
+        actual.pressure_msl
+      );
+
+
+    document.getElementById(
+      "estadoPresion"
+    ).textContent =
+      interpretarPresion(
+        actual.pressure_msl
+      );
+
+
+
+    /* VIENTO */
+
+    document.getElementById(
+      "viento"
+    ).textContent =
+      Math.round(
+        actual.wind_speed_10m
+      );
+
+
+
+    /* =================================================
+       ESTADO METEOROLÓGICO ACTUAL
+       ================================================= */
+
+    const indice =
+      obtenerHoraActual(
+        horario.time
+      );
+
+
+    const codigo =
+      horario.weather_code[indice];
+
+
+    const esDeDia =
+      Boolean(
+        horario.is_day[indice]
+      );
+
+
+    document.getElementById(
+      "iconoTiempo"
+    ).textContent =
+      obtenerIcono(
+        codigo,
+        esDeDia
+      );
+
+
+    document.getElementById(
+      "estadoTiempo"
+    ).textContent =
+      describirTiempo(
+        codigo,
+        esDeDia
+      );
+
+
+    document.getElementById(
+      "momentoTiempo"
+    ).textContent =
+      momentoDelDia(
+        esDeDia
+      );
+
+
+
+    /* =================================================
+       PROBABILIDAD DE LLUVIA
+       ================================================= */
+
+    const probabilidad =
+      calcularProbabilidadProximas24Horas(
+        horario.time,
+        horario.precipitation_probability
+      );
+
+
+    document.getElementById(
+      "lluvia"
+    ).textContent =
+      Math.round(
+        probabilidad
+      );
+
+
+    document.getElementById(
+      "descripcionLluvia"
+    ).textContent =
+      "Máxima probabilidad en las próximas 24 horas";
+
+
+
+    /* =================================================
+       HORA DE ACTUALIZACIÓN
+       ================================================= */
+
+    const ahora =
+      new Date();
+
+
+    document.getElementById(
+      "hora"
+    ).textContent =
+      ahora.toLocaleTimeString(
+        "es-AR",
+        {
+          hour: "2-digit",
+          minute: "2-digit"
         }
+      );
 
-        const datos = await respuesta.json();
-        const actual = datos.current;
-        const diario = datos.daily;
 
-        document.getElementById("temperatura").textContent =
-          Math.round(actual.temperature_2m * 10) / 10;
+    conexion.textContent =
+      "● Datos actualizados correctamente";
 
-        document.getElementById("humedad").textContent =
-          actual.relative_humidity_2m;
 
-        document.getElementById("presion").textContent =
-          Math.round(actual.pressure_msl);
+    conexion.style.color =
+      "#80d6a3";
 
-        document.getElementById("estadoPresion").textContent =
-          interpretarPresion(actual.pressure_msl);
+  }
 
-        document.getElementById("viento").textContent =
-          Math.round(actual.wind_speed_10m);
 
-        document.getElementById("estadoTiempo").textContent =
-          describirTiempo(actual.weather_code);
+  catch (error) {
 
-        document.getElementById("lluvia").textContent =
-          diario.precipitation_probability_max[0] ?? "--";
+    console.error(error);
 
-        const fecha = new Date();
-        document.getElementById("hora").textContent =
-          fecha.toLocaleTimeString("es-AR", {
-            hour: "2-digit",
-            minute: "2-digit"
-          });
 
-        conexion.textContent = "● Datos actualizados correctamente";
-        conexion.style.color = "#80d6a3";
+    conexion.textContent =
+      "⚠️ No se pudieron actualizar los datos. Revisá la conexión a Internet.";
 
-      } catch (error) {
-        conexion.textContent =
-          "No se pudieron cargar los datos. Revisá la conexión a internet.";
-        conexion.style.color = "#ff9b9b";
-      }
-    }
 
-    actualizarDatos();
+    conexion.style.color =
+      "#ff9b9b";
 
-    // Actualizar cada 15 minutos
-    setInterval(actualizarDatos, 15 * 60 * 1000);
-  </script>
+  }
+
+}
+
+
+
+/* =====================================================
+   INICIAR
+   ===================================================== */
+
+actualizarDatos();
+
+
+
+/* Actualización cada 15 minutos */
+
+setInterval(
+  actualizarDatos,
+  15 * 60 * 1000
+);
+
+</script>
 
 </body>
+
 </html>
