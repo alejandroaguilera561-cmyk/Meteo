@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pronóstico Zapiola | Estación Meteorológica</title>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #071426;
+      color: white;
+    }
+
+    header {
+      padding: 28px 15px;
+      text-align: center;
+      background: linear-gradient(135deg, #12345a, #0a1c31);
+      border-bottom: 1px solid #284a6b;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 27px;
+    }
+
+    header p {
+      color: #b8cde0;
+      margin-bottom: 0;
+    }
+
+    main {
+      max-width: 1100px;
+      margin: auto;
+      padding: 25px 15px;
+    }
+
+    .ubicacion {
+      text-align: center;
+      color: #b8cde0;
+      margin-bottom: 25px;
+    }
+
+    .panel {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      background: #112942;
+      border: 1px solid #244766;
+      border-radius: 20px;
+      padding: 25px 15px;
+      text-align: center;
+      box-shadow: 0 6px 20px rgba(0,0,0,.2);
+    }
+
+    .icono {
+      font-size: 42px;
+      margin-bottom: 12px;
+    }
+
+    h2 {
+      font-size: 19px;
+      color: #c9d9e9;
+    }
+
+    .valor {
+      font-size: 35px;
+      font-weight: bold;
+    }
+
+    .unidad {
+      font-size: 16px;
+      color: #b5c9dd;
+    }
+
+    .descripcion {
+      color: #a9bfd5;
+      line-height: 1.5;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+
+    .valoracion {
+      margin-top: 22px;
+      padding: 22px;
+      border-radius: 18px;
+      background: #112942;
+      border: 1px solid #244766;
+      text-align: center;
+    }
+
+    .valoracion h2 {
+      margin-top: 0;
+    }
+
+    .estado {
+      font-size: 24px;
+      font-weight: bold;
+      margin: 12px 0;
+    }
+
+    .nota {
+      font-size: 12px;
+      color: #ffd58b;
+      text-align: center;
+      line-height: 1.6;
+      margin-top: 22px;
+    }
+
+    footer {
+      text-align: center;
+      color: #829bb5;
+      padding: 22px 12px;
+      border-top: 1px solid #244565;
+      font-size: 13px;
+    }
+
+    @media (max-width: 500px) {
+      header h1 { font-size: 23px; }
+      .valor { font-size: 32px; }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>🌤️ Estación Meteorológica Escolar</h1>
+    <p>Escuela Secundaria de Zapiola – Anexo 3031</p>
+  </header>
+
+  <main>
+    <div class="ubicacion">
+      📍 Zapiola, Buenos Aires, Argentina
+    </div>
+
+    <section class="panel">
+      <article class="card">
+        <div class="icono">🌡️</div>
+        <h2>Temperatura</h2>
+        <div class="valor">21.2 <span class="unidad">°C</span></div>
+        <div class="descripcion">Temperatura actual de ejemplo</div>
+      </article>
+
+      <article class="card">
+        <div class="icono">💧</div>
+        <h2>Humedad</h2>
+        <div class="valor">53 <span class="unidad">%</span></div>
+        <div class="descripcion">Humedad relativa de ejemplo</div>
+      </article>
+
+      <article class="card">
+        <div class="icono">🌡️</div>
+        <h2>Presión atmosférica</h2>
+        <div class="valor">1016 <span class="unidad">hPa</span></div>
+        <div class="descripcion">Presión normal, según este ejemplo</div>
+      </article>
+
+      <article class="card">
+        <div class="icono">🌬️</div>
+        <h2>Velocidad del viento</h2>
+        <div class="valor">10 <span class="unidad">km/h</span></div>
+        <div class="descripcion">Viento suave a moderado, según este ejemplo</div>
+      </article>
+
+      <article class="card">
+        <div class="icono">☁️</div>
+        <h2>Estado del tiempo</h2>
+        <div class="valor" style="font-size:26px">Parcialmente nublado</div>
+        <div class="descripcion">Condición ilustrativa</div>
+      </article>
+
+      <article class="card">
+        <div class="icono">🌧️</div>
+        <h2>Probabilidad de lluvia</h2>
+        <div class="valor">60 <span class="unidad">%</span></div>
+        <div class="descripcion">Probabilidad ilustrativa para las próximas horas</div>
+      </article>
+    </section>
+
+    <section class="valoracion">
+      <h2>📊 Valoración del pronóstico</h2>
+      <div class="estado">🌦️ Tiempo parcialmente estable</div>
+      <p>
+        Se presentan nubes y existe posibilidad de lluvia.
+        Conviene revisar las condiciones antes de realizar
+        actividades al aire libre.
+      </p>
+    </section>
+
+    <p class="nota">
+      ⚠️ DEMOSTRACIÓN ESCOLAR: todos los valores son ficticios.
+      No representan mediciones reales ni un pronóstico meteorológico vigente.
+    </p>
+  </main>
+
+  <footer>
+    Estación Meteorológica Escolar · Proyecto educativo
+  </footer>
+</body>
+</html>
