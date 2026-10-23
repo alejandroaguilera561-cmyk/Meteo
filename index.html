@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#102b46">
-  <meta name="description" content="Estación meteorológica de la Escuela Secundaria de Zapiola - Anexo 3031">
+  <meta name="description" content="Pronóstico Zapiola - Estación meteorológica escolar">
   <title>Pronóstico Zapiola</title>
 
   <style>
@@ -183,11 +183,12 @@
         <div id="condition">Cargando condiciones...</div>
         <div id="location">Zapiola, Buenos Aires</div>
       </div>
-      <p class="muted" id="updated">Esperando datos meteorológicos...</p>
+      <p class="muted" id="updated">Esperando actualización...</p>
     </section>
 
     <section class="panel">
       <h2>Datos meteorológicos actuales</h2>
+
       <div class="grid">
         <div class="tile">
           <div class="label">🌡️ Sensación térmica</div>
@@ -210,13 +211,13 @@
         <div class="tile">
           <div class="label">🌧️ Probabilidad de lluvia</div>
           <div class="value" id="rainChance">--%</div>
-          <div class="detail">Estimación meteorológica</div>
+          <div class="detail">Probabilidad estimada para la hora actual</div>
         </div>
 
         <div class="tile">
           <div class="label">🌧️ Precipitación</div>
           <div class="value" id="precipitation">-- mm</div>
-          <div class="detail">Registrada en la hora actual</div>
+          <div class="detail">Precipitación de la hora actual</div>
         </div>
 
         <div class="tile">
@@ -230,24 +231,22 @@
     <section class="panel">
       <h2>Estado del tiempo</h2>
       <div id="weatherStatus" class="status">
-        Consultando las condiciones meteorológicas...
+        Analizando las condiciones meteorológicas...
       </div>
     </section>
 
     <section class="panel">
-      <h2>Información de la estación</h2>
+      <h2>Estación meteorológica</h2>
       <p class="muted">
-        Esta página muestra información meteorológica de Zapiola, Buenos Aires,
-        obtenida a través de un servicio meteorológico en línea.
+        Sistema de monitoreo meteorológico de Zapiola.
+        Consultá las condiciones actuales del tiempo.
       </p>
-      <p class="muted">
-        Los valores mostrados en esta versión no provienen directamente de los
-        sensores conectados al Arduino.
-      </p>
+
       <button class="refresh" onclick="cargarClima()">
         Actualizar datos
       </button>
-      <p class="muted" id="connection">Conectando...</p>
+
+      <p class="muted" id="connection">Iniciando estación...</p>
     </section>
   </main>
 
@@ -315,20 +314,19 @@
       if ([95, 96, 99].includes(codigo)) {
         elemento.classList.add("danger");
         elemento.textContent =
-          "Tormenta eléctrica detectada en el reporte meteorológico. " +
-          "Se recomienda mantenerse atento a las condiciones locales.";
+          "Se indican condiciones de tormenta eléctrica. " +
+          "Mantenete atento a los cambios del tiempo.";
       } else if (lluvia > 0 || probabilidad >= 70) {
         elemento.classList.add("warning");
         elemento.textContent =
-          "Hay lluvia registrada o una probabilidad elevada de precipitación. " +
-          "Conviene revisar las condiciones antes de salir.";
+          "Hay precipitación registrada o una probabilidad elevada de lluvia.";
       } else if (probabilidad >= 40) {
         elemento.classList.add("warning");
         elemento.textContent =
-          "Existe posibilidad de lluvia. El tiempo puede cambiar durante el día.";
+          "Existe posibilidad de lluvia. Las condiciones pueden cambiar.";
       } else {
         elemento.textContent =
-          "Las condiciones actuales no indican una probabilidad elevada de lluvia.";
+          "No se indica una probabilidad elevada de lluvia en este momento.";
       }
     }
 
@@ -336,8 +334,8 @@
       const conexion = document.getElementById("connection");
       const actualizado = document.getElementById("updated");
 
-      conexion.textContent = "Actualizando datos...";
-      actualizado.textContent = "Consultando el servicio meteorológico...";
+      conexion.textContent = "Actualizando estación...";
+      actualizado.textContent = "Consultando condiciones actuales...";
 
       const url =
         "https://api.open-meteo.com/v1/forecast" +
@@ -353,7 +351,7 @@
         const respuesta = await fetch(url);
 
         if (!respuesta.ok) {
-          throw new Error("No se pudieron obtener los datos.");
+          throw new Error("No se pudieron actualizar los datos.");
         }
 
         const datos = await respuesta.json();
@@ -395,6 +393,7 @@
         );
 
         const fecha = new Date(actual.time);
+
         actualizado.textContent =
           "Última actualización: " +
           fecha.toLocaleString("es-AR", {
@@ -402,14 +401,13 @@
             timeStyle: "short"
           });
 
-        conexion.textContent =
-          "Conectado · Datos meteorológicos en línea";
+        conexion.textContent = "Estación meteorológica activa";
 
       } catch (error) {
         conexion.textContent =
-          "No se pudo conectar. Revisá tu conexión a internet.";
+          "No se pudieron actualizar los datos. Revisá la conexión.";
         actualizado.textContent =
-          "No se pudieron actualizar los datos meteorológicos.";
+          "No se pudo completar la actualización.";
       }
     }
 
