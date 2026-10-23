@@ -183,7 +183,10 @@
         <div id="condition">Cargando condiciones...</div>
         <div id="location">Zapiola, Buenos Aires</div>
       </div>
-      <p class="muted" id="updated">Esperando actualización...</p>
+
+      <p class="muted" id="updated">
+        Esperando actualización...
+      </p>
     </section>
 
     <section class="panel">
@@ -215,12 +218,6 @@
         </div>
 
         <div class="tile">
-          <div class="label">🌧️ Precipitación</div>
-          <div class="value" id="precipitation">-- mm</div>
-          <div class="detail">Precipitación de la hora actual</div>
-        </div>
-
-        <div class="tile">
           <div class="label">🧭 Presión atmosférica</div>
           <div class="value" id="pressure">-- hPa</div>
           <div class="detail">Presión del aire</div>
@@ -230,6 +227,7 @@
 
     <section class="panel">
       <h2>Estado del tiempo</h2>
+
       <div id="weatherStatus" class="status">
         Analizando las condiciones meteorológicas...
       </div>
@@ -237,6 +235,7 @@
 
     <section class="panel">
       <h2>Estación meteorológica</h2>
+
       <p class="muted">
         Sistema de monitoreo meteorológico de Zapiola.
         Consultá las condiciones actuales del tiempo.
@@ -246,7 +245,9 @@
         Actualizar datos
       </button>
 
-      <p class="muted" id="connection">Iniciando estación...</p>
+      <p class="muted" id="connection">
+        Iniciando estación...
+      </p>
     </section>
   </main>
 
@@ -307,7 +308,7 @@
       return { texto: "Condiciones variables", icono: "🌤️" };
     }
 
-    function mostrarEstado(codigo, probabilidad, lluvia) {
+    function mostrarEstado(codigo, probabilidad) {
       const elemento = document.getElementById("weatherStatus");
       elemento.className = "status";
 
@@ -316,10 +317,11 @@
         elemento.textContent =
           "Se indican condiciones de tormenta eléctrica. " +
           "Mantenete atento a los cambios del tiempo.";
-      } else if (lluvia > 0 || probabilidad >= 70) {
+      } else if (probabilidad >= 70) {
         elemento.classList.add("warning");
         elemento.textContent =
-          "Hay precipitación registrada o una probabilidad elevada de lluvia.";
+          "Hay una probabilidad elevada de lluvia. " +
+          "Conviene revisar las condiciones antes de salir.";
       } else if (probabilidad >= 40) {
         elemento.classList.add("warning");
         elemento.textContent =
@@ -342,7 +344,7 @@
         "?latitude=" + LATITUD +
         "&longitude=" + LONGITUD +
         "&current=temperature_2m,relative_humidity_2m,apparent_temperature," +
-        "precipitation,rain,weather_code,pressure_msl,wind_speed_10m" +
+        "weather_code,pressure_msl,wind_speed_10m" +
         "&hourly=precipitation_probability" +
         "&timezone=America%2FArgentina%2FBuenos_Aires" +
         "&forecast_days=1";
@@ -360,21 +362,26 @@
         const clima = descripcionClima(actual.weather_code);
 
         document.getElementById("weatherIcon").textContent = clima.icono;
+
         document.getElementById("temperature").textContent =
           Math.round(actual.temperature_2m) + "°C";
+
         document.getElementById("condition").textContent = clima.texto;
+
         document.getElementById("feelsLike").textContent =
           Math.round(actual.apparent_temperature) + "°C";
+
         document.getElementById("humidity").textContent =
           actual.relative_humidity_2m + "%";
+
         document.getElementById("wind").textContent =
           Math.round(actual.wind_speed_10m) + " km/h";
-        document.getElementById("precipitation").textContent =
-          Number(actual.precipitation).toFixed(1) + " mm";
+
         document.getElementById("pressure").textContent =
           Math.round(actual.pressure_msl) + " hPa";
 
         const horaActual = actual.time.slice(0, 13);
+
         const indiceHora = datos.hourly.time.findIndex(
           hora => hora.slice(0, 13) === horaActual
         );
@@ -388,8 +395,7 @@
 
         mostrarEstado(
           actual.weather_code,
-          probabilidad === null ? 0 : probabilidad,
-          Number(actual.rain || actual.precipitation || 0)
+          probabilidad === null ? 0 : probabilidad
         );
 
         const fecha = new Date(actual.time);
@@ -406,6 +412,7 @@
       } catch (error) {
         conexion.textContent =
           "No se pudieron actualizar los datos. Revisá la conexión.";
+
         actualizado.textContent =
           "No se pudo completar la actualización.";
       }
