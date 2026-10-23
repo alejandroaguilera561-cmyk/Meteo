@@ -1,201 +1,420 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#102b49">
-<link rel="manifest" href="/manifest.json">
-<title>Pronóstico Zapiola</title>
-<style>
-*{box-sizing:border-box}
-body{margin:0;background:#081421;color:#edf6ff;font-family:Arial, sans-serif}
-header,main,footer{width:min(100% - 26px,800px);margin:auto}
-header{padding:24px 0 12px}
-.brand{font-size:12px;color:#75d0ff;font-weight:bold;letter-spacing:2px}
-h1{font-size:30px;margin:9px 0}
-h2{font-size:18px}
-.muted{color:#b4c8da}
-.small{font-size:12px}
-.panel{background:#12263b;border:1px solid #29465f;border-radius:18px;padding:17px;margin:13px 0}
-.scene{min-height:245px;padding:18px;border-radius:15px;color:white;position:relative;overflow:hidden;background:linear-gradient(#57b9ed,#c9e8f6)}
-.scene.sunny{color:#102b49;background:linear-gradient(#55b9f2,#d7effa)}
-.scene.afternoon{background:linear-gradient(#ed995d,#f3d2a4,#687e9a)}
-.scene.night{background:linear-gradient(#07152f,#263e65)}
-.scene.cloudy{background:linear-gradient(#647b90,#aabac5)}
-.scene.rainy{background:linear-gradient(#263b53,#71899a)}
-.scene.storm{background:linear-gradient(#151b30,#42485e)}
-.row{display:flex;justify-content:space-between;gap:10px}
-.temp{font-size:64px;font-weight:bold;letter-spacing:-3px;margin-top:8px}
-.big-icon{font-size:53px}
-.illustration{height:85px;position:relative;margin-top:10px}
-.sky-icon{position:absolute;right:22%;font-size:45px}
-.ground{position:absolute;bottom:-45px;left:-5%;width:110%;height:75px;background:#39806c;border-radius:50% 50% 0 0}
-.night .ground,.rainy .ground,.storm .ground{background:#263e48}
-.afternoon .ground{background:#75815a}
-.scene-caption{position:relative;font-weight:bold}
-.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.tile{background:#0a1b2b;border:1px solid #203b54;border-radius:13px;padding:15px}
-.tile strong{display:block;font-size:24px;margin-top:8px}
-.alert{background:#12384b;border:1px solid #3b6c83;border-radius:12px;padding:14px}
-button{background:#19476a;color:white;border:1px solid #477b9d;border-radius:10px;padding:12px;font-weight:bold}
-footer{text-align:center;padding:10px 0 28px}
-@media(min-width:600px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#102b46">
+  <meta name="description" content="Estación meteorológica de la Escuela Secundaria de Zapiola - Anexo 3031">
+  <title>Pronóstico Zapiola</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #edf3f8;
+      color: #172b3a;
+    }
+
+    header {
+      background: linear-gradient(135deg, #102b46, #176b87);
+      color: white;
+      padding: 28px 16px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0 0 8px;
+      font-size: 30px;
+    }
+
+    header p {
+      margin: 5px 0;
+      font-size: 14px;
+    }
+
+    main {
+      width: min(100% - 24px, 850px);
+      margin: 20px auto;
+    }
+
+    .panel {
+      background: white;
+      padding: 20px;
+      border-radius: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 3px 12px #172b3a12;
+    }
+
+    .panel h2 {
+      margin-top: 0;
+      font-size: 20px;
+    }
+
+    .weather-main {
+      text-align: center;
+      padding: 12px 0 20px;
+    }
+
+    #weatherIcon {
+      font-size: 64px;
+      margin: 8px 0;
+    }
+
+    #temperature {
+      font-size: 54px;
+      font-weight: bold;
+      margin: 5px 0;
+    }
+
+    #condition {
+      font-size: 19px;
+      margin: 8px 0;
+    }
+
+    #location {
+      color: #607586;
+      font-size: 14px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .tile {
+      background: #f2f7fa;
+      border-radius: 12px;
+      padding: 16px 12px;
+      min-width: 0;
+    }
+
+    .tile .label {
+      color: #607586;
+      font-size: 13px;
+      margin-bottom: 9px;
+    }
+
+    .tile .value {
+      font-size: 23px;
+      font-weight: bold;
+      overflow-wrap: anywhere;
+    }
+
+    .tile .detail {
+      color: #607586;
+      font-size: 12px;
+      margin-top: 7px;
+    }
+
+    .status {
+      border-left: 5px solid #31976b;
+      background: #edf8f1;
+      border-radius: 8px;
+      padding: 14px;
+      line-height: 1.5;
+    }
+
+    .status.warning {
+      border-left-color: #d49a24;
+      background: #fff7e6;
+    }
+
+    .status.danger {
+      border-left-color: #d84b4b;
+      background: #fff0f0;
+    }
+
+    .muted {
+      color: #607586;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .refresh {
+      display: block;
+      width: 100%;
+      border: none;
+      border-radius: 10px;
+      background: #176b87;
+      color: white;
+      padding: 14px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .refresh:active {
+      opacity: 0.8;
+    }
+
+    footer {
+      text-align: center;
+      padding: 10px 20px 25px;
+      color: #607586;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    @media (min-width: 600px) {
+      .grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+  </style>
 </head>
+
 <body>
-<header>
- <div class="brand">ESTACIÓN METEOROLÓGICA</div>
- <h1>Pronóstico Zapiola</h1>
- <div class="muted">Zapiola · Buenos Aires · Argentina</div>
- <p class="small muted">Escuela Secundaria de Zapiola – Anexo 3031</p>
-</header>
+  <header>
+    <h1>🌦️ Pronóstico Zapiola</h1>
+    <p>Estación meteorológica escolar</p>
+    <p>Escuela Secundaria de Zapiola – Anexo 3031</p>
+  </header>
 
-<main>
- <section class="panel">
-  <div class="scene sunny" id="scene">
-   <div class="row">
-    <div>
-     <div id="moment">Consultando datos…</div>
-     <div class="temp" id="temp">--°</div>
-     <div id="condition">Cargando estado del tiempo…</div>
-     <p id="feels">Sensación térmica: --°</p>
-    </div>
-    <div class="big-icon" id="mainIcon">🌤️</div>
-   </div>
-   <div class="illustration">
-    <div class="sky-icon" id="skyIcon">☀️</div>
-    <div class="ground"></div>
-   </div>
-   <div class="scene-caption" id="caption">Estado actual del tiempo</div>
-  </div>
-  <p class="small muted">Datos meteorológicos online; no son lecturas directas del Arduino.</p>
-  <button id="refresh">Actualizar datos</button>
- </section>
+  <main>
+    <section class="panel">
+      <div class="weather-main">
+        <div id="weatherIcon">🌤️</div>
+        <div id="temperature">--°C</div>
+        <div id="condition">Cargando condiciones...</div>
+        <div id="location">Zapiola, Buenos Aires</div>
+      </div>
+      <p class="muted" id="updated">Esperando datos meteorológicos...</p>
+    </section>
 
- <section class="panel">
-  <h2>Condiciones actuales</h2>
-  <div class="grid">
-   <div class="tile">🌡️ Temperatura<strong id="tempData">--°</strong></div>
-   <div class="tile">💧 Humedad<strong id="humidity">--%</strong></div>
-   <div class="tile">💨 Viento<strong id="wind">-- km/h</strong></div>
-   <div class="tile">🌬️ Presión<strong id="pressure">-- hPa</strong></div>
-  </div>
- </section>
+    <section class="panel">
+      <h2>Datos meteorológicos actuales</h2>
+      <div class="grid">
+        <div class="tile">
+          <div class="label">🌡️ Sensación térmica</div>
+          <div class="value" id="feelsLike">--°C</div>
+          <div class="detail">Temperatura aparente</div>
+        </div>
 
- <section class="panel">
-  <h2>Estado de lluvia</h2>
-  <div class="alert" id="rainStatus">Consultando condiciones actuales…</div>
-  <p class="small muted">El estado se estima con datos meteorológicos online. Para detectar agua real en tu escuela, hay que conectar el sensor de lluvia Arduino.</p>
- </section>
+        <div class="tile">
+          <div class="label">💧 Humedad</div>
+          <div class="value" id="humidity">--%</div>
+          <div class="detail">Humedad relativa del aire</div>
+        </div>
 
- <section class="panel">
-  <h2>Estado del sistema</h2>
-  <p class="muted" id="status">Conectando…</p>
-  <p class="small muted">Última actualización: <span id="updated">--</span></p>
- </section>
-</main>
+        <div class="tile">
+          <div class="label">🌬️ Viento</div>
+          <div class="value" id="wind">-- km/h</div>
+          <div class="detail">Velocidad actual</div>
+        </div>
 
-<footer class="muted small">
- Pronóstico Zapiola · Proyecto escolar<br>
- Datos online: Open-Meteo
-</footer>
+        <div class="tile">
+          <div class="label">🌧️ Probabilidad de lluvia</div>
+          <div class="value" id="rainChance">--%</div>
+          <div class="detail">Estimación meteorológica</div>
+        </div>
 
-<script>
-"use strict";
-const LAT=-35.0609,LON=-59.0428;
-const $=id=>document.getElementById(id);
+        <div class="tile">
+          <div class="label">🌧️ Precipitación</div>
+          <div class="value" id="precipitation">-- mm</div>
+          <div class="detail">Registrada en la hora actual</div>
+        </div>
 
-function fmt(n){return Number.isFinite(n)?Math.round(n):"--"}
+        <div class="tile">
+          <div class="label">🧭 Presión atmosférica</div>
+          <div class="value" id="pressure">-- hPa</div>
+          <div class="detail">Presión del aire</div>
+        </div>
+      </div>
+    </section>
 
-function weather(code){
- if(code===0)return["Despejado","☀️","sunny"];
- if(code===1)return["Mayormente despejado","🌤️","sunny"];
- if(code===2)return["Parcialmente nublado","⛅","cloudy"];
- if(code===3)return["Nublado","☁️","cloudy"];
- if([45,48].includes(code))return["Niebla","🌫️","cloudy"];
- if([51,53,55,56,57].includes(code))return["Llovizna","🌦️","rainy"];
- if([61,63,65,66,67].includes(code))return["Lluvia","🌧️","rainy"];
- if([80,81,82].includes(code))return["Chaparrones","🌦️","rainy"];
- if([95,96,99].includes(code))return["Tormenta","⛈️","storm"];
- if([71,73,75,77,85,86].includes(code))return["Nieve","🌨️","rainy"];
- return["Condiciones variables","🌡️","cloudy"];
-}
+    <section class="panel">
+      <h2>Estado del tiempo</h2>
+      <div id="weatherStatus" class="status">
+        Consultando las condiciones meteorológicas...
+      </div>
+    </section>
 
-async function cargar(){
- $("status").textContent="Actualizando datos meteorológicos…";
- $("refresh").disabled=true;
+    <section class="panel">
+      <h2>Información de la estación</h2>
+      <p class="muted">
+        Esta página muestra información meteorológica de Zapiola, Buenos Aires,
+        obtenida a través de un servicio meteorológico en línea.
+      </p>
+      <p class="muted">
+        Los valores mostrados en esta versión no provienen directamente de los
+        sensores conectados al Arduino.
+      </p>
+      <button class="refresh" onclick="cargarClima()">
+        Actualizar datos
+      </button>
+      <p class="muted" id="connection">Conectando...</p>
+    </section>
+  </main>
 
- const params=new URLSearchParams({
-  latitude:String(LAT),
-  longitude:String(LON),
-  current:"temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,rain,weather_code,pressure_msl,wind_speed_10m",
-  timezone:"America/Argentina/Buenos_Aires",
-  wind_speed_unit:"kmh"
- });
+  <footer>
+    Proyecto escolar de tecnología y meteorología.<br>
+    Pronóstico Zapiola · Escuela Secundaria de Zapiola – Anexo 3031
+  </footer>
 
- try{
-  const response=await fetch("https://api.open-meteo.com/v1/forecast?"+params);
-  if(!response.ok)throw Error("Error HTTP "+response.status);
-  const data=await response.json();
-  const c=data.current;
-  if(!c)throw Error("No hay datos actuales");
+  <script>
+    const LATITUD = -35.0609;
+    const LONGITUD = -59.0428;
 
-  const [desc,emoji,type]=weather(c.weather_code);
-  const hour=Number(c.time.slice(11,13));
-  const isDay=Boolean(c.is_day);
-  let moment=hour<12&&hour>=6?"Día · Mañana":
-             hour>=12&&hour<19?"Tarde":"Noche";
+    function descripcionClima(codigo) {
+      if (codigo === 0) {
+        return { texto: "Despejado", icono: "☀️" };
+      }
 
-  $("moment").textContent=moment;
-  $("temp").textContent=fmt(c.temperature_2m)+"°";
-  $("tempData").textContent=fmt(c.temperature_2m)+"°";
-  $("feels").textContent="Sensación térmica: "+fmt(c.apparent_temperature)+"°";
-  $("humidity").textContent=fmt(c.relative_humidity_2m)+"%";
-  $("wind").textContent=fmt(c.wind_speed_10m)+" km/h";
-  $("pressure").textContent=fmt(c.pressure_msl)+" hPa";
-  $("condition").textContent=desc;
-  $("mainIcon").textContent=emoji;
-  $("skyIcon").textContent=type==="storm"?"⛈️":
-     type==="rainy"?"🌧️":
-     type==="cloudy"?"☁️":
-     isDay?(hour>=16?"🌇":"☀️"):"🌙";
+      if (codigo === 1) {
+        return { texto: "Mayormente despejado", icono: "🌤️" };
+      }
 
-  const scene=$("scene");
-  scene.className="scene";
-  if(type==="storm")scene.classList.add("storm");
-  else if(type==="rainy")scene.classList.add("rainy");
-  else if(type==="cloudy")scene.classList.add("cloudy");
-  else if(!isDay)scene.classList.add("night");
-  else if(hour>=16)scene.classList.add("afternoon");
-  else scene.classList.add("sunny");
+      if (codigo === 2) {
+        return { texto: "Parcialmente nublado", icono: "⛅" };
+      }
 
-  $("caption").textContent=type==="storm"?"Tormenta según el modelo":
-     type==="rainy"?desc+" según el modelo":
-     type==="cloudy"?"Cielo nublado":
-     !isDay?"Condiciones nocturnas":
-     hour>=16?"Condiciones de la tarde":"Condiciones del día";
+      if (codigo === 3) {
+        return { texto: "Nublado", icono: "☁️" };
+      }
 
-  const precip=Number(c.precipitation||0);
-  const rain=Number(c.rain||0);
-  const raining=precip>0||rain>0;
-  $("rainStatus").textContent=raining
-    ?"Los datos online indican precipitación actual."
-    :"Los datos online no indican precipitación actual.";
-  $("updated").textContent=new Date().toLocaleTimeString("es-AR");
-  $("status").textContent="Conectado al servicio meteorológico. Datos recibidos correctamente.";
+      if ([45, 48].includes(codigo)) {
+        return { texto: "Neblina", icono: "🌫️" };
+      }
 
- }catch(error){
-  console.error(error);
-  $("status").textContent="No se pudieron cargar los datos. Revisá internet e intentá nuevamente.";
- }finally{
-  $("refresh").disabled=false;
- }
-}
+      if ([51, 53, 55, 56, 57].includes(codigo)) {
+        return { texto: "Llovizna", icono: "🌦️" };
+      }
 
-$("refresh").addEventListener("click",cargar);
-cargar();
-setInterval(cargar,15*60*1000);
-</script>
+      if ([61, 63, 65, 66, 67].includes(codigo)) {
+        return { texto: "Lluvia", icono: "🌧️" };
+      }
+
+      if ([71, 73, 75, 77].includes(codigo)) {
+        return { texto: "Nieve", icono: "❄️" };
+      }
+
+      if ([80, 81, 82].includes(codigo)) {
+        return { texto: "Chaparrones", icono: "🌧️" };
+      }
+
+      if ([85, 86].includes(codigo)) {
+        return { texto: "Chaparrones de nieve", icono: "🌨️" };
+      }
+
+      if ([95, 96, 99].includes(codigo)) {
+        return { texto: "Tormenta eléctrica", icono: "⛈️" };
+      }
+
+      return { texto: "Condiciones variables", icono: "🌤️" };
+    }
+
+    function mostrarEstado(codigo, probabilidad, lluvia) {
+      const elemento = document.getElementById("weatherStatus");
+      elemento.className = "status";
+
+      if ([95, 96, 99].includes(codigo)) {
+        elemento.classList.add("danger");
+        elemento.textContent =
+          "Tormenta eléctrica detectada en el reporte meteorológico. " +
+          "Se recomienda mantenerse atento a las condiciones locales.";
+      } else if (lluvia > 0 || probabilidad >= 70) {
+        elemento.classList.add("warning");
+        elemento.textContent =
+          "Hay lluvia registrada o una probabilidad elevada de precipitación. " +
+          "Conviene revisar las condiciones antes de salir.";
+      } else if (probabilidad >= 40) {
+        elemento.classList.add("warning");
+        elemento.textContent =
+          "Existe posibilidad de lluvia. El tiempo puede cambiar durante el día.";
+      } else {
+        elemento.textContent =
+          "Las condiciones actuales no indican una probabilidad elevada de lluvia.";
+      }
+    }
+
+    async function cargarClima() {
+      const conexion = document.getElementById("connection");
+      const actualizado = document.getElementById("updated");
+
+      conexion.textContent = "Actualizando datos...";
+      actualizado.textContent = "Consultando el servicio meteorológico...";
+
+      const url =
+        "https://api.open-meteo.com/v1/forecast" +
+        "?latitude=" + LATITUD +
+        "&longitude=" + LONGITUD +
+        "&current=temperature_2m,relative_humidity_2m,apparent_temperature," +
+        "precipitation,rain,weather_code,pressure_msl,wind_speed_10m" +
+        "&hourly=precipitation_probability" +
+        "&timezone=America%2FArgentina%2FBuenos_Aires" +
+        "&forecast_days=1";
+
+      try {
+        const respuesta = await fetch(url);
+
+        if (!respuesta.ok) {
+          throw new Error("No se pudieron obtener los datos.");
+        }
+
+        const datos = await respuesta.json();
+        const actual = datos.current;
+
+        const clima = descripcionClima(actual.weather_code);
+
+        document.getElementById("weatherIcon").textContent = clima.icono;
+        document.getElementById("temperature").textContent =
+          Math.round(actual.temperature_2m) + "°C";
+        document.getElementById("condition").textContent = clima.texto;
+        document.getElementById("feelsLike").textContent =
+          Math.round(actual.apparent_temperature) + "°C";
+        document.getElementById("humidity").textContent =
+          actual.relative_humidity_2m + "%";
+        document.getElementById("wind").textContent =
+          Math.round(actual.wind_speed_10m) + " km/h";
+        document.getElementById("precipitation").textContent =
+          Number(actual.precipitation).toFixed(1) + " mm";
+        document.getElementById("pressure").textContent =
+          Math.round(actual.pressure_msl) + " hPa";
+
+        const horaActual = actual.time.slice(0, 13);
+        const indiceHora = datos.hourly.time.findIndex(
+          hora => hora.slice(0, 13) === horaActual
+        );
+
+        const probabilidad = indiceHora >= 0
+          ? datos.hourly.precipitation_probability[indiceHora]
+          : null;
+
+        document.getElementById("rainChance").textContent =
+          probabilidad === null ? "--%" : probabilidad + "%";
+
+        mostrarEstado(
+          actual.weather_code,
+          probabilidad === null ? 0 : probabilidad,
+          Number(actual.rain || actual.precipitation || 0)
+        );
+
+        const fecha = new Date(actual.time);
+        actualizado.textContent =
+          "Última actualización: " +
+          fecha.toLocaleString("es-AR", {
+            dateStyle: "short",
+            timeStyle: "short"
+          });
+
+        conexion.textContent =
+          "Conectado · Datos meteorológicos en línea";
+
+      } catch (error) {
+        conexion.textContent =
+          "No se pudo conectar. Revisá tu conexión a internet.";
+        actualizado.textContent =
+          "No se pudieron actualizar los datos meteorológicos.";
+      }
+    }
+
+    cargarClima();
+    setInterval(cargarClima, 10 * 60 * 1000);
+  </script>
 </body>
 </html>
